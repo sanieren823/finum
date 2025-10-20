@@ -1,7 +1,12 @@
 #[derive(Debug)]
 pub struct fi {
     pub sign: bool,
-    pub value: Vec<bool>,
+    pub value: Vec<bool>, // 0 is the lsb
+}
+
+pub struct bcd {
+    pub sign: bool,
+    pub value: Vec<Vec<bool>>
 }
 
 

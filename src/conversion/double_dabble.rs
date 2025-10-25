@@ -5,6 +5,19 @@ use crate::fi::bcd;
 struct u4([bool; 4]);
 
 
+// TODO: cleanup the code 
+// to_dect is basically the non reversed version of to_dec
+// the reverse double dabble is written for a little-endian input but work as a big-endian function
+
+
+
+
+
+
+
+
+
+
 
 // #[inline(always)]
 // fn ceil_usize(input: f64) -> usize {
@@ -19,6 +32,31 @@ struct u4([bool; 4]);
 fn to_dec(input: &[bool]) -> usize {
     let mut reversed: [bool; 4] = input.try_into().unwrap_or([false; 4]);
     reversed.reverse();
+    match reversed {
+        [false, false, false, false] => 0,
+        [false, false, false, true]  => 1,
+        [false, false, true, false]  => 2,
+        [false, false, true, true]   => 3,
+        [false, true, false, false]  => 4,
+        [false, true, false, true]   => 5,
+        [false, true, true, false]   => 6,
+        [false, true, true, true]    => 7,
+        [true, false, false, false] => 8,
+        [true, false, false, true]  => 9,
+        [true, false, true, false]  => 10,
+        [true, false, true, true]   => 11,
+        [true, true, false, false] => 12,
+        [true, true, false, true]  => 13,
+        [true, true, true, false]  => 14,
+        [true, true, true, true]   => 15,
+        _ => 0,
+    }
+}
+
+#[inline(always)]
+fn to_dect(input: &[bool]) -> usize {
+    let mut reversed: [bool; 4] = input.try_into().unwrap_or([false; 4]);
+    // reversed.reverse();
     match reversed {
         [false, false, false, false] => 0,
         [false, false, false, true]  => 1,
@@ -74,7 +112,7 @@ fn plus_three(input: &[bool]) -> [bool; 4] {
 fn minus_three(input: &[bool]) -> [bool; 4] {
     let mut s = [false; 4];
     let mut reversed: [bool; 4] = input.try_into().unwrap_or([false; 4]);
-    reversed.reverse();
+    // reversed.reverse();
     match reversed {
         [false, false, false, false] => s = [true, true, false, true], // 0 - 3 = 13 (mod 16)
         [false, false, false, true] => s = [true, true, true, false],  // 1 - 3 = 14 (mod 16)
@@ -94,9 +132,7 @@ fn minus_three(input: &[bool]) -> [bool; 4] {
         [true, true, true, true] => s = [true, true, false, false],     // 15 - 3 = 12
         _ => s = [true, true, false, true],
     }
-    s.reverse();
-    println!("{:?}", reversed);
-    println!("{:?}", s);
+    // s.reverse();
     s
 }
 
@@ -136,7 +172,10 @@ impl fi {
         for chunk in output[num_last..].chunks(4) {
             vec.push(chunk.to_vec());
         }
-
+        while vec[0] == [false, false, false, false] {
+            vec.remove(0);
+        }
+        
         bcd{sign: self.sign, value: vec}
     }
 }
@@ -150,38 +189,52 @@ impl bcd {
                 flat.push(self.value[i][j])
             }
         }
-        let length: usize = flat.len();
-        let mut output: Vec<bool> = vec![false; length + (length - 4) / 3 + 1]; // why +1: because index != length
-        flat.reverse();
-        for index in 0..length {
+        let mut output: Vec<bool> = vec![false; flat.len()]; // why +1: because index != length
+        // flat.reverse();
+        let mut res: Vec<bool> = Vec::new();
+        for index in 0..flat.len() {
             output[index] = flat[index];
         }
-        
+
+        // insert a section that removes all unneccesary falses and the push the difference to length / 4 again
+        while output[0] == false {
+            output.remove(0);
+        }
+        for _ in 0..(4 - output.len() % 4) {
+            output.insert(0, false);
+        }
+        let mut length: usize = output.len();
+
+
+
         for i in 0..=(length - 4) {
-            for j in (i / 3)..(length / 4) {
-                let current = length - 4 + i - j * 4;
-                if to_dec(&output[current..current + 4]) > 7 { // actually 4 going down from current (inverted because that's how slices work in rust)
-                    let temp = minus_three(&output[current..current + 4]);  
-                    output[current..current + 4].copy_from_slice(&temp);
+            for j in 1..=(length / 4) {
+                let current = length - j * 4;
+
+                if current + 4 <= output.len() {
+                    if to_dect(&output[current..current + 4]) > 7 {
+                        let temp = minus_three(&output[current..current + 4]);
+                        output[current..current + 4].copy_from_slice(&temp);
+                    }
                     
                 }
             }
+            let last = output.pop();
+            res.push(last.unwrap());
+            length = output.len();
         }
         
+        if !res.last().unwrap() {
 
-        if !output.last().unwrap() {
-
-            for el in output.clone().iter().rev() {
+            for el in res.clone().iter().rev() {
                 if *el {
                     break;
                 } else {
-                    output.pop();
+                    res.pop();
                 }
             }
         }
-        
-
-        fi{sign: self.sign, value: output}        
+        fi{sign: self.sign, value: res}        
     } 
 }
   

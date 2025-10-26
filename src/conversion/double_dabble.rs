@@ -179,6 +179,9 @@ impl bcd {
             output.insert(0, false);
         }
 
+        // first right-shift
+        let last = output.pop();
+        res.push(last.unwrap());
 
         // reverse double-dabble
         let mut length: usize = output.len();

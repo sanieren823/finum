@@ -4,6 +4,8 @@ use crate::conversion;
 use crate::fi::Parsing;
 
 
+// add from/into for String type
+
 impl fi {
     pub fn to_string(&self) -> String {
         // adds the "-" sing if the number is negative
@@ -37,7 +39,7 @@ impl fi {
         }
         // inserts the decimal point (and adds zeros if required)
         let len = string.chars().count();
-        if len > 21 {
+        if len > 20 {
             string.insert(len - 20, '.')
         } else {
             for num in 0..=20-len {
@@ -85,7 +87,7 @@ impl bcd {
         }
         // inserts the decimal point (and adds zeros if required)
         let len = string.chars().count();
-        if len > 21 {
+        if len > 20 {
             string.insert(len - 20, '.')
         } else {
             for num in 0..=20-len {
@@ -132,6 +134,7 @@ impl Parsing for String {
                 '8' => [true,  false, false, false],
                 '9' => [true,  false, false, true],
                 '.' => [true, true, true, true], 
+                '-' => [true, true, true, false],
                 _ => panic!("Invalid String! Make sure your string only contains numerical characters (0 - 9; '-'; '.')"),
 
             };
@@ -144,12 +147,14 @@ impl Parsing for String {
                 first = true; 
                 count = len;
                 
+            } else if next_bcd == [true, true, true, false] {
+                count += 1;
             } else {
                 bcd.value.push(next_bcd.to_vec());
                 count += 1;
             }
         }
-        let decimals = count - len;  
+        let decimals: usize = count - len;  
         // rounds if there are more than 20 decimals
         if decimals > 20 {
             for i in 0..decimals - 21 { // plus one since the last 4-bit will get special handeling

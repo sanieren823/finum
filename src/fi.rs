@@ -1,9 +1,12 @@
+
+// sign-magnitude
 #[derive(Debug)]
 pub struct fi {
     pub sign: bool, // true: neg; false: pos
     pub value: Vec<bool>, // 0 is the lsb
 }
 
+#[derive(Debug)]
 pub struct bcd {
     pub sign: bool,
     pub value: Vec<Vec<bool>>

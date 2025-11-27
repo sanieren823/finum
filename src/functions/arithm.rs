@@ -2,12 +2,12 @@ use crate::fi::fi;
 use crate::fi::bcd;
 use crate::functions;
 
+// add a mul_add (fused multiply and add)
 
 
 
-
-impl fi {
-    pub fn add(self, num: fi) -> fi {
+impl fi { // could we borrow here?? --> prob yes
+    pub fn add(self, num: Self) -> fi {
         let sign1 = self.sign;
         let sign2 = num.sign;
         let mut res: fi = fi::new();
@@ -24,29 +24,38 @@ impl fi {
     }
 
     // you are urged to use the add function; this function is slower and might be used incase the user doesn't care about the impact/doesn't read the documentation/is interested in a logical in having an easily readable code
-    pub fn sub(self, num: fi) -> fi {
+    pub fn sub(self, num: Self) -> fi {
         self.add(num.invert())
     }
+
+    // pub fn mul(self, num: fi) -> fi { // division is required for this function (devide by a factor of 10^20 at the end)
+
+    // }
+
+    // pub fn div(self, num: fi) -> fi {
+
+    // }
 }
 
-fn gen_add(num1: fi, num2: fi) -> fi { // incorrect
-    let len: usize;
+
+// inline??
+
+
+fn gen_add(num1: fi, num2: fi) -> fi { 
     let mut res: Vec<bool> = Vec::new();
     let mut carry: bool = false;
     let mut val1: Vec<bool> = num1.value;
     let mut val2: Vec<bool> = num2.value;
     if val1.len() > val2.len() {
-        len = val1.len();
-        for i in val2.len()..len {
+        for i in val2.len()..val1.len() {
             val2.push(false);
         }
-    } else {
-        len = val2.len();
-        for i in val1.len()..len {
+    } else if val2.len() > val1.len() {
+        for i in val1.len()..val2.len() {
             val1.push(false);
         }
     }
-    for i in 0..len { 
+    for i in 0..val1.len() { 
         if val1[i] == val2[i] {
             res.push(carry);
             if val1[i] {
@@ -66,45 +75,72 @@ fn gen_add(num1: fi, num2: fi) -> fi { // incorrect
 }
 
 fn gen_sub(num1: fi, num2: fi) -> fi {
-    // figure out what the larger one is -> normal subtraction + adjust the sign approriately
     let mut sign: bool;
-    let mut biggest;
-    let mut smallest;
-    if num1.value.len() > num2.value.len() {
-        smallest = num2.value;
-        biggest = num1.value;
+    let mut large;
+    let mut small;
+    if num1 >= num2 {
+        small = num2.value;
+        large = num1.value;
         sign = num1.sign;
     } else {
-        smallest = num1.value;
-        biggest = num2.value;
+        small = num1.value;
+        large = num2.value;
         sign = num2.sign;
     }
-    for i in smallest.len()..=biggest.len() {
-        smallest.push(false);
+    for i in small.len()..=large.len() {
+        small.push(false);
     }
     let mut value: Vec<bool> = Vec::new();
     let mut borrow: bool = false;
-    for i in 0..biggest.len() {
-        if biggest[i] == smallest[i] && !borrow {
-            value.push(false);
-        } else if borrow {
-            if biggest[i] == smallest[i] {
-                value.push(true); 
-            } else  {
-                if biggest[i] {
-                    borrow = false;
-                }
-                value.push(false);
-
-            }
+    for i in 0..large.len() {
+        if large[i] == small[i] {
+            value.push(borrow);
         } else {
-            if smallest[i] {
+            value.push(!borrow);
+            if small[i] {
                 borrow = true;
+            } else {
+                borrow = false;
             }
-            value.push(true); 
         }
     }
     fi{sign: sign, value: value}
 }
 
+fn gen_mul(num1: fi, num2: fi) -> fi {
+    let sign: bool;
+    let mut val1: Vec<bool> = num1.value;
+    let mut val2: Vec<bool> = num2.value;
+    let mut res: Vec<bool> = Vec::new();
+    if num1.sign == num2.sign {
+        sign = false;
+    } else {
+        sign = true;
+    }
+    for i in 0..val1.len() {
+        for j in 0..val2.len() {
+            let index = i + j;
+            if res.len() > index {
+                if val1[i] == val2[i] && val1[i] {
+                    res[index] ^= true;
+                }
+            } else {
+                if val1[i] == val2[i] && val1[i] {
+                    res.push(true);
+                } else {
+                    res.push(false);
+                }
+            }
+        }
+    }
+    fi{sign: sign, value: res}
+}
+
+// fn gen_div(num1: fi, num2: fi) -> fi {
+//     if num2.is_zero() {
+//         panic!("You can't divide by 0. Make sure your dividend is not equal to 0.")
+//     }
+//     let mut q = 0;
+//     let mut r = 0;
+// }
 

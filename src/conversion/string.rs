@@ -104,7 +104,7 @@ impl bcd {
 impl Parsing for String {
     // given that the parse_bcd function is inline there should not be any difference in runtime compared to new function (99% of the lines would be identical)
     #[inline(always)]
-    fn parse_fi(&self) -> fi {
+    fn parse_fi(&self) -> fi { // can't handle extremely small numbers (0.00000000000000000020 and 0.00000000000000000050)
         self.parse_bcd().bcd_bin()
     }
 

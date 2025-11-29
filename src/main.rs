@@ -6,9 +6,9 @@ mod functions;
 fn main() {
     let fixed = fi::fi{sign: false, value: vec![false, true, false, true, true, true, false, false, true]};
     // let string = "109019".to_string();
-    let n1 = "11".to_string();
-    let n2 = "7".to_string();
-    let calc = n1.parse_fi().mul(n2.parse_fi());
+    let n1 = "43".to_string();
+    let n2 = "5".to_string();
+    let calc = n1.parse_fi().div(n2.parse_fi());
     // println!("{:?}", fixed.bin_bcd().value);
     // println!("{:?}", fixed.bin_bcd().bcd_bin());
     // println!("{}", fixed.to_string());

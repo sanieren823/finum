@@ -83,14 +83,13 @@ impl fi { // could we borrow here?? --> prob yes
 
     pub fn mul(self, num: Self) -> Self { // division is required for this function (devide by a factor of 10^20 at the end)
         let res = gen_mul(self, num);
-        println!("ex: {:?}", gen_mul(fi{sign: false, value: vec![false, true, true]}, fi{sign: true, value: vec![true, true, true, true]}));
-        println!("{}", res.to_string());
         gen_div(res, fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]})
     }
 
-    // pub fn div(self, num: fi) -> fi {
-
-    // }
+    pub fn div(self, num: fi) -> fi {
+        let dividend = gen_mul(self, fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]});
+        gen_div(dividend, num)
+    }
 
     // pub fn rem(self, num: Self) -> Self {
 
@@ -106,7 +105,6 @@ fn gen_add(num1: fi, num2: fi) -> fi {
     let mut carry: bool = false;
     let mut val1: Vec<bool> = num1.value;
     let mut val2: Vec<bool> = num2.value;
-    println!("{} {}", val1.len(), val2.len());
     if val1.len() > val2.len() {
         for i in val2.len()..val1.len() {
             val2.push(false);
@@ -179,56 +177,44 @@ fn gen_mul(num1: fi, num2: fi) -> fi {
     } else {
         sign = true;
     }
-    println!("{:?} {:?}", val1, val2);
     for i in 0..val1.len() {
         for j in 0..val2.len() {
             let index = i + j;
             if index < res.len() {
                 if val1[i] == val2[j] && val1[i] {
                     res[index] ^= !carries[index];
-
                     if !res[index] || carries[index] {
                         if index + 1 < res.len() {
                             carries[index + 1] = true;
                         } else {
                             res.push(true);
                         }
-                        
                     }
-                    
-                    print!(" normal, i: {}, j: {}, carry: {} ", val1[i], val2[j], carries[index]);
-                    carries[index] = false;
-                    
                 } else {
                     res[index] ^= carries[index];
-                    carries[index] = false;
+                    if !res[index] && carries[index] {
+                        carries[index + 1] = true;
+                    }
                 }
             } else {
                 if val1[i] == val2[j] && val1[i] {
-                    print!(" else, i: {}, j: {}, carry: {} ", val1[i], val2[j], carries[index]);
                     res.push(!carries[index]);
                     if !res[index] && carries[index] {
                         // carries[index + 1] = true;
                         res.push(true);
-                        
                     }
                 } else {
                     res.push(carries[index]);
                 }
-                carries[index] = false;
-                
             }
-            println!("res: {:?}, i: {}, j: {}, index: {}", res, val1[i], val2[j], index);
             // println!("carries: {:?}", carries);
-            
+            carries[index] = false;
         }
-        
     }
     // println!("carries: {:?}", carries);
     if carries.last() == Some(&true) {
         res.push(true);
     }
-    println!("{:?}", res);
     fi{sign: sign, value: res}
 }
 

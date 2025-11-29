@@ -185,7 +185,7 @@ impl bcd {
 
         // reverse double-dabble
         let mut length: usize = output.len();
-        for i in 0..=(length - 4) {
+        for i in 0..=(length - 4) { // subtraction with overflow issue
             for j in 1..=(length / 4) {
                 let current = length - j * 4;
 

@@ -65,6 +65,7 @@ impl fi {
         fi{sign: true, value: self.value.clone()}
     }
 
+    // dublicate of Neg
     pub fn invert(&self) -> Self {
         fi{sign: !self.sign.clone(), value: self.value.clone()}
     }

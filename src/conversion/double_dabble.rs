@@ -29,7 +29,7 @@ fn to_dec_le(input: &[bool]) -> usize {
 // matches a 4-bit in BE integer to its approriate value
 #[inline(always)]
 fn to_dec_be(input: &[bool]) -> usize {
-    let mut bits: [bool; 4] = input.try_into().unwrap_or([false; 4]);
+    let bits: [bool; 4] = input.try_into().unwrap_or([false; 4]);
     match bits {
         [false, false, false, false] => 0,
         [false, false, false, true] => 1,
@@ -108,6 +108,14 @@ impl fi {
     // double-dabble is implemented for LE (as thefi is stored in LE)
     pub fn bin_bcd(&self) -> bcd {
         let length: usize = self.value.len();
+        if length < 4 {
+            let mut incomplete = self.value.clone(); // le or be
+            for _i in 0..(4 - length) {
+                incomplete.push(false);
+            }
+            incomplete.reverse();
+            return bcd{sign: self.sign, value: vec![incomplete]};
+        }
         // defines output larger as the bcd encoding takes up more bits than a common binary encoding
         let mut output: Vec<bool> = vec![false; length + (length - 4) / 3 + 1]; // why +1: because index != length
         for index in 0..length {
@@ -120,7 +128,7 @@ impl fi {
                 let current = length - i + j * 4;
                 if to_dec_le(&output[current - 3..=current]) > 4 { // actually 4 going down from current (inverted because that's how slices work in rust)
                     let temp = plus_three(&output[current - 3..=current]);
-                    let prev = output[current - 3..=current].to_vec();
+                    let prev = output[current - 3..=current].to_vec(); // what's the purpose of prev
                     output[current - 3..=current].copy_from_slice(&temp);
                 }
                 
@@ -143,9 +151,16 @@ impl fi {
             vec.push(chunk.to_vec());
         }
         // remove any unnecassary zeros to minimize future compute sizes
-        while vec[0] == [false, false, false, false] {
-            vec.remove(0);
+        
+        if vec.len() > 0 {
+            while vec[0] == [false, false, false, false] {
+                vec.remove(0);
+                if vec.len() == 0 {
+                    break;
+                }
+            }
         }
+        
         
         bcd{sign: self.sign, value: vec}
     }

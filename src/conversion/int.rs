@@ -53,7 +53,20 @@ impl Into<fi> for u128 {
 
 
 impl From<i8> for fi {
-
+    fn from(val: i8) -> fi {
+        let fixed_int = fi::new();
+        if val < 0 {
+            fixed_int.sign = true;
+        }
+        let mut num = val.abs();
+        while num != 1 || num != 2 {
+            fixed_int.value.push(num % 2);
+            num /= 2;
+        }
+        const decimals = fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]}
+        fixed_int.value *= decimals;
+        fixed_int
+    }
 }
 impl From<i16> for fi {
     

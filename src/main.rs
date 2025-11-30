@@ -8,7 +8,7 @@ fn main() {
     // let string = "109019".to_string();
     let n1 = "43".to_string();
     let n2 = "5".to_string();
-    let calc = n1.parse_fi().div(n2.parse_fi());
+    let calc = n1.parse_fi() % n2.parse_fi();
     // println!("{:?}", fixed.bin_bcd().value);
     // println!("{:?}", fixed.bin_bcd().bcd_bin());
     // println!("{}", fixed.to_string());
@@ -19,8 +19,11 @@ fn main() {
     // println!("{:?}", string.parse_bcd().to_string());
     println!("{:?}", n1.parse_bcd().to_string());
     println!("{:?}", n2.parse_bcd().to_string());
-    println!("{:?}", calc.bin_bcd());
     println!("{:?}", calc.to_string());
     println!("{}", n1.parse_fi() < n2.parse_fi());
     // println!("{:?}", fi::fi1024{leading: 12, vec: vec![13, 31, 17], trailing: 123}.full_vec());
 }
+
+
+#[cfg(test)]
+mod test;

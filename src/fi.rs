@@ -52,3 +52,9 @@ impl bcd {
         bcd{sign: false, value: Vec::new()}
     }
 }
+
+// impl Default for fi {
+//     fn default() -> fi {
+//         fi{sign: false, value: Vec::new()}
+//     }
+// }

@@ -1,4 +1,4 @@
-use crate::fi::fi;
+use crate::fi::Fi;
 use crate::fi::bcd;
 
 
@@ -79,7 +79,7 @@ fn plus_three(input: &[bool]) -> [bool; 4] {
 #[inline(always)]
 fn minus_three(input: &[bool]) -> [bool; 4] {
     let mut s = [false; 4];
-    let mut bits: [bool; 4] = input.try_into().unwrap_or([false; 4]);
+    let bits: [bool; 4] = input.try_into().unwrap_or([false; 4]);
     match bits {
         [false, false, false, false] => s = [true, true, false, true],
         [false, false, false, true] => s = [true, true, true, false], 
@@ -104,7 +104,7 @@ fn minus_three(input: &[bool]) -> [bool; 4] {
 
 
 
-impl fi {
+impl Fi {
     // double-dabble is implemented for LE (as thefi is stored in LE)
     pub fn bin_bcd(&self) -> bcd {
         let length: usize = self.value.len();
@@ -128,7 +128,6 @@ impl fi {
                 let current = length - i + j * 4;
                 if to_dec_le(&output[current - 3..=current]) > 4 { // actually 4 going down from current (inverted because that's how slices work in rust)
                     let temp = plus_three(&output[current - 3..=current]);
-                    let prev = output[current - 3..=current].to_vec(); // what's the purpose of prev
                     output[current - 3..=current].copy_from_slice(&temp);
                 }
                 
@@ -169,7 +168,7 @@ impl fi {
 
 impl bcd {
     // reverse double-dabble is implemented for BE (as the bcd is stored in BE)
-    pub fn bcd_bin(&self) -> fi {
+    pub fn bcd_bin(&self) -> Fi {
         // flatten the two-dimensional vector
         let mut flat: Vec<bool> = Vec::new();
         for i in 0..self.value.len() {
@@ -228,7 +227,7 @@ impl bcd {
                 }
             }
         }
-        fi{sign: self.sign, value: res}        
+        Fi{sign: self.sign, value: res}        
     } 
 }
   

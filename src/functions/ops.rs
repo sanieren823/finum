@@ -1,2 +1,2 @@
-use crate::fi::fi;
+use crate::fi::Fi;
 use crate::functions;

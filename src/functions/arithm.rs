@@ -1,10 +1,10 @@
-use crate::fi::fi;
+use crate::fi::Fi;
 use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Rem, RemAssign, Neg, Not};
 
 // add a mul_add (fused multiply and add)
 
 
-impl Add for fi {
+impl Add for Fi {
     type Output = Self;
 
     fn add(self, num: Self) -> Self {
@@ -23,13 +23,13 @@ impl Add for fi {
 
 }
 
-impl AddAssign for fi {
+impl AddAssign for Fi {
     fn add_assign(&mut self, other: Self) {
         *self = self.clone() + other;
     }
 }
 
-impl Sub for fi {
+impl Sub for Fi {
     type Output = Self;
 
     fn sub(self, num: Self) -> Self {
@@ -37,43 +37,43 @@ impl Sub for fi {
     }
 }
 
-impl SubAssign for fi {
+impl SubAssign for Fi {
     fn sub_assign(&mut self, other: Self) {
-        *self = self.clone() - other; // fix
+        *self = self.clone() - other; // Fix
     }
 }
 
-impl Mul for fi {
+impl Mul for Fi {
     type Output = Self;
 
     fn mul(self, num: Self) -> Self {
         let res = gen_mul(self, num);
-        gen_div(res, fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]})
+        gen_div(res, Fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]})
     }
 }
 
-impl MulAssign for fi {
+impl MulAssign for Fi {
     fn mul_assign(&mut self, other: Self) {
         *self = self.clone() * other;
     }
 }
 
-impl Div for fi {
+impl Div for Fi {
     type Output = Self;
 
     fn div(self, num: Self) -> Self {
-        let dividend = gen_mul(self, fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]});
+        let dividend = gen_mul(self, Fi{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]});
         gen_div(dividend, num)
     }
 }
 
-impl DivAssign for fi {
+impl DivAssign for Fi {
     fn div_assign(&mut self, other: Self) {
         *self = self.clone() / other;
     }
 }
 
-impl Rem for fi {
+impl Rem for Fi {
     type Output = Self;
 
     fn rem(self, num: Self) -> Self {
@@ -81,31 +81,31 @@ impl Rem for fi {
     }
 }
 
-impl RemAssign for fi {
+impl RemAssign for Fi {
     fn rem_assign(&mut self, other: Self) {
         *self = self.clone() % other;
     }
 }
 
-impl Neg for fi {
+impl Neg for Fi {
     type Output = Self; 
 
     fn neg(self) -> Self::Output {
-        fi{sign: !self.sign, value: self.value}
+        Fi{sign: !self.sign, value: self.value}
     }
 }
 // TODO: look for a better implementation
-impl Not for fi {
+impl Not for Fi {
     type Output = Self; 
 
     fn not(self) -> Self::Output {
-        fi{sign: !self.sign, value: self.value}
+        Fi{sign: !self.sign, value: self.value}
     }
 }
 
 // inline??
 
-fn gen_add(num1: fi, num2: fi) -> fi { 
+fn gen_add(num1: Fi, num2: Fi) -> Fi { 
     let mut res: Vec<bool> = Vec::new();
     let mut carry: bool = false;
     let mut val1: Vec<bool> = num1.value;
@@ -134,11 +134,11 @@ fn gen_add(num1: fi, num2: fi) -> fi {
     if carry {
         res.push(true);
     }
-    fi{sign: false, value: res}
+    Fi{sign: false, value: res}
 
 }
 
-fn gen_sub(num1: fi, num2: fi) -> fi {
+fn gen_sub(num1: Fi, num2: Fi) -> Fi {
     let sign: bool;
     let large;
     let mut small;
@@ -168,10 +168,10 @@ fn gen_sub(num1: fi, num2: fi) -> fi {
             }
         }
     }
-    fi{sign: sign, value: value}
+    Fi{sign: sign, value: value}
 }
 
-fn gen_mul(num1: fi, num2: fi) -> fi {
+fn gen_mul(num1: Fi, num2: Fi) -> Fi {
     let sign: bool;
     let val1: Vec<bool> = num1.value;
     let val2: Vec<bool> = num2.value;
@@ -220,10 +220,10 @@ fn gen_mul(num1: fi, num2: fi) -> fi {
     if carries.last() == Some(&true) {
         res.push(true);
     }
-    fi{sign: sign, value: res}
+    Fi{sign: sign, value: res}
 }
 
-fn gen_div(num1: fi, num2: fi) -> fi {
+fn gen_div(num1: Fi, num2: Fi) -> Fi {
     let sign;
     if num1.sign == num2.sign {
         sign = false;
@@ -235,7 +235,7 @@ fn gen_div(num1: fi, num2: fi) -> fi {
         panic!("You can't divide by 0. Make sure your dividend is not equal to 0.")
     }
     let mut q: Vec<bool> = vec![false; num1.len() + num2.len()];
-    let mut r: fi = fi{sign: false, value: vec![false]};
+    let mut r: Fi = Fi{sign: false, value: vec![false]};
     for i in (0..num1.len()).rev() {
         r.value.insert(0, num1.value[i]);
         // println!("r: {:?}", r);
@@ -246,15 +246,42 @@ fn gen_div(num1: fi, num2: fi) -> fi {
         }
         
     }   
-    let mut res = fi{sign: sign, value: q};
-    let double = gen_mul(r, fi{sign: false, value: vec![false, true]});
-    if double >= res.abs() {
-        res += fi{sign: sign, value: vec![true]};
+    let mut res = Fi{sign: sign, value: q};
+    let double = gen_mul(r, Fi{sign: false, value: vec![false, true]});
+    if double >= num2.abs() {
+        res += Fi{sign: sign, value: vec![true]};
     }
     res
 }
 
-fn gen_rem(num1: fi, num2: fi) -> fi {
+// fn gen_floor(num1: Fi, num2: Fi) -> Fi {
+//     let sign;
+//     if num1.sign == num2.sign {
+//         sign = false;
+//     } else {
+//         sign = true;
+//     }
+//     // let d = num2.abs();
+//     if num2.is_zero() {
+//         panic!("You can't divide by 0. Make sure your dividend is not equal to 0.")
+//     }
+//     let mut q: Vec<bool> = vec![false; num1.len() + num2.len()];
+//     let mut r: Fi = Fi{sign: false, value: vec![false]};
+//     for i in (0..num1.len()).rev() {
+//         r.value.insert(0, num1.value[i]);
+//         // println!("r: {:?}", r);
+        
+//         if r >= num2.abs() {
+//             r -= num2.abs();
+//             q[i] = true;
+//         }
+        
+//     }   
+//     let mut res = Fi{sign: sign, value: q};
+//     res
+// }
+
+fn gen_rem(num1: Fi, num2: Fi) -> Fi {
     let sign;
     sign = num1.sign;
     // let d = num2.abs();
@@ -262,7 +289,7 @@ fn gen_rem(num1: fi, num2: fi) -> fi {
         panic!("You can't divide by 0. Make sure your dividend is not equal to 0.")
     }
     let mut q: Vec<bool> = vec![false; num1.len() + num2.len()];
-    let mut r: fi = fi{sign: false, value: vec![false]};
+    let mut r: Fi = Fi{sign: false, value: vec![false]};
     for i in (0..num1.len()).rev() {
         r.value.insert(0, num1.value[i]);
         // println!("r: {:?}", r.to_string());

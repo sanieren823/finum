@@ -1,7 +1,7 @@
 
 // sign-magnitude
 #[derive(Debug)]
-pub struct fi {
+pub struct Fi {
     pub sign: bool, // true: neg; false: pos
     pub value: Vec<bool>, // 0 is the lsb
 }
@@ -14,7 +14,7 @@ pub struct bcd {
 
 pub trait Parsing {
     
-    fn parse_fi(&self) -> fi;
+    fn parse_fi(&self) -> Fi;
 
     fn parse_bcd(&self) -> bcd;
 
@@ -22,7 +22,7 @@ pub trait Parsing {
 }
 
 
-impl fi {
+impl Fi {
     // #[inline(always)]
 
     // #[inline(always)]
@@ -35,7 +35,7 @@ impl fi {
     //     // TODO
     // }
     pub const fn new() -> Self {
-        fi{sign: false, value: Vec::new()}
+       Fi{sign: false, value: Vec::new()}
     }
 }
 

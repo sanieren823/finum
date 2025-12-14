@@ -1,9 +1,9 @@
-use crate::fi::fi;
+use crate::fi::Fi;
 use crate::fi::Parsing;
 
 #[test]
 fn create_new() {
-    assert_eq!(fi::new(), fi{sign: false, value: Vec::new()});
+    assert_eq!(Fi::new(), Fi{sign: false, value: Vec::new()});
 }
 
 
@@ -12,7 +12,7 @@ fn reg_add() {
     let num1: i8 = 7;
     let num2: i8 = 9;
     let res: i8 = num1 + num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) + fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) + Fi::from(num2)).spruce_up()); 
 }
 
 #[test]
@@ -20,17 +20,17 @@ fn neg_add() {
     let num1: i8 = -7;
     let num2: i8 = 9;
     let res: i8 = num1 + num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) + fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) + Fi::from(num2)).spruce_up()); 
     
     let num1: i8 = 8;
     let num2: i8 = -3;
     let res: i8 = num1 + num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) + fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) + Fi::from(num2)).spruce_up()); 
 
     let num1: i8 = -13;
     let num2: i8 = -5;
     let res: i8 = num1 + num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) + fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) + Fi::from(num2)).spruce_up()); 
 }
 
 #[test]
@@ -38,7 +38,7 @@ fn reg_sub() {
     let num1: i8 = 12;
     let num2: i8 = 6;
     let res: i8 = num1 - num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) - fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) - Fi::from(num2)).spruce_up()); 
 }
 
 #[test]
@@ -46,17 +46,17 @@ fn neg_sub() {
     let num1: i8 = 12;
     let num2: i8 = -6;
     let res: i8 = num1 - num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) - fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) - Fi::from(num2)).spruce_up()); 
 
     let num1: i8 = -8;
     let num2: i8 = 3;
     let res: i8 = num1 - num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) - fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) - Fi::from(num2)).spruce_up()); 
 
     let num1: i8 = -45;
     let num2: i8 = -87;
     let res: i8 = num1 - num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) - fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) - Fi::from(num2)).spruce_up()); 
 }
 
 #[test]
@@ -64,7 +64,7 @@ fn reg_mul() {
     let num1: i8 = 5;
     let num2: i8 = 6;
     let res: i8 = num1 * num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) * fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) * Fi::from(num2)).spruce_up()); 
 }
 
 #[test]
@@ -72,17 +72,17 @@ fn neg_mul() {
     let num1: i8 = -2;
     let num2: i8 = 7;
     let res: i8 = num1 * num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) * fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) * Fi::from(num2)).spruce_up()); 
 
     let num1: i8 = -8;
     let num2: i8 = 3;
     let res: i8 = num1 * num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) * fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) * Fi::from(num2)).spruce_up()); 
 
     let num1: i8 = -6;
     let num2: i8 = -2;
     let res: i8 = num1 * num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) * fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) * Fi::from(num2)).spruce_up()); 
 }
 
 #[test]
@@ -90,7 +90,7 @@ fn reg_div() { // float division
     let num1: i8 = 12;
     let num2: i8 = 3;
     let res: i8 = num1 / num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) / fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) / Fi::from(num2)).spruce_up()); 
 }
 
 #[test]
@@ -124,7 +124,7 @@ fn reg_rem() {
     let num1: i8 = 23;
     let num2: i8 = 11;
     let res: i8 = num1 % num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) % fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) % Fi::from(num2)).spruce_up()); 
 }
 
 #[test]
@@ -132,56 +132,56 @@ fn neg_rem() {
     let num1: i8 = -15;
     let num2: i8 = 4;
     let res: i8 = num1 % num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) % fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) % Fi::from(num2)).spruce_up()); 
 
     let num1: i8 = 18;
     let num2: i8 = -7;
     let res: i8 = num1 % num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) % fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) % Fi::from(num2)).spruce_up()); 
 
     let num1: i8 = -19;
     let num2: i8 = -5;
     let res: i8 = num1 % num2;
-    assert_eq!(res.to_string().parse_fi(), (fi::from(num1) % fi::from(num2)).spruce_up()); 
+    assert_eq!(res.to_string().parse_fi(), (Fi::from(num1) % Fi::from(num2)).spruce_up()); 
 }
 
 #[test]
 fn neg_int_conv() {
     let num: i8 = -13;
-    let fi: fi = num.into();
+    let fi: Fi = num.into();
     assert_eq!(fi, String::from("-13").parse_fi());
 }
 
 #[test]
 fn eq() {
-    let num1: fi = 1.into();
-    let num2: fi = 1.into();
+    let num1: Fi = 1.into();
+    let num2: Fi = 1.into();
     let res: bool = num1 == num2;
     assert_eq!(res, true);
 }
 
 #[test]
 fn not_eq() {
-    let num1: fi = 1.into();
-    let num2: fi = 7.into();
+    let num1: Fi = 1.into();
+    let num2: Fi = 7.into();
     let res: bool = num1 != num2;
     assert_eq!(res, true);
 }
 
 #[test] 
 fn lt() {
-    let num1: fi = 2.into();
-    let num2: fi = 4.into();
+    let num1: Fi = 2.into();
+    let num2: Fi = 4.into();
     let res: bool = num1 < num2;
     assert_eq!(res, true);
 
-    let num1: fi = 4.into();
-    let num2: fi = 4.into();
+    let num1: Fi = 4.into();
+    let num2: Fi = 4.into();
     let res: bool = num1 < num2;
     assert_eq!(res, false);
     
-    let num1: fi = 9.into();
-    let num2: fi = 4.into();
+    let num1: Fi = 9.into();
+    let num2: Fi = 4.into();
     let res: bool = num1 < num2;
     assert_eq!(res, false);
 
@@ -189,18 +189,18 @@ fn lt() {
 
 #[test] 
 fn le() {
-    let num1: fi = 2.into();
-    let num2: fi = 4.into();
+    let num1: Fi = 2.into();
+    let num2: Fi = 4.into();
     let res: bool = num1 <= num2;
     assert_eq!(res, true);
     
-    let num1: fi = 4.into();
-    let num2: fi = 4.into();
+    let num1: Fi = 4.into();
+    let num2: Fi = 4.into();
     let res: bool = num1 <= num2;
     assert_eq!(res, true);
     
-    let num1: fi = 9.into();
-    let num2: fi = 4.into();
+    let num1: Fi = 9.into();
+    let num2: Fi = 4.into();
     let res: bool = num1 <= num2;
     assert_eq!(res, false);
 
@@ -208,18 +208,18 @@ fn le() {
 
 #[test] 
 fn gt() {
-    let num1: fi = 2.into();
-    let num2: fi = 4.into();
+    let num1: Fi = 2.into();
+    let num2: Fi = 4.into();
     let res: bool = num1 > num2;
     assert_eq!(res, false);
 
-    let num1: fi = 4.into();
-    let num2: fi = 4.into();
+    let num1: Fi = 4.into();
+    let num2: Fi = 4.into();
     let res: bool = num1 > num2;
     assert_eq!(res, false);
     
-    let num1: fi = 9.into();
-    let num2: fi = 4.into();
+    let num1: Fi = 9.into();
+    let num2: Fi = 4.into();
     let res: bool = num1 > num2;
     assert_eq!(res, true);
 
@@ -227,18 +227,18 @@ fn gt() {
 
 #[test] 
 fn ge() {
-    let num1: fi = 2.into();
-    let num2: fi = 4.into();
+    let num1: Fi = 2.into();
+    let num2: Fi = 4.into();
     let res: bool = num1 >= num2;
     assert_eq!(res, false);
     
-    let num1: fi = 4.into();
-    let num2: fi = 4.into();
+    let num1: Fi = 4.into();
+    let num2: Fi = 4.into();
     let res: bool = num1 >= num2;
     assert_eq!(res, true);
     
-    let num1: fi = 9.into();
-    let num2: fi = 4.into();
+    let num1: Fi = 9.into();
+    let num2: Fi = 4.into();
     let res: bool = num1 >= num2;
     assert_eq!(res, true);
 

@@ -1,5 +1,5 @@
 
-use crate::fi::fi;
+use crate::fi::Fi;
 use std::ops::{Index, IndexMut};
 
 // abs: --> positive; neg: --> negative; invert --> inverts --> postive if negative/negative if positive
@@ -49,7 +49,7 @@ use std::ops::{Index, IndexMut};
     
 // }
 
-impl fi {
+impl Fi {
     pub fn invert_bits(mut self) -> Self { // remove mut
         for i in 0..self.value.len() {
             self.value[i] ^= true;
@@ -59,16 +59,16 @@ impl fi {
     }
     
     pub fn abs(&self) -> Self {
-        fi{sign: false, value: self.value.clone()}
+        Fi{sign: false, value: self.value.clone()}
     }
 
     pub fn neg(&self) -> Self {
-        fi{sign: true, value: self.value.clone()}
+        Fi{sign: true, value: self.value.clone()}
     }
 
     // dublicate of Neg
     pub fn invert(&self) -> Self {
-        fi{sign: !self.sign.clone(), value: self.value.clone()}
+        Fi{sign: !self.sign.clone(), value: self.value.clone()}
     }
     
     pub fn len(&self) -> usize {
@@ -93,7 +93,7 @@ impl fi {
             }
         }
         output.reverse();
-        fi{sign: self.sign, value: output}
+        Fi{sign: self.sign, value: output}
     }
     // implement insert and remove
     pub fn push(&mut self, other: bool) {
@@ -110,13 +110,13 @@ impl fi {
 
 }
 
-impl Clone for fi {
+impl Clone for Fi {
     fn clone(&self) -> Self {
-        fi{sign: self.sign.clone(), value: self.value.clone()}
+        Fi{sign: self.sign.clone(), value: self.value.clone()}
     }
 }
 
-impl Index<usize> for fi {
+impl Index<usize> for Fi {
     type Output = bool;
 
     fn index(&self, index: usize) -> &Self::Output {
@@ -124,7 +124,7 @@ impl Index<usize> for fi {
     }
 }
 
-impl IndexMut<usize> for fi {
+impl IndexMut<usize> for Fi {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.value[index]
     }

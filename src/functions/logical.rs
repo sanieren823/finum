@@ -1,14 +1,14 @@
 use std::cmp::Ordering;
-use crate::fi::fi;
+use crate::fi::Fi;
 
 
-impl PartialOrd for fi {
+impl PartialOrd for Fi {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl Ord for fi {
+impl Ord for Fi {
     fn cmp(&self, other: &Self) -> Ordering {
 
         match self.sign.cmp(&other.sign) {
@@ -46,13 +46,13 @@ impl Ord for fi {
     }
 }
 
-impl PartialEq for fi {
+impl PartialEq for Fi {
     fn eq(&self, other: &Self) -> bool {
         self.value == other.value && self.sign == other.sign
     }
 }
 
-impl Eq for fi {}
+impl Eq for Fi {}
 
 fn heaviside(num: &isize) -> bool {
     if *num < 0 {
@@ -64,8 +64,8 @@ fn heaviside(num: &isize) -> bool {
 
 
 
-impl fi {
-    fn pretty(&self) -> fi {
+impl Fi {
+    fn pretty(&self) -> Fi {
         let mut valid = false;
         let mut output = Vec::new();
         for el in self.value.clone().iter().rev(){
@@ -80,6 +80,6 @@ impl fi {
             }
         }
         output.reverse();
-        fi{sign: self.sign.clone(), value: output}
+        Fi{sign: self.sign.clone(), value: output}
     }
 }

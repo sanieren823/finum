@@ -1,4 +1,4 @@
-use crate::fi::fi;
+use crate::fi::Fi;
 use crate::fi::bcd;
 // use crate::conversion;
 use crate::fi::Parsing;
@@ -6,7 +6,7 @@ use crate::fi::Parsing;
 
 // add from/into for String type
 
-impl fi {
+impl Fi {
     pub fn to_string(&self) -> String {
         // adds the "-" sing if the number is negative
         let mut string = String::new();
@@ -104,7 +104,7 @@ impl bcd {
 impl Parsing for String {
     // given that the parse_bcd function is inline there should not be any difference in runtime compared to new function (99% of the lines would be identical)
     #[inline(always)]
-    fn parse_fi(&self) -> fi { 
+    fn parse_fi(&self) -> Fi { 
         self.parse_bcd().bcd_bin()
     }
 

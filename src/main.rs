@@ -1,15 +1,19 @@
 mod fi;
 mod conversion;
-// use crate::fi::Parsing;
+use crate::fi::Parsing;
 mod functions;
-use crate::fi::fi as ll;
+use crate::fi::Fi as fixed_int;
 
 fn main() {
     // let fixed = fi::fi{sign: false, value: vec![false, true, false, true, true, true, false, false, true]};
     // let string = "109019".to_string();
-    let n1: ll = (43 as i8).into();
-    let n2: ll = (5 as i8).into();
-    let calc = n1.clone() % n2.clone();
+    let n1: fixed_int = (43 as i8).into();
+    let n2: fixed_int = (2 as i8).into();
+    let dividend: fixed_int = String::from("2.000000000000000001").parse_fi();
+    let divisor: fixed_int = fixed_int{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
+    let calc = dividend.clone() / divisor.clone();
+    let f1: fixed_int = fixed_int{sign: false, value: vec![true, true, true]};
+    let f2: fixed_int = (3 as i8).into();
     // println!("{:?}", fixed.bin_bcd().value);
     // println!("{:?}", fixed.bin_bcd().bcd_bin());
     // println!("{}", fixed.to_string());
@@ -21,7 +25,8 @@ fn main() {
     println!("{:?}", n1.to_string());
     println!("{:?}", n2.to_string());
     println!("{:?}", calc.to_string());
-    println!("{}", n1 < n2);
+    println!("{}", (f1 / f2).to_string());
+    // println!("{}", n1 < n2);
     // println!("{:?}", fi::fi1024{leading: 12, vec: vec![13, 31, 17], trailing: 123}.full_vec());
 }
 

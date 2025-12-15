@@ -1,6 +1,7 @@
 
 use crate::fi::Fi;
 use std::ops::{Index, IndexMut};
+use core::slice::{Iter, IterMut};
 
 // abs: --> positive; neg: --> negative; invert --> inverts --> postive if negative/negative if positive
 // invert_bits
@@ -108,6 +109,13 @@ impl Fi {
         self.value.remove(index)
     }
 
+    pub fn iter(&self) -> Iter<'_, bool> {
+        self.value.iter()
+    }
+    pub fn iter_mut(&mut self) -> IterMut<'_, bool> {
+        self.value.iter_mut()
+    }
+
 }
 
 impl Clone for Fi {
@@ -129,3 +137,4 @@ impl IndexMut<usize> for Fi {
         &mut self.value[index]
     }
 }
+

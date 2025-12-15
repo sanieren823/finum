@@ -243,3 +243,10 @@ fn ge() {
     assert_eq!(res, true);
 
 }
+
+#[test] 
+fn round_last_digit_division() {
+    let f1: Fi = Fi{sign: false, value: vec![true, true, true]};
+    let f2: Fi = (3 as i8).into();
+    assert_eq!((f1 / f2).spruce_up(), Fi{sign: false, value: vec![false, true]});
+}

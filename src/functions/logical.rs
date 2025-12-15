@@ -62,24 +62,3 @@ fn heaviside(num: &isize) -> bool {
     }
 }
 
-
-
-impl Fi {
-    fn pretty(&self) -> Fi {
-        let mut valid = false;
-        let mut output = Vec::new();
-        for el in self.value.clone().iter().rev(){
-            if *el {
-                valid = true;
-                output.push(*el);
-            } else {
-                if valid {
-                    output.push(*el);
-                } 
-                
-            }
-        }
-        output.reverse();
-        Fi{sign: self.sign.clone(), value: output}
-    }
-}

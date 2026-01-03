@@ -376,21 +376,21 @@ impl BitAnd<FiLong> for FiLong {
 
 
     fn bitand(self, rhs: FiLong) -> Self::Output {
-        self & rhs
+        &self & &rhs
     }
 }
 
 impl BitAndAssign<&FiLong> for FiLong {
 
     fn bitand_assign(&mut self, rhs: &FiLong) {
-        *self &= rhs;
+        *self = self.clone() & rhs;
     }
 }
 
 impl BitAndAssign<FiLong> for FiLong {
 
     fn bitand_assign(&mut self, rhs: FiLong) {
-        *self &= rhs;
+        *self = self.clone() & rhs;
     }
 }
 
@@ -413,7 +413,7 @@ impl BitOr<&FiLong> for &FiLong {
             new.push(smaller[i] | bigger[i]);
         }
         for i in smaller.len()..bigger.len() {
-            new.push(bigger[i + smaller.len()]);
+            new.push(bigger[i]);
         }
         new
     }
@@ -442,21 +442,21 @@ impl BitOr<FiLong> for FiLong {
 
 
     fn bitor(self, rhs: FiLong) -> Self::Output {
-        self | rhs
+        &self | &rhs
     }
 }
 
 impl BitOrAssign<&FiLong> for FiLong {
 
     fn bitor_assign(&mut self, rhs: &FiLong) {
-        *self |= rhs;
+        *self = self.clone() | rhs;
     }
 }
 
 impl BitOrAssign<FiLong> for FiLong {
 
     fn bitor_assign(&mut self, rhs: FiLong) {
-        *self |= rhs;
+        *self = self.clone() | rhs;
     }
 }
 
@@ -478,7 +478,7 @@ impl BitXor<&FiLong> for &FiLong {
             new.push(smaller[i] ^ bigger[i]);
         }
         for i in smaller.len()..bigger.len() {
-            new.push(bigger[i + smaller.len()] ^ 0);
+            new.push(bigger[i] ^ 0);
         }
         new
     }
@@ -507,21 +507,21 @@ impl BitXor<FiLong> for FiLong {
 
 
     fn bitxor(self, rhs: FiLong) -> Self::Output {
-        self ^ rhs
+        &self ^ &rhs
     }
 }
 
 impl BitXorAssign<&FiLong> for FiLong {
 
     fn bitxor_assign(&mut self, rhs: &FiLong) {
-        *self ^= rhs;
+        *self = self.clone() ^ rhs;
     }
 }
 
 impl BitXorAssign<FiLong> for FiLong {
 
     fn bitxor_assign(&mut self, rhs: FiLong) {
-        *self ^= rhs;
+        *self = self.clone() ^ rhs;
     }
 }
 
@@ -579,21 +579,21 @@ impl Shl<usize> for FiLong {
 
 
     fn shl(self, rhs: usize) -> Self::Output {
-        self << rhs
+        &self << &rhs
     }
 }
 
 impl ShlAssign<&usize> for FiLong {
 
     fn shl_assign(&mut self, rhs: &usize) {
-        *self <<= rhs;
+        *self = self.clone() << rhs;
     }
 }
 
 impl ShlAssign<usize> for FiLong {
 
     fn shl_assign(&mut self, rhs: usize) {
-        *self <<= rhs;
+        *self = self.clone() << rhs;
     }
 }
 
@@ -652,20 +652,20 @@ impl Shr<usize> for FiLong {
 
 
     fn shr(self, rhs: usize) -> Self::Output {
-        self >> rhs
+        &self >> &rhs
     }
 }
 
 impl ShrAssign<&usize> for FiLong {
 
     fn shr_assign(&mut self, rhs: &usize) {
-        *self >>= rhs;
+        *self = self.clone() >> rhs;
     }
 }
 
 impl ShrAssign<usize> for FiLong {
 
     fn shr_assign(&mut self, rhs: usize) {
-        *self >>= rhs;
+        *self = self.clone() >> rhs;
     }
 }

@@ -524,7 +524,7 @@ pub fn long_add(num1: FiLong, num2: FiLong) -> FiLong {
     let mut result: FiLong = FiLong::new(); // TODO: change
     for i in 0..bigger.len() {
         let res: u128;
-        if i > smaller.len() {
+        if smaller.len() <= i {
             res = bigger[i] as u128 + carry;
         } else {
             res = bigger[i] as u128 + smaller[i] as u128 + carry;
@@ -590,6 +590,7 @@ pub fn long_mul(num1: FiLong, num2: FiLong) -> FiLong {
 }
 
 pub fn long_div(num1: FiLong, num2: FiLong) -> FiLong {
+    println!{"{:?}", num1};
     let sign;
     if num1.sign == num2.sign {
         sign = false;
@@ -603,27 +604,28 @@ pub fn long_div(num1: FiLong, num2: FiLong) -> FiLong {
         return num1;
     }
     let sq1 = num1.spruce_up();
-    let offset = sq1.clone().last().unwrap().leading_zeros() as usize;
-    let n: FiLong = sq1.clone() << offset;
+    let offset = sq1.clone().last().unwrap().leading_zeros() as usize; // fix the unwrap()
+    let n: FiLong = sq1 << offset;
     let mut inverse: FiLong = n.reverse_bits();
     let mut q = FiLong{sign: sign, value: vec![0; num1.value.capacity()]};
     let mut r: FiLong = FiLong{sign: false, value: vec![0]};
     let num_bits = (inverse.len() * 64) - 1 - offset;
-    for i in 0..num_bits{
+    let mut bit_mask = FiLong{sign: false, value: vec![1]} << num_bits;
+    for _ in 0..num_bits{
         r <<= 1;
-        r |= FiLong{sign: false, value: vec![inverse[0] % 2]};
+        r[0] |= inverse[0] & 1;
         inverse >>= 1;
         if r >= num2 {
             r -= num2.clone();
-            
-            q |= FiLong{sign: false, value: vec![1]} << (num_bits - i);
+            q |= bit_mask.clone();
         }
+        bit_mask >>= 1;
     }   
     
-    // let double = r.mul(FiLong{sign: false, value: vec![2]});
-    // if double >= num2.abs() {
-    //     q += FiLong{sign: sign, value: vec![1]};
-    // }
+    r <<= 1;
+    if r >= num2.abs() {
+        q |= bit_mask;
+    }
     q
 }
 

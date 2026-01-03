@@ -73,8 +73,7 @@ impl Ord for FiLong {
             Ordering::Greater => return Ordering::Less,
             Ordering::Equal => (),
         }
-        // let ord: Ordering = self.value.cmp(&other.value);
-        let v1 = self.spruce_up();    // TODO: recheck with claude
+        let v1 = self.spruce_up(); 
         let v2 = other.spruce_up();
         let len = v1.len();
         let len_diff: isize = len as isize - v2.len() as isize;

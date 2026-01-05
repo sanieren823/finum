@@ -4,9 +4,42 @@ use std::time::Instant; // TODO: remove
 
 // TODO: decide whether the spruce_up() method should be called
 
+pub trait Floor {
+    type Output;
+
+    fn floor(self) -> Self::Output;
+}
+
+pub trait Ceil {
+    type Output;
+
+    fn ceil(self) -> Self::Output;
+}
+
+pub trait Round {
+    type Output;
+
+    fn round(self) -> Self::Output;
+}
+
+pub trait RoundN<Rhs = Self> {
+    type Output;
+
+    fn round_n(self, rhs: Rhs) -> Self::Output;
+}
+
+
+
+
+
+
+
+
+
+
 
 impl Add for FiBin {
-    type Output = Self;
+    type Output = FiBin;
 
     fn add(self, num: Self) -> Self {
         let sign1 = self.sign;
@@ -31,7 +64,7 @@ impl AddAssign for FiBin {
 }
 
 impl Sub for FiBin {
-    type Output = Self;
+    type Output = FiBin;
 
     fn sub(self, num: Self) -> Self {
         self + -num // change to neg once implemented
@@ -45,7 +78,7 @@ impl SubAssign for FiBin {
 }
 
 impl Mul for FiBin {
-    type Output = Self;
+    type Output = FiBin;
 
     fn mul(self, num: Self) -> Self {
         let res = bin_mul(self, num);
@@ -60,7 +93,7 @@ impl MulAssign for FiBin {
 }
 
 impl Div for FiBin {
-    type Output = Self;
+    type Output = FiBin;
 
     fn div(self, num: Self) -> Self {
         let dividend = bin_mul(self, FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]});
@@ -75,7 +108,7 @@ impl DivAssign for FiBin {
 }
 
 impl Rem for FiBin {
-    type Output = Self;
+    type Output = FiBin;
 
     fn rem(self, num: Self) -> Self {
         bin_rem(self, num)
@@ -89,7 +122,7 @@ impl RemAssign for FiBin {
 }
 
 impl Neg for FiBin {
-    type Output = Self; 
+    type Output = FiBin; 
 
     fn neg(self) -> Self::Output {
         FiBin{sign: !self.sign, value: self.value}
@@ -97,7 +130,7 @@ impl Neg for FiBin {
 }
 // TODO: look for a better implementation
 impl Not for FiBin {
-    type Output = Self; 
+    type Output = FiBin; 
 
     fn not(self) -> Self::Output {
         FiBin{sign: !self.sign, value: self.value}
@@ -315,7 +348,7 @@ pub fn time_comparison(num1: FiBin, num2: FiBin) {
     let p: FiBin = bin_mul(num1.clone(), num2.clone()); // should probably test the gen function as they are the main functions
     println!("FiBin: {:?}", mul.elapsed());
     let mul_long = Instant::now();
-    let p_long: FiLong = long_mul(long_1.clone(), long_2.clone());
+    let p_long: FiLong = long_mul(&long_1, &long_2);
     println!("FiLong: {:?}", mul_long.elapsed());
     println!("mul: {:?}", p_long);
     let mul_int = Instant::now();
@@ -327,8 +360,6 @@ pub fn time_comparison(num1: FiBin, num2: FiBin) {
     let div_int = Instant::now();
     let q_long: FiLong = p_long / long_2;
     println!("FiLong: {:?}", div_int.elapsed());
-    println!("long: {:?}", q_long);
-    println!("long: {:?}", long_1);
     let div_int = Instant::now();
     let q_int: i128 = p_int / int_2;
     println!("i128: {:?}", div_int.elapsed());
@@ -374,48 +405,41 @@ fn small_reconv(input: u8) -> Vec<bool> {
 
 
 
+impl Add<FiLong> for FiLong {
+    type Output = FiLong;
 
+    fn add(self, num: FiLong) -> Self::Output {
+        &self + &num
+    }
 
+}
 
+impl Add<&FiLong> for FiLong {
+    type Output = FiLong;
 
+    fn add(self, num: &FiLong) -> Self::Output {
+        &self + num
+    }
 
+}
 
+impl Add<FiLong> for &FiLong {
+    type Output = FiLong;
 
+    fn add(self, num: FiLong) -> Self::Output {
+        self + &num
+    }
 
+}
 
+impl Add<&FiLong> for &FiLong {
+    type Output = FiLong;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-impl Add for FiLong {
-    type Output = Self;
-
-    fn add(self, num: Self) -> Self {
+    fn add(self, num: &FiLong) -> Self::Output {
         let sign1 = self.sign;
         let sign2 = num.sign;
         if sign1 == true && sign2 == true {
-            long_add(self, num).neg() // add -
+            -long_add(self, num) 
         } else if sign1 && !sign2 {
             long_sub(num, self)
         } else if !sign1 && sign2 {
@@ -427,132 +451,297 @@ impl Add for FiLong {
 
 }
 
-impl AddAssign for FiLong {
-    fn add_assign(&mut self, other: Self) {
-        *self = self.clone() + other;
+impl AddAssign<FiLong> for FiLong {
+    fn add_assign(&mut self, other: FiLong) {
+        *self += &other;
     }
 }
 
-impl Sub for FiLong {
-    type Output = Self;
-
-    fn sub(self, num: Self) -> Self {
-        self + -num
+impl AddAssign<&FiLong> for FiLong {
+    fn add_assign(&mut self, other: &FiLong) {
+        let sign1 = self.sign;
+        let sign2 = other.sign;
+        if sign1 == true && sign2 == true {
+            *self = -long_add(self, other);
+        } else if sign1 && !sign2 {
+            *self = long_sub(other, self);
+        } else if !sign1 && sign2 {
+            *self = long_sub(self, other);
+        } else {
+            *self = long_add(self, other);
+        }
     }
 }
 
-impl SubAssign for FiLong {
-    fn sub_assign(&mut self, other: Self) {
-        *self = self.clone() - other; // Fix
+impl Sub<FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn sub(self, num: FiLong) -> Self::Output {
+        &self - &num
     }
 }
 
-impl Mul for FiLong {
-    type Output = Self;
+impl Sub<&FiLong> for FiLong {
+    type Output = FiLong;
 
-    fn mul(self, num: Self) -> Self {
+    fn sub(self, num: &FiLong) -> Self::Output {
+        &self - num
+    }
+}
+
+impl Sub<FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn sub(self, num: FiLong) -> Self::Output {
+        self - &num
+    }
+}
+
+impl Sub<&FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn sub(self, num: &FiLong) -> Self::Output {
+        let sign1 = self.sign;
+        let sign2 = !num.sign;
+        if sign1 == true && sign2 == true {
+            -long_add(self, &-num)
+        } else if sign1 && !sign2 {
+            long_sub(&-num, self)
+        } else if !sign1 && sign2 {
+            long_sub(self, &-num)
+        } else {
+            long_add(self, &-num)
+        }
+    }
+}
+
+
+impl SubAssign<FiLong> for FiLong {
+    fn sub_assign(&mut self, other: FiLong) {
+        *self -= &other;
+    }
+}
+
+impl SubAssign<&FiLong> for FiLong {
+    fn sub_assign(&mut self, other: &FiLong) {
+        let sign1 = self.sign;
+        let sign2 = !other.sign;
+        if sign1 == true && sign2 == true {
+            *self = -long_add(self, &-other);
+        } else if sign1 && !sign2 {
+            *self = long_sub(&-other, self);
+        } else if !sign1 && sign2 {
+            *self = long_sub(self, &-other);
+        } else {
+            *self = long_add(self, &-other);
+        }
+    }
+}
+
+impl Mul<FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn mul(self, num: FiLong) -> Self::Output {
+        &self * &num
+    }
+}
+
+impl Mul<&FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn mul(self, num: &FiLong) -> Self::Output {
+        &self * num
+    }
+}
+
+impl Mul<FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn mul(self, num: FiLong) -> Self::Output {
+        self * &num
+    }
+}
+
+impl Mul<&FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn mul(self, num: &FiLong) -> Self::Output {
         let res = long_mul(self, num);
-        long_div(res, FiLong{sign: false, value: vec![7766279631452241920, 5]}).spruce_up()
+        long_div(&res, &FiLong{sign: false, value: vec![7766279631452241920, 5]}).spruce_up()
     }
 }
 
-impl MulAssign for FiLong {
-    fn mul_assign(&mut self, other: Self) {
-        *self = self.clone() * other;
+impl MulAssign<FiLong> for FiLong {
+    fn mul_assign(&mut self, other: FiLong) {
+        *self *= &other;
     }
 }
 
-impl Div for FiLong {
-    type Output = Self;
-
-    fn div(self, num: Self) -> Self {
-        println!("num: {:?}", self.clone());
-        let dividend = long_mul(self, FiLong{sign: false, value: vec![7766279631452241920, 5]});
-        println!("num: {:?}", dividend.clone());
-        long_div(dividend, num).spruce_up()
+impl MulAssign<&FiLong> for FiLong {
+    fn mul_assign(&mut self, other: &FiLong) {
+        let res = long_mul(&self, other);
+        *self = long_div(&res, &FiLong{sign: false, value: vec![7766279631452241920, 5]}).spruce_up();
     }
 }
 
-impl DivAssign for FiLong {
+impl Div<FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn div(self, num: FiLong) -> Self::Output {
+        &self / &num
+    }
+}
+
+impl Div<&FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn div(self, num: &FiLong) -> Self::Output {
+        &self / num
+    }
+}
+
+impl Div<FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn div(self, num: FiLong) -> Self::Output {
+        self / &num
+    }
+}
+
+impl Div<&FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn div(self, num: &FiLong) -> Self::Output {
+        let dividend = long_mul(&self, &FiLong{sign: false, value: vec![7766279631452241920, 5]});
+        long_div(&dividend, &num).spruce_up()
+    }
+}
+
+impl DivAssign<FiLong> for FiLong {
     fn div_assign(&mut self, other: Self) {
-        *self = self.clone() / other;
+        *self /= &other;
     }
 }
 
-impl Rem for FiLong {
-    type Output = Self;
+impl DivAssign<&FiLong> for FiLong {
+    fn div_assign(&mut self, other: &FiLong) {
+        let dividend = long_mul(&self, &FiLong{sign: false, value: vec![7766279631452241920, 5]});
+        *self = long_div(&dividend, other).spruce_up();
+    }
+}
 
-    fn rem(self, num: Self) -> Self {
+impl Rem<FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn rem(self, num: FiLong) -> Self::Output {
+        &self % &num
+    }
+}
+
+impl Rem<&FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn rem(self, num: &FiLong) -> Self::Output {
+        &self % num
+    }
+}
+
+impl Rem<FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn rem(self, num: FiLong) -> Self::Output {
+        self % &num
+    }
+}
+
+impl Rem<&FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn rem(self, num: &FiLong) -> Self::Output {
         long_rem(self, num)
     }
 }
 
-impl RemAssign for FiLong {
+impl RemAssign<FiLong> for FiLong {
     fn rem_assign(&mut self, other: Self) {
-        *self = self.clone() % other;
+        *self %= &other
+    }
+}
+
+impl RemAssign<&FiLong> for FiLong {
+    fn rem_assign(&mut self, other: &FiLong) {
+        *self = long_rem(self, other);
     }
 }
 
 impl Neg for FiLong {
-    type Output = Self; 
+    type Output = FiLong; 
 
     fn neg(self) -> Self::Output {
         FiLong{sign: !self.sign, value: self.value}
     }
 }
 
+impl Neg for &FiLong {
+    type Output = FiLong; 
+
+    fn neg(self) -> Self::Output {
+        FiLong{sign: !self.sign, value: self.value.clone()}
+    }
+}
+
 #[inline(always)]
-pub fn low_bits(num: u128) -> u128 {
+fn low_bits(num: u128) -> u128 {
 	(num << 64) >> 64
 }
 
 #[inline(always)]
-pub fn high_bits(num: u128) -> u128 {
+fn high_bits(num: u128) -> u128 {
 	num >> 64
 }
-pub fn long_add(num1: FiLong, num2: FiLong) -> FiLong {
+fn long_add(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut carry: u128 = 0;
-    let bigger: FiLong;
-    let smaller: FiLong;
-    if num1.clone().abs() >= num2.clone().abs() {
-        bigger = num1.clone();
-        smaller = num2.clone();
+    let bigger: &FiLong;
+    let smaller: &FiLong;
+    if num1.absolute() >= num2.absolute() { // assigns the key variables after comparing the sizes of the parameters
+        bigger = num1;
+        smaller = num2;
     } else {
-        bigger = num2.clone();
-        smaller = num1.clone();
+        bigger = num2;
+        smaller = num1;
     }
-    let mut result: FiLong = FiLong::new(); // TODO: change
-    for i in 0..bigger.len() {
+    let mut result: FiLong = FiLong{sign: false, value: Vec::with_capacity(bigger.len() + 1)};
+    for i in 0..bigger.len() { // standard carry-addition
         let res: u128;
         if smaller.len() <= i {
             res = bigger[i] as u128 + carry;
         } else {
             res = bigger[i] as u128 + smaller[i] as u128 + carry;
         }
-        carry = high_bits(res); // clone
+        carry = high_bits(res);
         result.push(low_bits(res) as u64);
 
     }
-    if carry != 0{
+    if carry != 0 { // chechs whether the last calculation produced a number larger than the u64 limit and adds it to the output if that's the case
         result.push(carry as u64);
     }
     result.sign = bigger.sign;
     result
 }
 
-pub fn long_sub(num1: FiLong, num2: FiLong) -> FiLong {
+fn long_sub(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut borrow: u128 = 0;
-    let bigger: FiLong;
-    let smaller: FiLong;
-    if num1.clone().abs() >= num2.clone().abs() {
-        bigger = num1.clone();
-        smaller = num2.clone();
+    let bigger: &FiLong;
+    let smaller: &FiLong;
+    if num1.absolute() >= num2.absolute() { // assigns the key variables after comparing the sizes of the parameters
+        bigger = num1;
+        smaller = num2;
     } else {
-        bigger = num2.clone();
-        smaller = num1.clone();
+        bigger = num2;
+        smaller = num1;
     }
-    let mut result: FiLong = FiLong::new();
-    for i in 0..bigger.len() {
+    let mut result: FiLong = FiLong{sign: false, value: Vec::with_capacity(bigger.len())};
+    for i in 0..bigger.len() { // standard borrow-subtraction
         if smaller[i] + borrow as u64 > bigger[i] {
             result.push(u64::MAX - (smaller[i] - bigger[i]) - borrow as u64 + 1);
             borrow = 1;
@@ -565,7 +754,7 @@ pub fn long_sub(num1: FiLong, num2: FiLong) -> FiLong {
     result
 }
 
-pub fn long_mul(num1: FiLong, num2: FiLong) -> FiLong {
+fn long_mul(num1: &FiLong, num2: &FiLong) -> FiLong {
     if num1.is_zero() || num2.is_zero() {
         return FiLong::new();
     }
@@ -574,87 +763,275 @@ pub fn long_mul(num1: FiLong, num2: FiLong) -> FiLong {
     let len = num1.len() + num2.len(); 
     let mut carries: Vec<u128> = vec![0; len];
     let mut result: FiLong = FiLong{sign: num1.sign ^ num2.sign, value: vec![0; len]}; 
-    for i in 0..num1.len() {
+    for i in 0..num1.len() { // somewhat standard multiplication
         for j in 0..num2.len() {
-            let res: u128 = num1[i] as u128 * num2[j] as u128 + carries[i + j];
-            let calc = result[i + j] as u128 + low_bits(res);
-            carries[i + j + 1] += high_bits(res) + high_bits(calc); // overflow?? --> should'nt be a problem, right? maybe provide evidence
+            let res: u128 = num1[i] as u128 * num2[j] as u128 + carries[i + j]; // maximum number is 2^128 - 2^65 + 2^64 -> the high bits have a maximum of 2^64 - 2
+            let calc = result[i + j] as u128 + low_bits(res); // this number is smaller than 2^65 --> high bits are maximum 1
+            carries[i + j + 1] += high_bits(res) + high_bits(calc); // the maximum of this number is u64::MAX --> always a valid number
             result[i + j] = low_bits(calc) as u64;
             carries[i + j] = 0;
         }
     }
-    if carries[len - 2] != 0 {
+    if carries[len - 2] != 0 { // checks if there's a carry in the last operation
         result[len - 1] = carries[len - 2] as u64;
     }
     result
 }
 
-pub fn long_div(num1: FiLong, num2: FiLong) -> FiLong {
-    let sign;
+fn long_div(num1: &FiLong, num2: &FiLong) -> FiLong {
+    
+    let sign; // "calculates" the sign of the result
     if num1.sign == num2.sign {
         sign = false;
     } else {
         sign = true;
     }
-    // let d = num2.abs();
-    if num2.is_zero() {
-        panic!("You can't divide by 0. Make sure your dividend is not equal to 0.")
+    if num2.is_zero() { // checks if either input is zero
+        panic!("You can't divide by 0. Make sure your dividend is not equal to 0.") // i know it's not proper error handeling but it's an internal function that's not meant to be used by anyone + run time?
     } else if num1.is_zero() {
-        return num1;
+        return FiLong::new();
     }
-    let sq1 = num1.spruce_up();
-    let offset = sq1.clone().last().unwrap().leading_zeros() as usize; // fix the unwrap()
-    let n: FiLong = sq1 << offset;
-    let mut inverse: FiLong = n.reverse_bits();
+    let dividend = num1.spruce_up();
+    let offset = dividend[dividend.len() - 1].leading_zeros() as usize;
+    let n: FiLong = dividend << offset;
+    let mut inverse: FiLong = n.reverse_bits(); // in normal long division you iterate through the number/vector/bits from end to start. for some reason i wanted to avoid that which is why i calculated the inverse number (i think i belived that the num_bits - i would be less efficient than just computing the inverse given that the run time scales with size)
     let mut q = FiLong{sign: sign, value: vec![0; num1.value.capacity()]};
     let mut r: FiLong = FiLong{sign: false, value: vec![0]};
     let num_bits = (inverse.len() * 64) - 1 - offset;
     let mut bit_mask = FiLong{sign: false, value: vec![1]} << num_bits;
-    for _ in 0..num_bits{
+    for _ in 0..num_bits{ // standard long division
         r <<= 1;
         r[0] |= inverse[0] & 1;
         inverse >>= 1;
-        if r >= num2 {
+        if &r >= num2 {
             r -= num2.clone();
-            q |= bit_mask.clone();
+            q |= &bit_mask;
         }
         bit_mask >>= 1;
     }   
-    
     r <<= 1;
-    if r >= num2.abs() {
+    if r >= num2.absolute() { // rounds if necessary
         q |= bit_mask;
     }
     q
 }
 
-pub fn long_rem(num1: FiLong, num2: FiLong) -> FiLong {
-    let sign;
+fn long_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
+    if num2.is_zero() { // special cases
+        return num1.clone();
+    } else if num1.is_zero() {
+        return FiLong::new();
+    }
+    let dividend = num1.spruce_up(); // i think it's still called dividend for a modulu operation
+    let offset = dividend[dividend.len() - 1].leading_zeros() as usize;
+    let n: FiLong = dividend << offset;
+    let mut inverse: FiLong = n.reverse_bits();
+    let mut r: FiLong = FiLong{sign: false, value: vec![0]};
+    let num_bits = (inverse.len() * 64) - 1 - offset;
+    for _ in 0..num_bits{ // long division
+        r <<= 1;
+        r[0] |= inverse[0] & 1;
+        inverse >>= 1;
+        if &r >= num2 {
+            r -= num2.clone();
+        }
+    }   
+    r.sign = num1.sign;
+    r
+}
+
+
+
+
+
+
+impl Floor for FiLong {
+    type Output = FiLong;
+
+    fn floor(self) -> Self::Output {
+        let binary = floor_div(&self, &FiLong::one());
+        long_mul(&binary, &FiLong::one())
+    }
+}
+
+impl Floor for &FiLong {
+    type Output = FiLong;
+
+    fn floor(self) -> Self::Output {
+        let binary = floor_div(self, &FiLong::one());
+        long_mul(&binary, &FiLong::one())
+    }
+}
+
+impl Ceil for FiLong {
+    type Output = FiLong;
+
+    fn ceil(self) -> Self::Output {
+        let binary = ceil_div(&self, &FiLong::one());
+        long_mul(&binary, &FiLong::one())
+    }
+}
+
+impl Ceil for &FiLong {
+    type Output = FiLong;
+
+    fn ceil(self) -> Self::Output {
+        let binary = ceil_div(self, &FiLong::one());
+        long_mul(&binary, &FiLong::one())
+    }
+}
+
+impl Round for FiLong {
+    type Output = FiLong;
+
+    fn round(self) -> Self::Output {
+        let binary = long_div(&self, &FiLong::one());
+        long_mul(&binary, &FiLong::one())
+    }
+}
+
+impl Round for &FiLong {
+    type Output = FiLong;
+
+    fn round(self) -> Self::Output {
+        let binary = long_div(self, &FiLong::one());
+        long_mul(&binary, &FiLong::one())
+    }
+}
+
+impl RoundN<usize> for FiLong {
+    type Output = FiLong;
+
+    fn round_n(self, num: usize) -> Self::Output {
+        if num >= 20 {
+            self
+        } else if num == 0 {
+            self.round()
+        } else {
+            let factor: FiLong = 10u64.pow(20 - num as u32).into();
+            let binary = long_div(&self, &factor);
+            long_mul(&binary, &factor)
+        }
+    }
+}
+impl RoundN<&usize> for FiLong {
+    type Output = FiLong;
+
+    fn round_n(self, num: &usize) -> Self::Output {
+        if *num >= 20 {
+            self
+        } else if *num == 0 {
+            self.round()
+        } else {
+            let factor: FiLong = 10u64.pow(20 - *num as u32).into();
+            let binary = long_div(&self, &factor);
+            long_mul(&binary, &factor)
+        }
+    }
+}
+
+impl RoundN<usize> for &FiLong {
+    type Output = FiLong;
+
+    fn round_n(self, num: usize) -> Self::Output {
+        if num >= 20 {
+            self.clone()
+        } else if num == 0 {
+            self.round()
+        } else {
+            let factor: FiLong = 10u64.pow(20 - num as u32).into();
+            let binary = long_div(&self, &factor);
+            long_mul(&binary, &factor)
+        }
+    }
+}
+
+impl RoundN<&usize> for &FiLong {
+    type Output = FiLong;
+
+    fn round_n(self, num: &usize) -> Self::Output {
+        if *num >= 20 {
+            self.clone()
+        } else if *num == 0 {
+            self.round()
+        } else {
+            let factor: FiLong = 10u64.pow(20 - *num as u32).into();
+            let binary = long_div(&self, &factor);
+            long_mul(&binary, &factor)
+        }
+    }
+}
+
+fn floor_div(num1: &FiLong, num2: &FiLong) -> FiLong {
+    
+    let sign; // "calculates" the sign of the result
     if num1.sign == num2.sign {
         sign = false;
     } else {
         sign = true;
     }
-    // let d = num2.abs();
-    if num2.is_zero() {
-        panic!("You can't divide by 0. Make sure your dividend is not equal to 0.")
+    if num2.is_zero() { // checks if either input is zero
+        panic!("You can't divide by 0. Make sure your dividend is not equal to 0.") // i know it's not proper error handeling but it's an internal function that's not meant to be used by anyone + run time?
     } else if num1.is_zero() {
-        return num1;
+        return FiLong::new();
     }
-    let sq1 = num1.spruce_up();
-    let offset = sq1.clone().last().unwrap().leading_zeros() as usize;
-    let n: FiLong = sq1.clone() << offset;
-    let mut inverse: FiLong = n.reverse_bits();
+    let dividend = num1.spruce_up();
+    let offset = dividend[dividend.len() - 1].leading_zeros() as usize;
+    let n: FiLong = dividend << offset;
+    let mut inverse: FiLong = n.reverse_bits(); // in normal long division you iterate through the number/vector/bits from end to start. for some reason i wanted to avoid that which is why i calculated the inverse number (i think i belived that the num_bits - i would be less efficient than just computing the inverse given that the run time scales with size)
+    let mut q = FiLong{sign: sign, value: vec![0; num1.value.capacity()]};
     let mut r: FiLong = FiLong{sign: false, value: vec![0]};
     let num_bits = (inverse.len() * 64) - 1 - offset;
-    for _ in 0..num_bits{
+    let mut bit_mask = FiLong{sign: false, value: vec![1]} << num_bits;
+    for _ in 0..num_bits{ // standard long division
         r <<= 1;
         r[0] |= inverse[0] & 1;
         inverse >>= 1;
-        if r >= num2 {
+        if &r >= num2 {
             r -= num2.clone();
+            q |= &bit_mask;
         }
+        bit_mask >>= 1;
     }   
-    r.sign = sign;
-    r
+    q
+}
+
+
+
+fn ceil_div(num1: &FiLong, num2: &FiLong) -> FiLong {
+    
+    let sign; // "calculates" the sign of the result
+    if num1.sign == num2.sign {
+        sign = false;
+    } else {
+        sign = true;
+    }
+    if num2.is_zero() { // checks if either input is zero
+        panic!("You can't divide by 0. Make sure your dividend is not equal to 0.") // i know it's not proper error handeling but it's an internal function that's not meant to be used by anyone + run time?
+    } else if num1.is_zero() {
+        return FiLong::new();
+    }
+    let dividend = num1.spruce_up();
+    let offset = dividend[dividend.len() - 1].leading_zeros() as usize;
+    let n: FiLong = dividend << offset;
+    let mut inverse: FiLong = n.reverse_bits(); // in normal long division you iterate through the number/vector/bits from end to start. for some reason i wanted to avoid that which is why i calculated the inverse number (i think i belived that the num_bits - i would be less efficient than just computing the inverse given that the run time scales with size)
+    let mut q = FiLong{sign: sign, value: vec![0; num1.value.capacity()]};
+    let mut r: FiLong = FiLong{sign: false, value: vec![0]};
+    let num_bits = (inverse.len() * 64) - 1 - offset;
+    let mut bit_mask = FiLong{sign: false, value: vec![1]} << num_bits;
+    for _ in 0..num_bits{ // standard long division
+        r <<= 1;
+        r[0] |= inverse[0] & 1;
+        inverse >>= 1;
+        if &r >= num2 {
+            r -= num2.clone();
+            q |= &bit_mask;
+        }
+        bit_mask >>= 1;
+    }   
+    r <<= 1;
+    if !r.is_zero() { // rounds if necessary
+        q |= bit_mask;
+    }
+    q
 }

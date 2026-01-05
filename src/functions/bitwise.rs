@@ -1,5 +1,6 @@
 use crate::fi::{FiBin, FiLong};
 use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Shl, ShlAssign, Shr, ShrAssign};
+use std::time::Instant; // TODO: remove
 
 // TODO: write tests for all bitwise functions
 
@@ -514,7 +515,7 @@ impl BitXor<FiLong> for FiLong {
 impl BitXorAssign<&FiLong> for FiLong {
 
     fn bitxor_assign(&mut self, rhs: &FiLong) {
-        *self = self.clone() ^ rhs;
+       *self = self.clone() ^ rhs;
     }
 }
 
@@ -532,29 +533,31 @@ impl Shl<&usize> for &FiLong {
     fn shl(self, rhs: &usize) -> Self::Output {
         let full = rhs / 64;
         let exact = rhs % 64;
-        let mut output: Vec<u64> = Vec::with_capacity(self.len() + full + 1);
-        for _ in 0..full {
-            output.push(0);
+
+        let mut output = Vec::with_capacity(self.len() + full + 1);
+        output.extend(vec![0; full]);
+
+        if exact == 0 {
+            output.extend_from_slice(&self.value);
+            return FiLong { sign: self.sign, value: output };
         }
-        output.push(0);
-        for i in 0..self.len() {
-            let this = self[i] << exact;
-            if exact == 0 {
-                output[i + full] |= this;
-                break;
-            }
-            
-            let next = self[i] >> (64 - exact);
-            output[i + full] |= this;
-            if next > 0  || i + 1 < self.len() {
-                output.push(next);
-            }
-            
-            
+        output
+            .extend((0..self.len())
+                .map(|i| {
+                        let mut val: u64 = self[i] << exact;
+                        if i > 0 {
+                            val |= self[i - 1] >> (64 - exact);
+                        }
+                        val
+                    }));
+        let last = self[self.len() - 1] >> (64 - exact);
+        if last != 0 { // if you remove this if clause the compute time suddenly jumps to 7µs compared to around 1µs; it seems odd because this clause is only there for performance reasons; i checked both parts (the push, the last computation) and they take no longer than 100ns seperately (or together)
+            output.push(last);
         }
-        FiLong{sign: self.sign, value: output}
+        FiLong { sign: self.sign, value: output }
     }
 }
+
 
 impl Shl<&usize> for FiLong {
     type Output = FiLong;
@@ -586,14 +589,37 @@ impl Shl<usize> for FiLong {
 impl ShlAssign<&usize> for FiLong {
 
     fn shl_assign(&mut self, rhs: &usize) {
-        *self = self.clone() << rhs;
+        let full = rhs / 64;
+        let exact = rhs % 64;
+        let mut output = Vec::with_capacity(self.len() + full + 1);
+        output.extend(vec![0; full]);
+
+        if exact == 0 {
+            output.extend_from_slice(&self.value);
+            *self = FiLong {sign: self.sign, value: output}
+        } else {
+            output
+                .extend((0..self.len())
+                    .map(|i| {
+                            let mut val: u64 = self[i] << exact;
+                            if i > 0 {
+                                val |= self[i - 1] >> (64 - exact);
+                            }
+                            val
+                        }));
+            let last = self[self.len() - 1] >> (64 - exact);
+            if last != 0 { // if you remove this if clause the compute time suddenly jumps to 7µs compared to around 1µs; it seems odd because this clause is only there for performance reasons; i checked both parts (the push, the last computation) and they take no longer than 100ns seperately (or together)
+                output.push(last);
+            }
+            *self = FiLong {sign: self.sign, value: output};
+        }
     }
 }
 
 impl ShlAssign<usize> for FiLong {
 
     fn shl_assign(&mut self, rhs: usize) {
-        *self = self.clone() << rhs;
+        *self <<= &rhs;
     }
 }
 
@@ -605,26 +631,21 @@ impl Shr<&usize> for &FiLong {
         if *rhs >= self.len() * 64 {
             FiLong::new()
         } else {
-            let mut fi = self.clone();
-            let len = self.len();
             let full = rhs / 64;
             let exact = rhs % 64;
-            let mut output: Vec<u64> = Vec::with_capacity(len - full);
-            for i in full..len {
-                output.push(self[i]);
+            if exact == 0 {
+                return FiLong{sign: self.sign, value: self.value[full..].to_vec()};
             }
-            
-            for i in 0..output.len() {
-                if exact == 0 {
-                    break;
-                }
-                let prev = output[i] << (64 - exact);
-                output[i] >>= exact;
-                if i > 0 {
-                    output[i - 1] |= prev;
-                }
-            }
-            FiLong{sign: fi.sign, value: output}
+            let output: Vec<u64> = (full..self.len())
+                .map(|i| {
+                    let mut val = self[i] >> exact;
+                    if i + 1 < self.len() {
+                        val |= self[i + 1] << (64 - exact);
+                    }
+                    val
+                })
+                .collect();
+            FiLong{sign: self.sign, value: output}
         }
     }
 }
@@ -658,14 +679,33 @@ impl Shr<usize> for FiLong {
 
 impl ShrAssign<&usize> for FiLong {
 
-    fn shr_assign(&mut self, rhs: &usize) {
-        *self = self.clone() >> rhs;
+    fn shr_assign(&mut self, rhs: &usize) { 
+        if *rhs >= self.len() * 64 {
+            *self = FiLong::new();
+        } else {
+            let full = rhs / 64;
+            let exact = rhs % 64;
+            if exact == 0 {
+                *self = FiLong{sign: self.sign, value: self.value[full..].to_vec()};
+            } else {
+                let output: Vec<u64> = (full..self.len())
+                    .map(|i| {
+                        let mut val = self[i] >> exact;
+                        if i + 1 < self.len() {
+                            val |= self[i + 1] << (64 - exact);
+                        }
+                        val
+                    })
+                    .collect();
+                *self = FiLong{sign: self.sign, value: output};
+            }
+        }
     }
 }
 
 impl ShrAssign<usize> for FiLong {
 
     fn shr_assign(&mut self, rhs: usize) {
-        *self = self.clone() >> rhs;
+        *self >>= &rhs;
     }
 }

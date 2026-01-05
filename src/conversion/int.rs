@@ -1,4 +1,4 @@
-use crate::fi::FiBin;
+use crate::fi::{FiBin, FiLong};
 use crate::errors::FiError;
 use crate::errors::FiErrorKind;
 
@@ -15,7 +15,9 @@ trait Numeric {
     fn add(self, other: Self) -> Self;
     fn mul(self, other: Self) -> Self;
     fn is_zero(self) -> bool;
-    fn neg(self) -> Self;
+    fn neg(&mut self);
+    fn to_u128(self) -> u128;
+    fn add_u128(&self, num: u128) -> Self;
 }
 
 
@@ -47,8 +49,14 @@ macro_rules! impl_numeric {
             fn is_zero(self) -> bool {
                 self == 0
             }
-            fn neg(self) -> Self {
-                self.wrapping_neg()
+            fn neg(&mut self) {
+                *self = self.wrapping_neg();
+            }
+            fn to_u128(self) -> u128 {
+                self as u128
+            }
+            fn add_u128(&self, num: u128) -> Self {
+                self + num as Self
             }
         }
     }
@@ -65,7 +73,7 @@ impl_numeric!(u32);
 impl_numeric!(u64);
 impl_numeric!(u128);
 
-macro_rules! impl_from_for_fi {
+macro_rules! impl_from_for_fibin {
     ($type:ty) => {
         impl From<$type> for FiBin {
             fn from(val: $type) -> FiBin {
@@ -81,7 +89,7 @@ macro_rules! impl_from_for_fi {
                         1 => true,
                         _ => panic!("Numbers can only be converted to bool if they are either 0 or 1."),
                     };
-                    fixed_int.value.push(res); // implement push
+                    fixed_int.push(res);
                     num /= 2;
                     if num != 0 {
                     }
@@ -95,44 +103,38 @@ macro_rules! impl_from_for_fi {
     };
 }
 
+macro_rules! impl_from_for_filong {
+    ($type:ty) => {
+        impl From<$type> for FiLong {
+            fn from(val: $type) -> FiLong {
+                let mut fixed_int = FiLong::new();
+                if val < 0 { 
+                    fixed_int.sign = true;
+                }
+                let num: u128 = val.abs_diff(0) as u128;
+                if num == 0 {
+                    return FiLong::new();
+                }
+                fixed_int.push(low_bits(num) as u64);
+                fixed_int.push(high_bits(num) as u64);
+                fixed_int *= FiLong::decimals();
+                fixed_int.spruce_up()
+            }
+        }
+    };
+}
 
+// stole these functions from arithm.rs
 
-// TODO
-// macro_rules! impl_parse_for_fi {
-//     ($type:ty) => {
-//         impl ParseInt<$type> for FiBin {
-//             fn parse(&self) -> Result<$type, FiError> {
-//                 let divisor: FiBin = FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
-//                 let bits: FiBin = (self.clone() / divisor).spruce_up();
-//                 if bits.len() > <$type>::BITS as usize {
-//                     return Err(FiError::new(FiErrorKind::NumberTooLarge, "The type you're trying to parse the fixed integer does NOT support numbers this large."));
-//                 }
-//                 let mut res: $type = 0;
-//                 for i in 0..bits.len() {
-//                     res += (2 as $type).pow(i as u32) * match_u8(&bits[i as usize]) as $type;
-//                 }
-//                 if self.sign {
-//                     if <$type>::MIN != 0 {
-//                         res = res.wrapping_neg();
-//                     } else {
-//                         return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "You can't assign a negative number to an unsigned type. Make sure the fixed interger is greater than zero before parsing into an unsigned number."));
-//                     }
-                    
-//                 }
-//                 Ok(res)
-//             }
-//         }
-//     };
-// }
+#[inline(always)]
+fn low_bits(num: u128) -> u128 {
+	(num << 64) >> 64
+}
 
-// macro_rules! impl_parse_for_fi_generic {
-//     ($type:ty) => {
-//         impl ParseIntGeneric<$type> for FiBin {
-            
-//         }
-//     };
-// }
-
+#[inline(always)]
+fn high_bits(num: u128) -> u128 {
+	num >> 64
+}
 
 // TODO: polish (might even refactor)
 impl FiBin {
@@ -151,7 +153,38 @@ impl FiBin {
         }
         if self.sign {
             if !<S>::MIN.is_zero() { // basically checks if a type is signed
-                res = res.neg();
+                res.neg();
+            } else {
+                return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "You can't assign a negative number to an unsigned type. Make sure the fixed interger is greater than zero before parsing into an unsigned number."));
+            }
+            
+        }
+        Ok(res)
+    }
+}
+
+impl FiLong {
+    pub fn parse<S: Numeric + std::fmt::Debug>(&self) -> Result<S, FiError>
+    where
+        S: Numeric
+    {
+        let bits: FiLong = (self.clone() / FiLong::decimals()).spruce_up(); // converts the number to an integer
+        let num: u128 = match bits.len() {
+            0 => return Ok(S::new()),
+            1 => bits[0] as u128,
+            2 => bits[0] as u128 + bits[1] as u128 * 2u128.pow(64),
+            _ => return Err(FiError::new(FiErrorKind::NumberTooLarge, "The type you're trying to parse the fixed integer does NOT support numbers this large.")),
+        };
+        let mut res: S = S::new();
+        if num > <S>::MAX.to_u128() {
+            return Err(FiError::new(FiErrorKind::NumberTooLarge, "The type you're trying to parse the fixed integer does NOT support numbers this large."));
+        } else {
+            res = res.add_u128(num);
+        }
+        
+        if self.sign {
+            if !<S>::MIN.is_zero() { // basically checks if a type is signed
+                res.neg();
             } else {
                 return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "You can't assign a negative number to an unsigned type. Make sure the fixed interger is greater than zero before parsing into an unsigned number."));
             }
@@ -172,36 +205,24 @@ fn match_u8(bit: &bool) -> u8 {
 
 
 
-impl_from_for_fi!(i8);
-impl_from_for_fi!(i16);
-impl_from_for_fi!(i32);
-impl_from_for_fi!(i64);
-impl_from_for_fi!(i128);
-impl_from_for_fi!(u8);
-impl_from_for_fi!(u16);
-impl_from_for_fi!(u32);
-impl_from_for_fi!(u64);
-impl_from_for_fi!(u128);
+impl_from_for_fibin!(i8);
+impl_from_for_fibin!(i16);
+impl_from_for_fibin!(i32);
+impl_from_for_fibin!(i64);
+impl_from_for_fibin!(i128);
+impl_from_for_fibin!(u8);
+impl_from_for_fibin!(u16);
+impl_from_for_fibin!(u32);
+impl_from_for_fibin!(u64);
+impl_from_for_fibin!(u128);
 
-// impl_parse_for_fi!(i8);
-// impl_parse_for_fi!(i16);
-// impl_parse_for_fi!(i32);
-// impl_parse_for_fi!(i64);
-// impl_parse_for_fi!(i128);
-// impl_parse_for_fi!(u8);
-// impl_parse_for_fi!(u16);
-// impl_parse_for_fi!(u32);
-// impl_parse_for_fi!(u64);
-// impl_parse_for_fi!(u128);
-
-
-// impl_parse_for_fi_generic!(i8);
-// impl_parse_for_fi_generic!(i16);
-// impl_parse_for_fi_generic!(i32);
-// impl_parse_for_fi_generic!(i64);
-// impl_parse_for_fi_generic!(i128);
-// impl_parse_for_fi_generic!(u8);
-// impl_parse_for_fi_generic!(u16);
-// impl_parse_for_fi_generic!(u32);
-// impl_parse_for_fi_generic!(u64);
-// impl_parse_for_fi_generic!(u128);
+impl_from_for_filong!(i8);
+impl_from_for_filong!(i16);
+impl_from_for_filong!(i32);
+impl_from_for_filong!(i64);
+impl_from_for_filong!(i128);
+impl_from_for_filong!(u8);
+impl_from_for_filong!(u16);
+impl_from_for_filong!(u32);
+impl_from_for_filong!(u64);
+impl_from_for_filong!(u128);

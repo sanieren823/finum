@@ -139,6 +139,9 @@ impl FiLong {
     pub fn abs(self) -> Self {
         FiLong{sign: false, value: self.value}
     }
+    pub fn absolute(&self) -> FiLong { // this function is somewhat a dublicate of the .abs() but i need it to work with references so there it is
+        FiLong{sign: false, value: self.value.clone()}
+    }
     pub fn spruce_up(&self) -> Self {
         let mut output: Vec<u64> = self.value.clone();
         for el in self.value.iter().rev() {
@@ -196,7 +199,12 @@ impl FiLong {
     pub fn decimals() -> Self {
         FiLong {sign: false, value: vec![13399722918938673152, 7145508105175220139, 29]}
     }
+
+    pub fn one() -> Self {
+        FiLong{sign: false, value: vec![7766279631452241920, 5]}
+    }
 }
+
 
 impl Clone for FiBin {
     fn clone(&self) -> Self {

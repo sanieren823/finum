@@ -287,35 +287,6 @@ fn bin_div(num1: FiBin, num2: FiBin) -> FiBin {
     res
 }
 
-// TODO: implement a float division
-
-// fn bin_floor(num1: FiBin, num2: FiBin) -> FiBin {
-//     let sign;
-//     if num1.sign == num2.sign {
-//         sign = false;
-//     } else {
-//         sign = true;
-//     }
-//     // let d = num2.abs();
-//     if num2.is_zero() {
-//         panic!("You can't divide by 0. Make sure your dividend is not equal to 0.")
-//     }
-//     let mut q: Vec<bool> = vec![false; num1.len() + num2.len()];
-//     let mut r: FiBin = FiBin{sign: false, value: vec![false]};
-//     for i in (0..num1.len()).rev() {
-//         r.value.insert(0, num1.value[i]);
-//         // println!("r: {:?}", r);
-        
-//         if r >= num2.abs() {
-//             r -= num2.abs();
-//             q[i] = true;
-//         }
-        
-//     }   
-//     let mut res = FiBin{sign: sign, value: q};
-//     res
-// }
-
 fn bin_rem(num1: FiBin, num2: FiBin) -> FiBin {
     let sign;
     sign = num1.sign;
@@ -742,7 +713,14 @@ fn long_sub(num1: &FiLong, num2: &FiLong) -> FiLong {
     }
     let mut result: FiLong = FiLong{sign: false, value: Vec::with_capacity(bigger.len())};
     for i in 0..bigger.len() { // standard borrow-subtraction
-        if smaller[i] + borrow as u64 > bigger[i] {
+        if smaller.len() <= i {
+            if borrow as u64 > bigger[i] {
+                result.push(u64::MAX);
+            } else {
+                result.push(bigger[i] - borrow as u64);
+                borrow = 0;
+            }
+        } else if smaller[i] + borrow as u64 > bigger[i] {
             result.push(u64::MAX - (smaller[i] - bigger[i]) - borrow as u64 + 1);
             borrow = 1;
         } else {
@@ -772,14 +750,13 @@ fn long_mul(num1: &FiLong, num2: &FiLong) -> FiLong {
             carries[i + j] = 0;
         }
     }
-    if carries[len - 2] != 0 { // checks if there's a carry in the last operation
-        result[len - 1] = carries[len - 2] as u64;
+    if carries[len - 1] != 0 { // checks if there's a carry in the last operation
+        result[len - 1] = carries[len - 1] as u64;
     }
     result
 }
 
 fn long_div(num1: &FiLong, num2: &FiLong) -> FiLong {
-    
     let sign; // "calculates" the sign of the result
     if num1.sign == num2.sign {
         sign = false;
@@ -797,21 +774,22 @@ fn long_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut inverse: FiLong = n.reverse_bits(); // in normal long division you iterate through the number/vector/bits from end to start. for some reason i wanted to avoid that which is why i calculated the inverse number (i think i belived that the num_bits - i would be less efficient than just computing the inverse given that the run time scales with size)
     let mut q = FiLong{sign: sign, value: vec![0; num1.value.capacity()]};
     let mut r: FiLong = FiLong{sign: false, value: vec![0]};
-    let num_bits = (inverse.len() * 64) - 1 - offset;
+    let num_bits = (inverse.len() * 64) - offset;
     let mut bit_mask = FiLong{sign: false, value: vec![1]} << num_bits;
     for _ in 0..num_bits{ // standard long division
+        bit_mask >>= 1;
         r <<= 1;
         r[0] |= inverse[0] & 1;
         inverse >>= 1;
         if &r >= num2 {
-            r -= num2.clone();
+            r -= num2;
             q |= &bit_mask;
         }
-        bit_mask >>= 1;
-    }   
+        
+    }
     r <<= 1;
     if r >= num2.absolute() { // rounds if necessary
-        q |= bit_mask;
+        return long_add(&q, &bit_mask);
     }
     q
 }
@@ -827,22 +805,18 @@ fn long_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
     let n: FiLong = dividend << offset;
     let mut inverse: FiLong = n.reverse_bits();
     let mut r: FiLong = FiLong{sign: false, value: vec![0]};
-    let num_bits = (inverse.len() * 64) - 1 - offset;
+    let num_bits = (inverse.len() * 64) - offset;
     for _ in 0..num_bits{ // long division
         r <<= 1;
         r[0] |= inverse[0] & 1;
         inverse >>= 1;
         if &r >= num2 {
-            r -= num2.clone();
+            r -= num2;
         }
     }   
     r.sign = num1.sign;
     r
 }
-
-
-
-
 
 
 impl Floor for FiLong {
@@ -908,7 +882,11 @@ impl RoundN<usize> for FiLong {
         } else if num == 0 {
             self.round()
         } else {
-            let factor: FiLong = 10u64.pow(20 - num as u32).into();
+            let mut factor: FiLong = FiLong{sign: false, value: vec![1]};
+            let ten: FiLong = FiLong{sign: false, value: vec![10]};
+            for _ in 0..(20 - num) {
+                factor = long_mul(&factor, &ten);
+            }
             let binary = long_div(&self, &factor);
             long_mul(&binary, &factor)
         }

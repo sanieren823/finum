@@ -6,13 +6,13 @@ use crate::fi::Parsing;
 mod functions;
 use crate::fi::{FiBin, FiLong};
 use std::time::Instant;
-
+use crate::functions::arithm::{Floor, Ceil, Round, RoundN};
 fn main() {
     // let fixed = fi::fi{sign: false, value: vec![false, true, false, true, true, true, false, false, true]};
     // let string = "109019".to_string();
     let n1: FiBin = FiBin::from(String::from("14"));
     let n2: FiBin = FiBin::from(String::from("7"));
-    let dividend: FiBin = FiBin::from(String::from("2.4999999999999999999"));
+    let dividend: FiBin = FiBin::from(String::from("2.87087028347068327"));
     let divisor: FiBin = FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
     let calc = dividend.clone() / divisor.clone();
     // let f1: FiBin = FiBin{sign: false, value: vec![true, true, true]};
@@ -30,8 +30,8 @@ fn main() {
     let mut new1 = n1.to_long();
     let mut new2 = n2.to_long();
     println!("{:?}", n1.to_long().to_bin().to_string());
-    println!("{:?}", (n1.clone() / FiBin::decimals()).to_long() << 2);
-    println!("{:?}", FiBin::decimals().to_long());
+    println!("{:?}", (dividend.to_long() % FiLong::one()).to_bin().to_string());
+    println!("round: {:?}", dividend.to_long().round_n(13).to_bin().to_string());
     println!("{:?}, {:?}", new1, new2);
     println!("sub: {:?}", (new1 / new2.clone()).to_bin().to_string());
     // println!("{:?}", n1.nth_root(n2.clone()).to_string());

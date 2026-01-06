@@ -966,7 +966,7 @@ fn floor_div(num1: &FiLong, num2: &FiLong) -> FiLong {
         r[0] |= inverse[0] & 1;
         inverse >>= 1;
         if &r >= num2 {
-            r -= num2.clone();
+            r -= num2;
             q |= &bit_mask;
         }
         bit_mask >>= 1;
@@ -1002,7 +1002,7 @@ fn ceil_div(num1: &FiLong, num2: &FiLong) -> FiLong {
         r[0] |= inverse[0] & 1;
         inverse >>= 1;
         if &r >= num2 {
-            r -= num2.clone();
+            r -= num2;
             q |= &bit_mask;
         }
         bit_mask >>= 1;
@@ -1013,3 +1013,353 @@ fn ceil_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     }
     q
 }
+
+
+
+macro_rules! int_arithmetic {
+    ($type:ty) => {
+        impl Add<$type> for FiLong {
+            type Output = FiLong;
+
+            fn add(self, num: $type) -> Self::Output {
+                self + FiLong::from(num)
+            }
+        }
+        impl Add<&$type> for FiLong {
+            type Output = FiLong;
+
+            fn add(self, num: &$type) -> Self::Output {
+                self + FiLong::from(*num)
+            }
+        }
+        impl Add<$type> for &FiLong {
+            type Output = FiLong;
+
+            fn add(self, num: $type) -> Self::Output {
+                self + FiLong::from(num)
+            }
+        }
+        impl Add<&$type> for &FiLong {
+            type Output = FiLong;
+
+            fn add(self, num: &$type) -> Self::Output {
+                self + FiLong::from(*num)
+            }  
+        }
+        impl AddAssign<$type> for FiLong {
+            fn add_assign(&mut self, num: $type) {
+                *self += FiLong::from(num);
+            }
+        }
+        impl AddAssign<&$type> for FiLong {
+            fn add_assign(&mut self, num: &$type) {
+                *self += FiLong::from(*num);
+            }  
+        }
+        impl Sub<$type> for FiLong {
+            type Output = FiLong;
+
+            fn sub(self, num: $type) -> Self::Output {
+                self - FiLong::from(num)
+            }
+        }
+        impl Sub<&$type> for FiLong {
+            type Output = FiLong;
+
+            fn sub(self, num: &$type) -> Self::Output {
+                self - FiLong::from(*num)
+            }
+        }
+        impl Sub<$type> for &FiLong {
+            type Output = FiLong;
+
+            fn sub(self, num: $type) -> Self::Output {
+                self - FiLong::from(num)
+            }
+        }
+        impl Sub<&$type> for &FiLong {
+            type Output = FiLong;
+
+            fn sub(self, num: &$type) -> Self::Output {
+                self - FiLong::from(*num)
+            }  
+        }
+        impl SubAssign<$type> for FiLong {
+            fn sub_assign(&mut self, num: $type) {
+                *self -= FiLong::from(num);
+            }
+        }
+        impl SubAssign<&$type> for FiLong {
+            fn sub_assign(&mut self, num: &$type) {
+                *self -= FiLong::from(*num);
+            }  
+        }
+        impl Mul<$type> for FiLong {
+            type Output = FiLong;
+
+            fn mul(self, num: $type) -> Self::Output {
+                self * FiLong::from(num)
+            }
+        }
+        impl Mul<&$type> for FiLong {
+            type Output = FiLong;
+
+            fn mul(self, num: &$type) -> Self::Output {
+                self * FiLong::from(*num)
+            }
+        }
+        impl Mul<$type> for &FiLong {
+            type Output = FiLong;
+
+            fn mul(self, num: $type) -> Self::Output {
+                self * FiLong::from(num)
+            }
+        }
+        impl Mul<&$type> for &FiLong {
+            type Output = FiLong;
+
+            fn mul(self, num: &$type) -> Self::Output {
+                self * FiLong::from(*num)
+            }  
+        }
+        impl MulAssign<$type> for FiLong {
+            fn mul_assign(&mut self, num: $type) {
+                *self *= FiLong::from(num);
+            }
+        }
+        impl MulAssign<&$type> for FiLong {
+            fn mul_assign(&mut self, num: &$type) {
+                *self *= FiLong::from(*num);
+            }  
+        }
+        impl Div<$type> for FiLong {
+            type Output = FiLong;
+
+            fn div(self, num: $type) -> Self::Output {
+                self / FiLong::from(num)
+            }
+        }
+        impl Div<&$type> for FiLong {
+            type Output = FiLong;
+
+            fn div(self, num: &$type) -> Self::Output {
+                self / FiLong::from(*num)
+            }
+        }
+        impl Div<$type> for &FiLong {
+            type Output = FiLong;
+
+            fn div(self, num: $type) -> Self::Output {
+                self / FiLong::from(num)
+            }
+        }
+        impl Div<&$type> for &FiLong {
+            type Output = FiLong;
+
+            fn div(self, num: &$type) -> Self::Output {
+                self / FiLong::from(*num)
+            }  
+        }
+        impl DivAssign<$type> for FiLong {
+            fn div_assign(&mut self, num: $type) {
+                *self /= FiLong::from(num);
+            }
+        }
+        impl DivAssign<&$type> for FiLong {
+            fn div_assign(&mut self, num: &$type) {
+                *self /= FiLong::from(*num);
+            }  
+        }
+        impl Rem<$type> for FiLong {
+            type Output = FiLong;
+
+            fn rem(self, num: $type) -> Self::Output {
+                self % FiLong::from(num)
+            }
+        }
+        impl Rem<&$type> for FiLong {
+            type Output = FiLong;
+
+            fn rem(self, num: &$type) -> Self::Output {
+                self % FiLong::from(*num)
+            }
+        }
+        impl Rem<$type> for &FiLong {
+            type Output = FiLong;
+
+            fn rem(self, num: $type) -> Self::Output {
+                self % FiLong::from(num)
+            }
+        }
+        impl Rem<&$type> for &FiLong {
+            type Output = FiLong;
+
+            fn rem(self, num: &$type) -> Self::Output {
+                self % FiLong::from(*num)
+            }  
+        }
+        impl RemAssign<$type> for FiLong {
+            fn rem_assign(&mut self, num: $type) {
+                *self %= FiLong::from(num);
+            }
+        }
+        impl RemAssign<&$type> for FiLong {
+            fn rem_assign(&mut self, num: &$type) {
+                *self %= FiLong::from(*num);
+            }  
+        }
+        impl Add<FiLong> for $type {
+            type Output = FiLong;
+
+            fn add(self, num: FiLong) -> Self::Output {
+                FiLong::from(self) + num
+            }  
+        }
+        impl Add<&FiLong> for $type {
+            type Output = FiLong;
+
+            fn add(self, num: &FiLong) -> Self::Output {
+                FiLong::from(self) + num
+            }  
+        }
+        impl Add<FiLong> for &$type {
+            type Output = FiLong;
+
+            fn add(self, num: FiLong) -> Self::Output {
+                FiLong::from(*self) + num
+            }  
+        }
+        impl Add<&FiLong> for &$type {
+            type Output = FiLong;
+
+            fn add(self, num: &FiLong) -> Self::Output {
+                FiLong::from(*self) + num
+            }  
+        }
+        impl Sub<FiLong> for $type {
+            type Output = FiLong;
+
+            fn sub(self, num: FiLong) -> Self::Output {
+                FiLong::from(self) - num
+            }  
+        }
+        impl Sub<&FiLong> for $type {
+            type Output = FiLong;
+
+            fn sub(self, num: &FiLong) -> Self::Output {
+                FiLong::from(self) - num
+            }  
+        }
+        impl Sub<FiLong> for &$type {
+            type Output = FiLong;
+
+            fn sub(self, num: FiLong) -> Self::Output {
+                FiLong::from(*self) - num
+            }  
+        }
+        impl Sub<&FiLong> for &$type {
+            type Output = FiLong;
+
+            fn sub(self, num: &FiLong) -> Self::Output {
+                FiLong::from(*self) - num
+            }  
+        }
+        impl Mul<FiLong> for $type {
+            type Output = FiLong;
+
+            fn mul(self, num: FiLong) -> Self::Output {
+                FiLong::from(self) * num
+            }  
+        }
+        impl Mul<&FiLong> for $type {
+            type Output = FiLong;
+
+            fn mul(self, num: &FiLong) -> Self::Output {
+                FiLong::from(self) * num
+            }  
+        }
+        impl Mul<FiLong> for &$type {
+            type Output = FiLong;
+
+            fn mul(self, num: FiLong) -> Self::Output {
+                FiLong::from(*self) * num
+            }  
+        }
+        impl Mul<&FiLong> for &$type {
+            type Output = FiLong;
+
+            fn mul(self, num: &FiLong) -> Self::Output {
+                FiLong::from(*self) * num
+            }  
+        }
+        impl Div<FiLong> for $type {
+            type Output = FiLong;
+
+            fn div(self, num: FiLong) -> Self::Output {
+                FiLong::from(self) / num
+            }  
+        }
+        impl Div<&FiLong> for $type {
+            type Output = FiLong;
+
+            fn div(self, num: &FiLong) -> Self::Output {
+                FiLong::from(self) / num
+            }  
+        }
+        impl Div<FiLong> for &$type {
+            type Output = FiLong;
+
+            fn div(self, num: FiLong) -> Self::Output {
+                FiLong::from(*self) / num
+            }  
+        }
+        impl Div<&FiLong> for &$type {
+            type Output = FiLong;
+
+            fn div(self, num: &FiLong) -> Self::Output {
+                FiLong::from(*self) / num
+            }  
+        }
+        impl Rem<FiLong> for $type {
+            type Output = FiLong;
+
+            fn rem(self, num: FiLong) -> Self::Output {
+                FiLong::from(self) % num
+            }  
+        }
+        impl Rem<&FiLong> for $type {
+            type Output = FiLong;
+
+            fn rem(self, num: &FiLong) -> Self::Output {
+                FiLong::from(self) % num
+            }  
+        }
+        impl Rem<FiLong> for &$type {
+            type Output = FiLong;
+
+            fn rem(self, num: FiLong) -> Self::Output {
+                FiLong::from(*self) % num
+            }  
+        }
+        impl Rem<&FiLong> for &$type {
+            type Output = FiLong;
+
+            fn rem(self, num: &FiLong) -> Self::Output {
+                FiLong::from(*self) % num
+            }  
+        }
+    };
+}
+
+int_arithmetic!(isize);
+int_arithmetic!(i8);
+int_arithmetic!(i16);
+int_arithmetic!(i32);
+int_arithmetic!(i64);
+int_arithmetic!(i128);
+int_arithmetic!(usize);
+int_arithmetic!(u8);
+int_arithmetic!(u16);
+int_arithmetic!(u32);
+int_arithmetic!(u64);
+int_arithmetic!(u128);

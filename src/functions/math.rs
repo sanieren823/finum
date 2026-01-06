@@ -1,7 +1,27 @@
-use crate::fi::FiBin;
+use crate::fi::{FiBin, FiLong};
 use std::time::Instant;
 use crate::errors::FiError;
 use crate::errors::FiErrorKind;
+
+
+trait PowInteger<Rhs = Self> {
+    type Output;
+
+    fn pow_int(self, rhs: Rhs) -> Self::Output;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 impl FiBin {
     pub fn pow(self, n: Self) -> Self {
@@ -33,17 +53,17 @@ impl FiBin {
         FiBin::new()
     }
     pub fn termial(self) -> Self {
-        let mut val = self.clone() % 1.into();
+        let mut num = self.clone() % 1.into();
         let mut counter = self.clone() / FiBin::decimals();
         while !counter.is_zero() {
-            val += counter.clone() * FiBin::decimals();
+            num += counter.clone() * FiBin::decimals();
             if self.sign {
                 counter += FiBin{sign: false, value: vec![true]};
             } else {
                 counter -= FiBin{sign: false, value: vec![true]};
             }
         }
-        val
+        num
     }
     pub fn ln(self) -> Self {
         FiBin::new()
@@ -152,3 +172,191 @@ fn fl_log_2(num: FiBin) -> Result<FiBin, FiError> {
     }
     Ok(res)
 }
+
+
+fn fl_log_2_long(num: FiLong) -> Result<FiLong, FiError> { 
+    let mut shifted;
+    let mut res: FiLong = FiLong::new();
+    let mut sign = false;
+    if num.sign {
+        return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "Mind that the logarithmic function doesn't implement negative numbers."));
+    } else if num < FiLong::one() {
+        shifted = FiLong::one() / num;
+        println!("num: {:?}", shifted.to_bin().to_string());
+        sign = true;
+    } else {
+        shifted = num
+    }
+    shifted = shifted / FiLong::decimals();
+    println!("{:?}", shifted.to_bin().to_string());
+    
+    while shifted >= 2.into() {
+        shifted >>= 1;
+        res += 1;
+    }
+    res.sign = sign;
+    Ok(res)
+}
+
+fn decimals_log_2_long(num: FiLong) -> FiLong { // input must be the residue --> between 1 and 2
+    let y = num.clone();
+    let mut z = num;
+    let mut m: usize = 0;
+    let mut res = FiLong::new();
+    while z < 2.into() {
+        z *= &y;
+        m -= 1;
+    }
+    // res = 2^-m + 2-m log2(z/2)
+    res = FiLong::two().pow_int(m) + FiLong::two().pow_int(m) * decimals_log_2_long(z / FiLong::two());
+    FiLong::new()
+}
+
+
+
+impl PowInteger<FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn pow_int(self, num: FiLong) -> Self::Output {
+        let mut res: FiLong = 1.into();
+        let mut counter = self.absolute();
+        while counter > 1.into() {
+            res *= &self;
+            counter -= 1;
+        }
+        if num.sign {
+            res = FiLong::from(1) / res;
+        }
+        res
+    }
+}
+
+impl PowInteger<&FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn pow_int(self, num: &FiLong) -> Self::Output {
+        let mut res: FiLong = 1.into();
+        let mut counter = self.absolute();
+        while counter > 1.into() {
+            res *= &self;
+            counter -= 1;
+        }
+        if num.sign {
+            res = FiLong::from(1) / res;
+        }
+        res
+    }
+}
+
+impl PowInteger<FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn pow_int(self, num: FiLong) -> Self::Output {
+        let mut res: FiLong = 1.into();
+        let mut counter = self.absolute();
+        while counter > 1.into() {
+            res *= self;
+            counter -= 1;
+        }
+        if num.sign {
+            res = FiLong::from(1) / res;
+        }
+        res
+    }
+}
+
+impl PowInteger<&FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn pow_int(self, num: &FiLong) -> Self::Output {
+        let mut res: FiLong = 1.into();
+        let mut counter = self.absolute();
+        while counter > 1.into() {
+            res *= self;
+            counter -= 1;
+        }
+        if num.sign {
+            res = FiLong::from(1) / res;
+        }
+        res
+    }
+}
+
+macro_rules! pow_int_for_int {
+    ($type:ty) => {
+        impl PowInteger<$type> for FiLong {
+            type Output = FiLong;
+
+            fn pow_int(self, num: $type) -> Self::Output {
+                let mut res: FiLong = 1.into();
+                let exponent = num.abs_diff(0);
+                for _ in 0..exponent {
+                    res *= &self;
+                }
+                if num < 0 {
+                    res = FiLong::from(1) / res;
+                }
+                res
+            }
+        }
+        impl PowInteger<&$type> for FiLong {
+            type Output = FiLong;
+
+            fn pow_int(self, num: &$type) -> Self::Output {
+                let mut res: FiLong = 1.into();
+                let exponent = num.abs_diff(0);
+                for _ in 0..exponent {
+                    res *= &self;
+                }
+                if *num < 0 {
+                    res = FiLong::from(1) / res;
+                }
+                res
+            }
+        }
+        impl PowInteger<$type> for &FiLong {
+            type Output = FiLong;
+
+            fn pow_int(self, num: $type) -> Self::Output {
+                let mut res: FiLong = 1.into();
+                let exponent = num.abs_diff(0);
+                for _ in 0..exponent {
+                    res *= self;
+                }
+                if num < 0 {
+                    res = FiLong::from(1) / res;
+                }
+                res
+            }
+        }
+        impl PowInteger<&$type> for &FiLong {
+            type Output = FiLong;
+
+            fn pow_int(self, num: &$type) -> Self::Output {
+                let mut res: FiLong = 1.into();
+                let exponent = num.abs_diff(0);
+                for _ in 0..exponent {
+                    res *= self;
+                }
+                if *num < 0 {
+                    res = FiLong::from(1) / res;
+                }
+                res
+            }  
+        }
+    };
+}
+
+
+pow_int_for_int!(isize);
+pow_int_for_int!(i8);
+pow_int_for_int!(i16);
+pow_int_for_int!(i32);
+pow_int_for_int!(i64);
+pow_int_for_int!(i128);
+pow_int_for_int!(usize);
+pow_int_for_int!(u8);
+pow_int_for_int!(u16);
+pow_int_for_int!(u32);
+pow_int_for_int!(u64);
+pow_int_for_int!(u128);

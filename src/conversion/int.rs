@@ -204,23 +204,26 @@ fn match_u8(bit: &bool) -> u8 {
 }
 
 
-
+impl_from_for_fibin!(isize);
 impl_from_for_fibin!(i8);
 impl_from_for_fibin!(i16);
 impl_from_for_fibin!(i32);
 impl_from_for_fibin!(i64);
 impl_from_for_fibin!(i128);
+impl_from_for_fibin!(usize);
 impl_from_for_fibin!(u8);
 impl_from_for_fibin!(u16);
 impl_from_for_fibin!(u32);
 impl_from_for_fibin!(u64);
 impl_from_for_fibin!(u128);
 
+impl_from_for_filong!(isize);
 impl_from_for_filong!(i8);
 impl_from_for_filong!(i16);
 impl_from_for_filong!(i32);
 impl_from_for_filong!(i64);
 impl_from_for_filong!(i128);
+impl_from_for_filong!(usize);
 impl_from_for_filong!(u8);
 impl_from_for_filong!(u16);
 impl_from_for_filong!(u32);

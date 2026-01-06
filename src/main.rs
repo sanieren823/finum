@@ -11,7 +11,7 @@ fn main() {
     // let fixed = fi::fi{sign: false, value: vec![false, true, false, true, true, true, false, false, true]};
     // let string = "109019".to_string();
     let n1: FiBin = FiBin::from(String::from("14"));
-    let n2: FiBin = FiBin::from(String::from("7"));
+    let n2: FiBin = FiBin::from(String::from("2"));
     let dividend: FiBin = FiBin::from(String::from("2.87087028347068327"));
     let divisor: FiBin = FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
     let calc = dividend.clone() / divisor.clone();

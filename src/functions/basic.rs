@@ -203,6 +203,10 @@ impl FiLong {
     pub fn one() -> Self {
         FiLong{sign: false, value: vec![7766279631452241920, 5]}
     }
+
+    pub fn two() -> Self {
+        FiLong{sign: false, value: vec![15532559262904483840, 10]}
+    }
 }
 
 

@@ -12,7 +12,7 @@ fn main() {
     // let string = "109019".to_string();
     let n1: FiBin = FiBin::from(String::from("14"));
     let n2: FiBin = FiBin::from(String::from("2"));
-    let dividend: FiBin = FiBin::from(String::from("2.87087028347068327"));
+    let dividend: FiBin = FiBin::from(String::from("0.30102999566398119521373889472449"));
     let divisor: FiBin = FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
     let calc = dividend.clone() / divisor.clone();
     // let f1: FiBin = FiBin{sign: false, value: vec![true, true, true]};
@@ -31,9 +31,13 @@ fn main() {
     let mut new2 = n2.to_long();
     println!("{:?}", n1.to_long().to_bin().to_string());
     println!("{:?}", (dividend.to_long() % FiLong::one()).to_bin().to_string());
-    println!("round: {:?}", dividend.to_long().round_n(13).to_bin().to_string());
+    println!("round: {:?}", dividend.to_long());
     println!("{:?}, {:?}", new1, new2);
-    println!("sub: {:?}", (new1 / new2.clone()).to_bin().to_string());
+    println!("sub: {:?}", (&new1 / &new2).to_bin().to_string());
+    let time = Instant::now();
+    new1.log_2();
+    println!("log: {:?}", time.elapsed());
+    println!("100: {:?}; 1/100: {:?}", FiLong::one() * 100, FiLong::one() / 100);
     // println!("{:?}", n1.nth_root(n2.clone()).to_string());
     functions::arithm::time_comparison(FiBin::from(String::from("0897563456342")), FiBin::from(String::from("1238975634532")));
     // println!("{}", (f1 / f2).to_string());

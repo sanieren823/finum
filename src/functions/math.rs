@@ -10,6 +10,12 @@ trait PowInteger<Rhs = Self> {
     fn pow_int(self, rhs: Rhs) -> Self::Output;
 }
 
+trait Logarithm<Rhs = Self> {
+    type Output;
+
+    fn log(self, rhs: Rhs) -> Self::Output;
+}
+
 
 
 
@@ -79,6 +85,13 @@ impl FiBin {
 
     pub fn log_2(self) -> FiBin {
         self.ln() / FiBin::from(2)
+    }
+}
+
+
+impl FiLong {
+    pub fn log_2(self) -> FiLong {
+        fl_log_2_long(&self).unwrap()
     }
 }
 
@@ -173,46 +186,56 @@ fn fl_log_2(num: FiBin) -> Result<FiBin, FiError> {
     Ok(res)
 }
 
+impl FiLong { // helper functions for the log2 calculation
+    #[inline(always)]
+    fn hundred() -> FiLong {
+        FiLong{sign: false, value: vec![1864712049423024128, 542]}
+    }
+    #[inline(always)]
+    fn hundredth() -> FiLong {
+        FiLong{sign: false, value: vec![1000000000000000000]}
+    }
+}
 
-fn fl_log_2_long(num: FiLong) -> Result<FiLong, FiError> { 
+fn fl_log_2_long(num: &FiLong) -> Result<FiLong, FiError> { 
     let mut shifted;
     let mut res: FiLong = FiLong::new();
     let mut sign = false;
     if num.sign {
         return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "Mind that the logarithmic function doesn't implement negative numbers."));
-    } else if num < FiLong::one() {
+    } else if *num < FiLong::one() {
         shifted = FiLong::one() / num;
-        println!("num: {:?}", shifted.to_bin().to_string());
         sign = true;
     } else {
-        shifted = num
+        shifted = num.clone();
     }
-    shifted = shifted / FiLong::decimals();
-    println!("{:?}", shifted.to_bin().to_string());
-    
-    while shifted >= 2.into() {
+    while shifted >= FiLong::two() {
         shifted >>= 1;
         res += 1;
     }
+    res += decimals_log_2_long(&shifted, &FiLong::hundred()) * FiLong::hundredth(); // this adds precision; from what i measured 100 is usually enough
     res.sign = sign;
     Ok(res)
 }
 
-fn decimals_log_2_long(num: FiLong) -> FiLong { // input must be the residue --> between 1 and 2
-    let y = num.clone();
-    let mut z = num;
+fn decimals_log_2_long(num: &FiLong, factor: &FiLong) -> FiLong { // input must be the residue --> between 1 and 2
+    
+    if *num == FiLong::one() {
+        return FiLong::new();
+    }
+    let mut z = num.clone();
     let mut m: usize = 0;
     let mut res = FiLong::new();
-    while z < 2.into() {
-        z *= &y;
-        m -= 1;
+    while z < FiLong::two() {
+        z = &z * &z;
+        m += 1;
     }
-    // res = 2^-m + 2-m log2(z/2)
-    res = FiLong::two().pow_int(m) + FiLong::two().pow_int(m) * decimals_log_2_long(z / FiLong::two());
-    FiLong::new()
+    let inverse: FiLong = (FiLong::one() >> m) * factor;
+    if !inverse.is_zero() {
+        res = &inverse + decimals_log_2_long(&(z >> 1), &inverse);
+    }
+    res
 }
-
-
 
 impl PowInteger<FiLong> for FiLong {
     type Output = FiLong;
@@ -225,7 +248,7 @@ impl PowInteger<FiLong> for FiLong {
             counter -= 1;
         }
         if num.sign {
-            res = FiLong::from(1) / res;
+            res = 1 / res;
         }
         res
     }
@@ -242,7 +265,7 @@ impl PowInteger<&FiLong> for FiLong {
             counter -= 1;
         }
         if num.sign {
-            res = FiLong::from(1) / res;
+            res = 1 / res;
         }
         res
     }
@@ -259,7 +282,7 @@ impl PowInteger<FiLong> for &FiLong {
             counter -= 1;
         }
         if num.sign {
-            res = FiLong::from(1) / res;
+            res = 1 / res;
         }
         res
     }
@@ -276,7 +299,7 @@ impl PowInteger<&FiLong> for &FiLong {
             counter -= 1;
         }
         if num.sign {
-            res = FiLong::from(1) / res;
+            res = 1 / res;
         }
         res
     }
@@ -294,7 +317,7 @@ macro_rules! pow_int_for_int {
                     res *= &self;
                 }
                 if num < 0 {
-                    res = FiLong::from(1) / res;
+                    res = 1 / res;
                 }
                 res
             }
@@ -309,7 +332,7 @@ macro_rules! pow_int_for_int {
                     res *= &self;
                 }
                 if *num < 0 {
-                    res = FiLong::from(1) / res;
+                    res = 1 / res;
                 }
                 res
             }
@@ -324,7 +347,7 @@ macro_rules! pow_int_for_int {
                     res *= self;
                 }
                 if num < 0 {
-                    res = FiLong::from(1) / res;
+                    res = 1 / res;
                 }
                 res
             }
@@ -339,14 +362,13 @@ macro_rules! pow_int_for_int {
                     res *= self;
                 }
                 if *num < 0 {
-                    res = FiLong::from(1) / res;
+                    res = 1 / res;
                 }
                 res
             }  
         }
     };
 }
-
 
 pow_int_for_int!(isize);
 pow_int_for_int!(i8);
@@ -360,3 +382,53 @@ pow_int_for_int!(u16);
 pow_int_for_int!(u32);
 pow_int_for_int!(u64);
 pow_int_for_int!(u128);
+
+
+impl Logarithm<FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn log(self, base: FiLong) -> Self::Output {
+        self.log2() / base.log2()
+    }
+}
+
+impl Logarithm<&FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn log(self, base: &FiLong) -> Self::Output {
+        self.log2() / base.log2()
+    }
+}
+
+impl Logarithm<FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn log(self, base: FiLong) -> Self::Output {
+        self.log2() / base.log2()
+    }
+}
+
+impl Logarithm<&FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn log(self, base: &FiLong) -> Self::Output {
+        self.log2() / base.log2()
+    }
+}
+
+impl FiLong {
+    fn log2(&self) -> FiLong {
+        match fl_log_2_long(&self) {
+            Ok(val) => val,
+            Err(e) => panic!("{}", e.msg()),
+        }
+    }
+
+    fn ln(&self) -> FiLong {
+        self.log2() * FiLong{sign: false, value: vec![13974485834865876094, 3]}
+    }
+
+    fn log10(&self) -> FiLong {
+        self.log2() * FiLong{sign: false, value: vec![11656255492688567905, 1]}
+    }
+}

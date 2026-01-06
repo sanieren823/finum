@@ -34,4 +34,7 @@ impl FiError {
     pub fn new(error_kind: FiErrorKind, message: &'static str) -> FiError {
         FiError{kind: error_kind, msg: message}
     }
+    pub fn msg(self) -> &'static str {
+        self.msg
+    }
 }

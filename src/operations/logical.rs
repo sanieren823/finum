@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use crate::fi::{FiBin, FiLong};
-use std::time::Instant; // TODO: remove
 
+// comparison logic for FiBin + FiLong
 
 impl PartialOrd for FiBin {
     #[inline(always)]

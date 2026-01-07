@@ -16,6 +16,12 @@ trait Logarithm<Rhs = Self> {
     fn log(self, rhs: Rhs) -> Self::Output;
 }
 
+// TODO: change all integer arithmetic to the FiLong counterpart (should be marginally faster)
+
+// PowReal --> x^n = e^(n * ln(x)) --> e^x can be approximated used in taylor series and pre calculated factorials
+
+// traits to implement: Factorial + Termial + PowReal + Exponential + Trigonometry + Sqrt + NthRoot
+// macro for pow? or seperate trait?
 
 
 
@@ -85,13 +91,6 @@ impl FiBin {
 
     pub fn log_2(self) -> FiBin {
         self.ln() / FiBin::from(2)
-    }
-}
-
-
-impl FiLong {
-    pub fn log_2(self) -> FiLong {
-        fl_log_2_long(&self).unwrap()
     }
 }
 
@@ -241,9 +240,9 @@ impl PowInteger<FiLong> for FiLong {
     type Output = FiLong;
 
     fn pow_int(self, num: FiLong) -> Self::Output {
-        let mut res: FiLong = 1.into();
+        let mut res: FiLong = FiLong::one();
         let mut counter = self.absolute();
-        while counter > 1.into() {
+        while counter > FiLong::one() {
             res *= &self;
             counter -= 1;
         }
@@ -258,9 +257,9 @@ impl PowInteger<&FiLong> for FiLong {
     type Output = FiLong;
 
     fn pow_int(self, num: &FiLong) -> Self::Output {
-        let mut res: FiLong = 1.into();
+        let mut res: FiLong = FiLong::one();
         let mut counter = self.absolute();
-        while counter > 1.into() {
+        while counter > FiLong::one() {
             res *= &self;
             counter -= 1;
         }
@@ -275,9 +274,9 @@ impl PowInteger<FiLong> for &FiLong {
     type Output = FiLong;
 
     fn pow_int(self, num: FiLong) -> Self::Output {
-        let mut res: FiLong = 1.into();
+        let mut res: FiLong = FiLong::one();
         let mut counter = self.absolute();
-        while counter > 1.into() {
+        while counter > FiLong::one() {
             res *= self;
             counter -= 1;
         }
@@ -292,9 +291,9 @@ impl PowInteger<&FiLong> for &FiLong {
     type Output = FiLong;
 
     fn pow_int(self, num: &FiLong) -> Self::Output {
-        let mut res: FiLong = 1.into();
+        let mut res: FiLong = FiLong::one();
         let mut counter = self.absolute();
-        while counter > 1.into() {
+        while counter > FiLong::one() {
             res *= self;
             counter -= 1;
         }
@@ -311,7 +310,7 @@ macro_rules! pow_int_for_int {
             type Output = FiLong;
 
             fn pow_int(self, num: $type) -> Self::Output {
-                let mut res: FiLong = 1.into();
+                let mut res: FiLong = FiLong::one();
                 let exponent = num.abs_diff(0);
                 for _ in 0..exponent {
                     res *= &self;
@@ -326,7 +325,7 @@ macro_rules! pow_int_for_int {
             type Output = FiLong;
 
             fn pow_int(self, num: &$type) -> Self::Output {
-                let mut res: FiLong = 1.into();
+                let mut res: FiLong = FiLong::one();
                 let exponent = num.abs_diff(0);
                 for _ in 0..exponent {
                     res *= &self;
@@ -341,7 +340,7 @@ macro_rules! pow_int_for_int {
             type Output = FiLong;
 
             fn pow_int(self, num: $type) -> Self::Output {
-                let mut res: FiLong = 1.into();
+                let mut res: FiLong = FiLong::one();
                 let exponent = num.abs_diff(0);
                 for _ in 0..exponent {
                     res *= self;
@@ -356,7 +355,7 @@ macro_rules! pow_int_for_int {
             type Output = FiLong;
 
             fn pow_int(self, num: &$type) -> Self::Output {
-                let mut res: FiLong = 1.into();
+                let mut res: FiLong = FiLong::one();
                 let exponent = num.abs_diff(0);
                 for _ in 0..exponent {
                     res *= self;
@@ -417,18 +416,18 @@ impl Logarithm<&FiLong> for &FiLong {
 }
 
 impl FiLong {
-    fn log2(&self) -> FiLong {
+    pub fn log2(&self) -> FiLong {
         match fl_log_2_long(&self) {
             Ok(val) => val,
             Err(e) => panic!("{}", e.msg()),
         }
     }
 
-    fn ln(&self) -> FiLong {
+    pub fn ln(&self) -> FiLong {
         self.log2() * FiLong{sign: false, value: vec![13974485834865876094, 3]}
     }
 
-    fn log10(&self) -> FiLong {
+    pub fn log10(&self) -> FiLong {
         self.log2() * FiLong{sign: false, value: vec![11656255492688567905, 1]}
     }
 }

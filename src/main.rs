@@ -3,10 +3,10 @@ mod errors;
 mod conversion;
 use crate::fi::Parsing;
 // use crate::conversion::int::ParseInt;
-mod functions;
+mod operations;
 use crate::fi::{FiBin, FiLong};
 use std::time::Instant;
-use crate::functions::arithm::{Floor, Ceil, Round, RoundN};
+use crate::operations::arithm::{Floor, Ceil, Round, RoundN};
 fn main() {
     // let fixed = fi::fi{sign: false, value: vec![false, true, false, true, true, true, false, false, true]};
     // let string = "109019".to_string();
@@ -35,11 +35,11 @@ fn main() {
     println!("{:?}, {:?}", new1, new2);
     println!("sub: {:?}", (&new1 / &new2).to_bin().to_string());
     let time = Instant::now();
-    new1.log_2();
+    new1.log2();
     println!("log: {:?}", time.elapsed());
     println!("100: {:?}; 1/100: {:?}", FiLong::one() * 100, FiLong::one() / 100);
     // println!("{:?}", n1.nth_root(n2.clone()).to_string());
-    functions::arithm::time_comparison(FiBin::from(String::from("0897563456342")), FiBin::from(String::from("1238975634532")));
+    operations::arithm::time_comparison(FiBin::from(String::from("0897563456342")), FiBin::from(String::from("1238975634532")));
     // println!("{}", (f1 / f2).to_string());
     // println!("{res}");
     // println!("{}", n1 < n2);

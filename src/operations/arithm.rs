@@ -1014,8 +1014,6 @@ fn ceil_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     q
 }
 
-
-
 macro_rules! int_arithmetic {
     ($type:ty) => {
         impl Add<$type> for FiLong {

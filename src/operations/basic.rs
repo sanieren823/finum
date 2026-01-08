@@ -180,6 +180,11 @@ impl FiLong {
     pub fn is_zero(&self) -> bool {
         self.spruce_up().value == Vec::new()
     }
+
+    pub fn is_integer(&self) -> bool {
+        self % FiLong::one() == FiLong::new()
+    }
+
     pub fn iter(&self) -> Iter<'_, u64> {
         self.value.iter()
     }

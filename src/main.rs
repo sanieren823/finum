@@ -7,11 +7,12 @@ mod operations;
 use crate::fi::{FiBin, FiLong};
 use std::time::Instant;
 use crate::operations::arithm::{Floor, Ceil, Round, RoundN};
+use crate::operations::math::{Logarithm, PowInteger, Factorial, PowerOfTwo, PowReal};
 fn main() {
     // let fixed = fi::fi{sign: false, value: vec![false, true, false, true, true, true, false, false, true]};
     // let string = "109019".to_string();
     let n1: FiBin = FiBin::from(String::from("14"));
-    let n2: FiBin = FiBin::from(String::from("2"));
+    let n2: FiBin = FiBin::from(String::from("2.5"));
     let dividend: FiBin = FiBin::from(String::from("0.30102999566398119521373889472449"));
     let divisor: FiBin = FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
     let calc = dividend.clone() / divisor.clone();
@@ -44,8 +45,23 @@ fn main() {
     // println!("{res}");
     // println!("{}", n1 < n2);
     // println!("{:?}", fi::fi1024{leading: 12, vec: vec![13, 31, 17], trailing: 123}.full_vec());
+    let mut vec = Vec::new();
+    let mut vec2 = Vec::new();
+    for i in 0..23 {
+        vec.push(FiLong::one() / FiLong::from(i).fact());
+        vec2.push(FiLong::from(2).ln().pow_int(i));
+    }
+    println!{"{:?}", vec};
+    println!{"{:?}", vec2};
+    let start = Instant::now();
+    let pot = new2.clone().pot();
+    println!("{:?}, {:?}", start.elapsed(), pot.to_bin().to_string());
+    let start = Instant::now();
+    let pow = new1.pow_r(new2);
+    println!("{:?}, {:?}", start.elapsed(), pow.to_bin().to_string());
 }
 
 
 #[cfg(test)]
 mod test;
+

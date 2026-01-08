@@ -4,27 +4,74 @@ use crate::errors::FiError;
 use crate::errors::FiErrorKind;
 
 
-trait PowInteger<Rhs = Self> {
+pub trait PowInteger<Rhs = Self> {
     type Output;
 
     fn pow_int(self, rhs: Rhs) -> Self::Output;
 }
 
-trait Logarithm<Rhs = Self> {
+pub trait Logarithm<Rhs = Self> {
     type Output;
 
     fn log(self, rhs: Rhs) -> Self::Output;
 }
 
-// TODO: change all integer arithmetic to the FiLong counterpart (should be marginally faster)
+pub trait Factorial {
+    type Output;
+
+    fn fact(self) -> Self::Output;
+}
+
+pub trait Termial {
+    type Output;
+
+    fn term(self) -> Self::Output;
+}
+
+pub trait Exponential {
+    type Output;
+
+    fn exp(self) -> Self::Output;
+}
+
+pub trait PowerOfTwo {
+    type Output;
+
+    fn pot(self) -> Self::Output;
+}
+
+pub trait PowReal<Rhs = Self> {
+    type Output;
+
+    fn pow_r(self, rhs: Rhs) -> Self::Output;
+}
+
+pub trait Sqrt {
+    type Output;
+
+    fn sqrt(self) -> Self::Output;
+}
+
+pub trait Root<Rhs = Self> { // it's actually not quite the nth root as one might assume since real numbers are permittable for rhs
+    type Output;
+
+    fn root(self, rhs: Rhs) -> Self::Output;
+}
+
+pub trait Pow<Rhs = Self> {
+    type Output; 
+
+    fn pow(self, rhs: Rhs) -> Self::Output;
+}
+
 
 // PowReal --> x^n = e^(n * ln(x)) --> e^x can be approximated used in taylor series and pre calculated factorials
 
-// traits to implement: Factorial + Termial + PowReal + Exponential + Trigonometry + Sqrt + NthRoot
+// traits to implement: Factorial + Termial + PowReal + Exponential + Trigonometry + Sqrt + Root
 // macro for pow? or seperate trait?
 
 
-
+// TODO: power int should have a check whether it's actually an integer
 
 
 
@@ -429,5 +476,106 @@ impl FiLong {
 
     pub fn log10(&self) -> FiLong {
         self.log2() * FiLong{sign: false, value: vec![11656255492688567905, 1]}
+    }
+}
+
+
+
+
+
+impl Factorial for FiLong { // TODO finish + impl for &FiLong
+    type Output = FiLong;
+
+    fn fact(self) -> Self::Output {
+        println!("{:?}", &self % FiLong::one());
+        if self < FiLong::new() {
+            panic!("negative lol") // TODO obv
+        } else if self.spruce_up() == FiLong::new() {
+            FiLong::one()
+        } else if self.is_integer() {
+            let mut res = FiLong::one();
+            let mut num = self;
+            while num > FiLong::one() {
+                res *= &num;
+                num -= FiLong::one();
+                println!("{:?}", res);
+            }
+            res
+        } else {
+            FiLong::new()
+        }
+    }
+}
+
+fn lookup_inverse_fact(n: usize) -> FiLong {
+    let arr = [FiLong {sign: false, value: vec![7766279631452241920, 5]}, FiLong {sign: false, value: vec![7766279631452241920, 5]}, FiLong {sign: false, value: vec![13106511852580896768, 2]}, FiLong {sign: false, value: vec![16666666666666666667]}, FiLong {sign: false, value: vec![4166666666666666667]}, FiLong {sign: false, value: vec![833333333333333333]}, FiLong {sign: false, value: vec![138888888888888889]}, FiLong {sign: false, value: vec![19841269841269841]}, FiLong {sign: false, value: vec![2480158730158730]}, FiLong {sign: false, value: vec![275573192239859]}, FiLong {sign: false, value: vec![27557319223986]}, FiLong {sign: false, value: vec![2505210838544]}, FiLong {sign: false, value: vec![208767569879]}, FiLong {sign: false, value: vec![16059043837]}, FiLong {sign: false, value: vec![1147074560]}, FiLong {sign: false, value: vec![76471637]}, FiLong {sign: false, value: vec![4779477]}, FiLong {sign: false, value: vec![281146]}, FiLong {sign: false, value: vec![15619]}, FiLong {sign: false, value: vec![822]}, FiLong {sign: false, value: vec![41]}, FiLong {sign: false, value: vec![2]}, FiLong {sign: false, value: vec![]}];
+    arr[n].clone()
+}
+
+fn lookup_ln_two(n: usize) -> FiLong {
+    let arr = [FiLong {sign: false, value: vec![7766279631452241920, 5]}, FiLong {sign: false, value: vec![13974485834865876094, 3]}, FiLong {sign: false, value: vec![11151813244401039235, 2]}, FiLong {sign: false, value: vec![14855721125183396356, 1]}, FiLong {sign: false, value: vec![4636765784598793573, 1]}, FiLong {sign: false, value: vec![16000269775714132108]}, FiLong {sign: false, value: vec![11090541883234759167]}, FiLong {sign: false, value: vec![7687377837246159501]}, FiLong {sign: false, value: vec![5328484273786185586]}, FiLong {sign: false, value: vec![3693423851032902237]}, FiLong {sign: false, value: vec![2560086328956311634]}, FiLong {sign: false, value: vec![1774516620906128084]}, FiLong {sign: false, value: vec![1230001192637843985]}, FiLong {sign: false, value: vec![852571858762291718]}, FiLong {sign: false, value: vec![590957780125834408]}, FiLong {sign: false, value: vec![409620719124186202]}, FiLong {sign: false, value: vec![283927446559866936]}, FiLong {sign: false, value: vec![196803509066556310]}, FiLong {sign: false, value: vec![136413797433787140]}, FiLong {sign: false, value: vec![94554839080705059]}, FiLong {sign: false, value: vec![65540420117090043]}, FiLong {sign: false, value: vec![45429157416875284]}, FiLong {sign: false, value: vec![31489092378721031]}];
+    arr[n].clone()
+}
+
+
+impl PowerOfTwo for FiLong { // impl for &FiLong
+    type Output = FiLong;
+
+    fn pot(self) -> Self::Output {
+        let mut sum = FiLong::new();
+        for i in 0..23 {
+            sum += lookup_ln_two(i) * lookup_inverse_fact(i) * (&self).pow_int(i);
+        }
+
+        sum
+    }
+}
+
+impl PowerOfTwo for &FiLong { // impl for &FiLong
+    type Output = FiLong;
+
+    fn pot(self) -> Self::Output {
+        let mut sum = FiLong::new();
+        for i in 0..23 {
+            sum += lookup_ln_two(i) * lookup_inverse_fact(i) * (&self).pow_int(i);
+        }
+
+        sum
+    }
+}
+
+impl PowReal<FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn pow_r(self, rhs: FiLong) -> Self::Output {
+        let exponent = rhs * self.log2();
+        exponent.pot()
+    }
+}
+
+impl PowReal<&FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn pow_r(self, rhs: &FiLong) -> Self::Output {
+        let exponent = rhs * self.log2();
+        exponent.pot()
+    }
+}
+
+impl PowReal<FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn pow_r(self, rhs: FiLong) -> Self::Output {
+        let exponent = rhs * self.log2();
+        exponent.pot()
+    }
+}
+
+impl PowReal<&FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn pow_r(self, rhs: &FiLong) -> Self::Output {
+        let exponent = rhs * self.log2();
+        exponent.pot()
     }
 }

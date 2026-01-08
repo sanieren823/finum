@@ -791,7 +791,7 @@ fn long_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     if r >= num2.absolute() { // rounds if necessary
         return long_add(&q, &bit_mask);
     }
-    q
+    q.spruce_up()
 }
 
 fn long_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
@@ -815,7 +815,7 @@ fn long_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
         }
     }   
     r.sign = num1.sign;
-    r
+    r.spruce_up()
 }
 
 

@@ -35,6 +35,10 @@ fn main() {
     println!("round: {:?}", dividend.to_long());
     println!("{:?}, {:?}", new1, new2);
     println!("sub: {:?}", (&new1 / &new2).to_bin().to_string());
+    println!("{:?}", FiLong::one() * 1000000000);
+    println!("{:?}", FiLong::one() / 1000000000);
+    println!("{:?}", FiBin::from(String::from("2.718281828459045235360287471352")).to_long());
+    println!("{:?}", FiBin::from(String::from("5.12039898129")).to_long().pot().to_bin().to_string());
     let time = Instant::now();
     new1.log2();
     println!("log: {:?}", time.elapsed());
@@ -47,8 +51,8 @@ fn main() {
     // println!("{:?}", fi::fi1024{leading: 12, vec: vec![13, 31, 17], trailing: 123}.full_vec());
     let mut vec = Vec::new();
     let mut vec2 = Vec::new();
-    for i in 0..23 {
-        vec.push(FiLong::one() / FiLong::from(i).fact());
+    for i in 0..50 {
+        vec.push(FiLong::billion() / FiLong::from(i).fact());
         vec2.push(FiLong::from(2).ln().pow_int(i));
     }
     println!{"{:?}", vec};

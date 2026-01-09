@@ -941,7 +941,7 @@ impl RoundN<&usize> for &FiLong {
 }
 
 fn floor_div(num1: &FiLong, num2: &FiLong) -> FiLong {
-    
+    println!("floor: {:?}, {:?}", num1.to_bin().to_string(), num2.to_bin().to_string());
     let sign; // "calculates" the sign of the result
     if num1.sign == num2.sign {
         sign = false;
@@ -959,9 +959,10 @@ fn floor_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut inverse: FiLong = n.reverse_bits(); // in normal long division you iterate through the number/vector/bits from end to start. for some reason i wanted to avoid that which is why i calculated the inverse number (i think i belived that the num_bits - i would be less efficient than just computing the inverse given that the run time scales with size)
     let mut q = FiLong{sign: sign, value: vec![0; num1.value.capacity()]};
     let mut r: FiLong = FiLong{sign: false, value: vec![0]};
-    let num_bits = (inverse.len() * 64) - 1 - offset;
+    let num_bits = (inverse.len() * 64) - offset;
     let mut bit_mask = FiLong{sign: false, value: vec![1]} << num_bits;
     for _ in 0..num_bits{ // standard long division
+        bit_mask >>= 1;
         r <<= 1;
         r[0] |= inverse[0] & 1;
         inverse >>= 1;
@@ -969,8 +970,8 @@ fn floor_div(num1: &FiLong, num2: &FiLong) -> FiLong {
             r -= num2;
             q |= &bit_mask;
         }
-        bit_mask >>= 1;
-    }   
+        
+    }
     q
 }
 
@@ -995,9 +996,10 @@ fn ceil_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut inverse: FiLong = n.reverse_bits(); // in normal long division you iterate through the number/vector/bits from end to start. for some reason i wanted to avoid that which is why i calculated the inverse number (i think i belived that the num_bits - i would be less efficient than just computing the inverse given that the run time scales with size)
     let mut q = FiLong{sign: sign, value: vec![0; num1.value.capacity()]};
     let mut r: FiLong = FiLong{sign: false, value: vec![0]};
-    let num_bits = (inverse.len() * 64) - 1 - offset;
+    let num_bits = (inverse.len() * 64) - offset;
     let mut bit_mask = FiLong{sign: false, value: vec![1]} << num_bits;
     for _ in 0..num_bits{ // standard long division
+        bit_mask >>= 1;
         r <<= 1;
         r[0] |= inverse[0] & 1;
         inverse >>= 1;
@@ -1005,8 +1007,8 @@ fn ceil_div(num1: &FiLong, num2: &FiLong) -> FiLong {
             r -= num2;
             q |= &bit_mask;
         }
-        bit_mask >>= 1;
-    }   
+        
+    }  
     r <<= 1;
     if !r.is_zero() { // rounds if necessary
         q |= bit_mask;

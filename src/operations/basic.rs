@@ -212,6 +212,26 @@ impl FiLong {
     pub fn two() -> Self {
         FiLong{sign: false, value: vec![15532559262904483840, 10]}
     }
+
+    pub fn thousand() -> Self {
+        FiLong {sign: false, value: vec![200376420520689664, 5421]}
+    }
+
+    pub fn thousandth() -> Self {
+        FiLong {sign: false, value: vec![100000000000000000]}
+    }
+
+    pub fn billion() -> Self {
+        FiLong {sign: false, value: vec![7886392056514347008, 5421010862]}
+    }
+
+    pub fn billionth() -> Self {
+        FiLong {sign: false, value: vec![100000000000]}
+    }
+
+    pub fn e() -> Self {
+        FiLong {sign: false, value: vec![13573765813970800912, 14]}
+    }
 }
 
 

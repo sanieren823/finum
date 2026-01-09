@@ -2,6 +2,7 @@ use crate::fi::{FiBin, FiLong};
 use std::time::Instant;
 use crate::errors::FiError;
 use crate::errors::FiErrorKind;
+use crate::operations::arithm::Floor;
 
 
 pub trait PowInteger<Rhs = Self> {
@@ -52,7 +53,7 @@ pub trait Sqrt {
     fn sqrt(self) -> Self::Output;
 }
 
-pub trait Root<Rhs = Self> { // it's actually not quite the nth root as one might assume since real numbers are permittable for rhs
+pub trait Root<Rhs = Self>{// it's actually not quite the nth root as one might assume since real numbers are permittable for rhs
     type Output;
 
     fn root(self, rhs: Rhs) -> Self::Output;
@@ -206,14 +207,13 @@ fn binominal_coefficent(alpha: FiBin, k: FiBin, prev: FiBin) -> FiBin {
 }
 
 
-fn fl_log_2(num: FiBin) -> Result<FiBin, FiError> { 
+fn fl_log_2(num: FiBin) -> Result<FiBin, FiError>{
     let mut shifted;
     let mut res = FiBin::new();
     if num.sign {
         return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "Mind that the logarithmic function doesn't implement negative numbers."));
     } else if num < FiBin::one() {
         shifted = FiBin::one() / num;
-        println!("num: {:?}", shifted.to_string());
         res.sign = true;  
     } else {
         shifted = num
@@ -232,7 +232,7 @@ fn fl_log_2(num: FiBin) -> Result<FiBin, FiError> {
     Ok(res)
 }
 
-impl FiLong { // helper functions for the log2 calculation
+impl FiLong{// helper functions for the log2 calculation
     #[inline(always)]
     fn hundred() -> FiLong {
         FiLong{sign: false, value: vec![1864712049423024128, 542]}
@@ -243,7 +243,7 @@ impl FiLong { // helper functions for the log2 calculation
     }
 }
 
-fn fl_log_2_long(num: &FiLong) -> Result<FiLong, FiError> { 
+fn fl_log_2_long(num: &FiLong) -> Result<FiLong, FiError>{
     let mut shifted;
     let mut res: FiLong = FiLong::new();
     let mut sign = false;
@@ -259,12 +259,16 @@ fn fl_log_2_long(num: &FiLong) -> Result<FiLong, FiError> {
         shifted >>= 1;
         res += 1;
     }
+    println!("{:?}", (decimals_log_2_long(&shifted, &FiLong::hundred()) + res.clone() * FiLong::hundred()).to_bin().to_string());
     res += decimals_log_2_long(&shifted, &FiLong::hundred()) * FiLong::hundredth(); // this adds precision; from what i measured 100 is usually enough
     res.sign = sign;
+    println!("{:?}", res.to_bin().to_string());
     Ok(res)
 }
 
-fn decimals_log_2_long(num: &FiLong, factor: &FiLong) -> FiLong { // input must be the residue --> between 1 and 2
+
+
+fn decimals_log_2_long(num: &FiLong, factor: &FiLong) -> FiLong{// input must be the residue --> between 1 and 2
     
     if *num == FiLong::one() {
         return FiLong::new();
@@ -483,11 +487,11 @@ impl FiLong {
 
 
 
-impl Factorial for FiLong { // TODO finish + impl for &FiLong
+impl Factorial for FiLong{// TODO finish + impl for &FiLong
     type Output = FiLong;
 
     fn fact(self) -> Self::Output {
-        println!("{:?}", &self % FiLong::one());
+        // println!("{:?}", &self % FiLong::one());
         if self < FiLong::new() {
             panic!("negative lol") // TODO obv
         } else if self.spruce_up() == FiLong::new() {
@@ -498,7 +502,7 @@ impl Factorial for FiLong { // TODO finish + impl for &FiLong
             while num > FiLong::one() {
                 res *= &num;
                 num -= FiLong::one();
-                println!("{:?}", res);
+                // println!("{:?}", res);
             }
             res
         } else {
@@ -508,39 +512,42 @@ impl Factorial for FiLong { // TODO finish + impl for &FiLong
 }
 
 fn lookup_inverse_fact(n: usize) -> FiLong {
-    let arr = [FiLong {sign: false, value: vec![7766279631452241920, 5]}, FiLong {sign: false, value: vec![7766279631452241920, 5]}, FiLong {sign: false, value: vec![13106511852580896768, 2]}, FiLong {sign: false, value: vec![16666666666666666667]}, FiLong {sign: false, value: vec![4166666666666666667]}, FiLong {sign: false, value: vec![833333333333333333]}, FiLong {sign: false, value: vec![138888888888888889]}, FiLong {sign: false, value: vec![19841269841269841]}, FiLong {sign: false, value: vec![2480158730158730]}, FiLong {sign: false, value: vec![275573192239859]}, FiLong {sign: false, value: vec![27557319223986]}, FiLong {sign: false, value: vec![2505210838544]}, FiLong {sign: false, value: vec![208767569879]}, FiLong {sign: false, value: vec![16059043837]}, FiLong {sign: false, value: vec![1147074560]}, FiLong {sign: false, value: vec![76471637]}, FiLong {sign: false, value: vec![4779477]}, FiLong {sign: false, value: vec![281146]}, FiLong {sign: false, value: vec![15619]}, FiLong {sign: false, value: vec![822]}, FiLong {sign: false, value: vec![41]}, FiLong {sign: false, value: vec![2]}, FiLong {sign: false, value: vec![]}];
+    let arr = [FiLong{sign: false, value: vec![7886392056514347008, 5421010862]}, FiLong{sign: false, value: vec![7886392056514347008, 5421010862]}, FiLong{sign: false, value: vec![3943196028257173504, 2710505431]}, FiLong{sign: false, value: vec![7463313367322241707, 903501810]}, FiLong{sign: false, value: vec![11089200378685336235, 225875452]}, FiLong{sign: false, value: vec![9596537705220887893, 45175090]}, FiLong{sign: false, value: vec![13897252333343182393, 7529181]}, FiLong{sign: false, value: vec![7255820068680326518, 1075597]}, FiLong{sign: false, value: vec![12436192554653510575, 134449]}, FiLong{sign: false, value: vec![15729266785624485765, 14938]}, FiLong{sign: false, value: vec![16330321937530089869, 1493]}, FiLong{sign: false, value: vec![14900388593382409345, 135]}, FiLong{sign: false, value: vec![5853385067875922016, 11]}, FiLong{sign: false, value: vec![16059043836821614599]}, FiLong{sign: false, value: vec![1147074559772972471]}, FiLong{sign: false, value: vec![76471637318198165]}, FiLong{sign: false, value: vec![4779477332387385]}, FiLong{sign: false, value: vec![281145725434552]}, FiLong{sign: false, value: vec![15619206968586]}, FiLong{sign: false, value: vec![822063524662]}, FiLong{sign: false, value: vec![41103176233]}, FiLong{sign: false, value: vec![1957294106]}, FiLong{sign: false, value: vec![88967914]}, FiLong{sign: false, value: vec![3868170]}, FiLong{sign: false, value: vec![161174]}, FiLong{sign: false, value: vec![6447]}, FiLong{sign: false, value: vec![248]}, FiLong{sign: false, value: vec![9]}];
     arr[n].clone()
 }
 
 fn lookup_ln_two(n: usize) -> FiLong {
-    let arr = [FiLong {sign: false, value: vec![7766279631452241920, 5]}, FiLong {sign: false, value: vec![13974485834865876094, 3]}, FiLong {sign: false, value: vec![11151813244401039235, 2]}, FiLong {sign: false, value: vec![14855721125183396356, 1]}, FiLong {sign: false, value: vec![4636765784598793573, 1]}, FiLong {sign: false, value: vec![16000269775714132108]}, FiLong {sign: false, value: vec![11090541883234759167]}, FiLong {sign: false, value: vec![7687377837246159501]}, FiLong {sign: false, value: vec![5328484273786185586]}, FiLong {sign: false, value: vec![3693423851032902237]}, FiLong {sign: false, value: vec![2560086328956311634]}, FiLong {sign: false, value: vec![1774516620906128084]}, FiLong {sign: false, value: vec![1230001192637843985]}, FiLong {sign: false, value: vec![852571858762291718]}, FiLong {sign: false, value: vec![590957780125834408]}, FiLong {sign: false, value: vec![409620719124186202]}, FiLong {sign: false, value: vec![283927446559866936]}, FiLong {sign: false, value: vec![196803509066556310]}, FiLong {sign: false, value: vec![136413797433787140]}, FiLong {sign: false, value: vec![94554839080705059]}, FiLong {sign: false, value: vec![65540420117090043]}, FiLong {sign: false, value: vec![45429157416875284]}, FiLong {sign: false, value: vec![31489092378721031]}];
+    let arr = [FiLong{sign: false, value: vec![7766279631452241920, 5]}, FiLong{sign: false, value: vec![13974485834865876094, 3]}, FiLong{sign: false, value: vec![11151813244401039235, 2]}, FiLong{sign: false, value: vec![14855721125183396356, 1]}, FiLong{sign: false, value: vec![4636765784598793573, 1]}, FiLong{sign: false, value: vec![16000269775714132108]}, FiLong{sign: false, value: vec![11090541883234759167]}, FiLong{sign: false, value: vec![7687377837246159501]}, FiLong{sign: false, value: vec![5328484273786185586]}, FiLong{sign: false, value: vec![3693423851032902237]}, FiLong{sign: false, value: vec![2560086328956311634]}, FiLong{sign: false, value: vec![1774516620906128084]}, FiLong{sign: false, value: vec![1230001192637843985]}, FiLong{sign: false, value: vec![852571858762291718]}, FiLong{sign: false, value: vec![590957780125834408]}, FiLong{sign: false, value: vec![409620719124186202]}, FiLong{sign: false, value: vec![283927446559866936]}, FiLong{sign: false, value: vec![196803509066556310]}, FiLong{sign: false, value: vec![136413797433787140]}, FiLong{sign: false, value: vec![94554839080705059]}, FiLong{sign: false, value: vec![65540420117090043]}, FiLong{sign: false, value: vec![45429157416875284]}, FiLong{sign: false, value: vec![31489092378721031]}, FiLong{sign: false, value: vec![21826575600702144]}, FiLong{sign: false, value: vec![15129029338905186]}, FiLong{sign: false, value: vec![10486644030870823]}, FiLong{sign: false, value: vec![7268787743533891]}, FiLong{sign: false, value: vec![5038339730519203]}, FiLong{sign: false, value: vec![3492310978912540]}, FiLong{sign: false, value: vec![2420685508671770]}, FiLong{sign: false, value: vec![1677891335358154]}, FiLong{sign: false, value: vec![1163025648389466]}, FiLong{sign: false, value: vec![806147949100061]}, FiLong{sign: false, value: vec![558779178032890]}, FiLong{sign: false, value: vec![387316211809101]}, FiLong{sign: false, value: vec![268467140200637]}, FiLong{sign: false, value: vec![186087241303063]}, FiLong{sign: false, value: vec![128985846647396]}, FiLong{sign: false, value: vec![89406175935780]}, FiLong{sign: false, value: vec![61971638774532]}, FiLong{sign: false, value: vec![42955466691246]}, FiLong{sign: false, value: vec![29774460626674]}, FiLong{sign: false, value: vec![20638083436072]}, FiLong{sign: false, value: vec![14305229345874]}, FiLong{sign: false, value: vec![9915629388356]}, FiLong{sign: false, value: vec![6872990554016]}, FiLong{sign: false, value: vec![4763994024531]}, FiLong{sign: false, value: vec![3302149026308]}, FiLong{sign: false, value: vec![2288875287374]}, FiLong{sign: false, value: vec![1586527452097]}];
     arr[n].clone()
 }
 
 
-impl PowerOfTwo for FiLong { // impl for &FiLong
+impl PowerOfTwo for FiLong{// fix the floor function
     type Output = FiLong;
 
     fn pot(self) -> Self::Output {
         let mut sum = FiLong::new();
-        for i in 0..23 {
-            sum += lookup_ln_two(i) * lookup_inverse_fact(i) * (&self).pow_int(i);
+        let decimals = &self % FiLong::one();
+        let int_part = self.floor();
+        for i in 0..25 {
+            sum += (&decimals).pow_int(i) * lookup_ln_two(i) * lookup_inverse_fact(i);
         }
-
-        sum
+        // println!("{:?}", FiLong::from(2).pow_int(int_part.clone()).to_bin().to_string());
+        sum * FiLong::from(2).pow_int(int_part.parse::<u64>().unwrap()) * FiLong::billionth()
     }
 }
 
-impl PowerOfTwo for &FiLong { // impl for &FiLong
+impl PowerOfTwo for &FiLong {
     type Output = FiLong;
 
     fn pot(self) -> Self::Output {
         let mut sum = FiLong::new();
+        let decimals = self % FiLong::one();
         for i in 0..23 {
-            sum += lookup_ln_two(i) * lookup_inverse_fact(i) * (&self).pow_int(i);
+            sum += lookup_ln_two(i) * lookup_inverse_fact(i) * (&decimals).pow_int(i);
         }
 
-        sum
+        sum * (self.floor().pow_int(2))
     }
 }
 
@@ -549,6 +556,7 @@ impl PowReal<FiLong> for FiLong {
 
     fn pow_r(self, rhs: FiLong) -> Self::Output {
         let exponent = rhs * self.log2();
+        println!("{:?}", exponent.to_bin().to_string());
         exponent.pot()
     }
 }
@@ -578,4 +586,70 @@ impl PowReal<&FiLong> for &FiLong {
         let exponent = rhs * self.log2();
         exponent.pot()
     }
+}
+
+impl Exponential for FiLong {
+    type Output = FiLong;
+
+    fn exp(self) -> Self::Output {
+        let mut sum = FiLong::new();
+        let decimals = &self % FiLong::one();
+        let int_part = self.floor();
+        for i in 0..28 {
+            sum += lookup_inverse_fact(i) * (&decimals).pow_int(i);
+        }
+        // println!("{:?}", FiLong::from(2).pow_int(int_part.clone()).to_bin().to_string());
+        sum * FiLong::e().pow_int(int_part.parse::<u64>().unwrap() + 1) * FiLong::billionth()
+    }
+}
+
+impl Exponential for &FiLong {
+    type Output = FiLong;
+
+    fn exp(self) -> Self::Output {
+        let mut sum = FiLong::new();
+        let decimals = self % FiLong::one();
+        let int_part = self.floor();
+        for i in 0..28 {
+            sum += lookup_inverse_fact(i) * (&decimals).pow_int(i);
+        }
+        // println!("{:?}", FiLong::from(2).pow_int(int_part.clone()).to_bin().to_string());
+        sum * FiLong::e().pow_int(int_part.parse::<u64>().unwrap() + 1) * FiLong::billionth()
+    }
+}
+
+
+
+pub fn pow_r_experimental(num: &FiLong, rhs: &FiLong) -> FiLong {
+    let mut shifted;
+    let mut res: FiLong = FiLong::new();
+    let mut sign = false;
+    if num.sign {
+        // return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "Mind that the logarithmic function doesn't implement negative numbers."));
+        panic!("reason")
+    } else if *num < FiLong::one() {
+        shifted = FiLong::one() / num;
+        sign = true;
+    } else {
+        shifted = num.clone();
+    }
+    while shifted >= FiLong::two() {
+        shifted >>= 1;
+        res += 1;
+    }
+    // println!("{:?}", (decimals_log_2_long(&shifted, &FiLong::hundred()) + res.clone() * FiLong::hundred()).to_bin().to_string());
+    res *= 100;
+    res += decimals_log_2_long(&shifted, &FiLong::hundred()); // * FiLong::hundredth(); // this adds precision; from what i measured 100 is usually enough
+    res.sign = sign;
+    // println!("{:?}", res.to_bin().to_string());
+    let exponent = rhs * res.log2();
+    println!("{:?}", exponent.to_bin().to_string());
+    let mut sum = FiLong::new();
+    let decimals = &exponent % FiLong::one();
+    let int_part = exponent.floor();
+    for i in 0..25 {
+        sum += (&decimals).pow_int(i) * lookup_ln_two(i) * lookup_inverse_fact(i);
+    }
+    // println!("{:?}", FiLong::from(2).pow_int(int_part.clone()).to_bin().to_string());
+    sum * FiLong::from(2).pow_int(int_part.parse::<u64>().unwrap() + 1) * FiLong::billionth()
 }

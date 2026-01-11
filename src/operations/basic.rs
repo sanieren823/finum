@@ -149,6 +149,11 @@ impl FiLong {
     }
 
     #[inline(always)]
+    pub fn inverse(&self) -> FiLong {
+        FiLong::one() / self
+    }
+
+    #[inline(always)]
     pub fn spruce_up(&self) -> Self {
         let mut output: Vec<u64> = self.value.clone();
         for el in self.value.iter().rev() {

@@ -86,17 +86,35 @@ pub trait Trigonometry {
 
     fn tanh(self) -> Self::Output;
 
+    fn coth(self) -> Self::Output;
+
+    fn sech(self) -> Self::Output;
+
+    fn csch(self) -> Self::Output;
+
     fn arcsinh(self) -> Self::Output;
 
     fn arccosh(self) -> Self::Output;
 
     fn arctanh(self) -> Self::Output;
 
+    fn arccoth(self) -> Self::Output;
+
+    fn arcsech(self) -> Self::Output;
+
+    fn arccsch(self) -> Self::Output;
+
     fn cot(self) -> Self::Output;
 
     fn sec(self) -> Self::Output;
 
     fn csc(self) -> Self::Output;
+
+    fn arccot(self) -> Self::Output;
+
+    fn arcsec(self) -> Self::Output;
+
+    fn arccsc(self) -> Self::Output;
 
     fn versin(self) -> Self::Output;
 
@@ -828,6 +846,13 @@ pow_for_int!(u32);
 pow_for_int!(u64);
 pow_for_int!(u128);
 
+impl Sqrt for FiLong {
+    type Output = FiLong;
+}
+
+
+
+
 impl Trigonometry for FiLong{
     type Output = FiLong;
 
@@ -839,7 +864,7 @@ impl Trigonometry for FiLong{
         let mut switch = true;
         let mut sum = FiLong::ten();
         for n in 1..13 {
-            let pow = (&self).pow(2 * n + 1);
+            let pow = (&x).pow(2 * n + 1);
             let fact = lookup_fact(2 * n + 1).value_of_sign(&switch);
             sum += FiLong::ten() * &pow / &fact;
             switch ^= true;
@@ -855,7 +880,7 @@ impl Trigonometry for FiLong{
         let mut switch = true;
         let mut sum = FiLong::ten();
         for n in 1..13 {
-            let pow = (&self).pow(2 * n);
+            let pow = (&x).pow(2 * n);
             let fact = lookup_fact(2 * n).value_of_sign(&switch);
             sum += FiLong::ten() * &pow / &fact;
             switch ^= true;
@@ -873,11 +898,37 @@ impl Trigonometry for FiLong{
         }
     }
 
-    fn arcsin(self) -> Self::Output;
+    fn arcsin(self) -> Self::Output {
+        if self.absolute() > FiLong::one() {
+            panic!("The inverse functions of trigonometric functions are defined for [-1; 1]")
+        }
+        let mut sum = FiLong::ten();
+        for n in 1..13 {
+            let pow = (&self).pow(2 * n + 1) + lookup_fact(2 * n);
+            let fact = lookup_fact(n).pow_int(2) * FiLong::four().pow_int(n) * FiLong::from(2 * n + 1);
+            sum += FiLong::ten() * &pow / &fact;
+        }
+        sum / FiLong::ten()
+    }
 
-    fn arccos(self) -> Self::Output;
+    fn arccos(self) -> Self::Output {
+        FiLong::pi_div_two() - self.arcsin()
+    }
 
-    fn arctan(self) -> Self::Output;
+    fn arctan(self) -> Self::Output {
+        if self.absolute() > FiLong::one() {
+            panic!("The inverse functions of trigonometric functions are defined for [-1; 1]")
+        }
+        let mut switch = true;
+        let mut sum = FiLong::ten();
+        for n in 1..13 {
+            let pow = (&self).pow(2 * n + 1);
+            let fact = FiLong::from(2 * n + 1).value_of_sign(&switch);
+            sum += FiLong::ten() * &pow / &fact;
+            switch ^= true;
+        }
+        sum / FiLong::ten()
+    }
 
     fn sinh(self) -> Self::Output {
         let mut x = &self % FiLong::pi();
@@ -886,7 +937,7 @@ impl Trigonometry for FiLong{
         }
         let mut sum = FiLong::ten();
         for n in 1..13 {
-            let pow = (&self).pow(2 * n + 1);
+            let pow = (&x).pow(2 * n + 1);
             let fact = lookup_fact(2 * n + 1);
             sum += FiLong::ten() * &pow / &fact;
         }
@@ -900,7 +951,7 @@ impl Trigonometry for FiLong{
         }
         let mut sum = FiLong::ten();
         for n in 1..13 {
-            let pow = (&self).pow(2 * n);
+            let pow = (&x).pow(2 * n);
             let fact = lookup_fact(2 * n);
             sum += FiLong::ten() * &pow / &fact;
         }
@@ -917,11 +968,48 @@ impl Trigonometry for FiLong{
         }
     }
 
-    fn arcsinh(self) -> Self::Output;
+    fn coth(self) -> Self::Output {
+        let sinh = (&self).sinh();
+        let cosh = (&self).cosh();
+        if sinh == FiLong::new() {
+            panic!("The cotangent function is not defined for values where x % pi/2 = 0")
+        } else {
+            cosh / sinh
+        }
+    }
 
-    fn arccosh(self) -> Self::Output;
+    fn sech(self) -> Self::Output {
+        FiLong::one() / self.cos()
+    }
 
-    fn arctanh(self) -> Self::Output;
+    fn csch(self) -> Self::Output {
+        FiLong::one() / self.sin()
+    }
+
+
+    fn arcsinh(self) -> Self::Output {
+        (self + (self.pow_int(2u8) + FiLong::one()).sqrt()).ln()
+    }
+
+    fn arccosh(self) -> Self::Output {
+        (self + (self.pow_int(2u8) - FiLong::one()).sqrt()).ln()
+    }
+
+    fn arctanh(self) -> Self::Output {
+        FiLong::one_half() * ((FiLong::one() + &self) / (FiLong::one() - &self)).ln()
+    }
+
+    fn arccoth(self) -> Self::Output {
+        FiLong::one_half() * ((&self + FiLong::one()) / (&self - FiLong::one())).ln()
+    }
+
+    fn arcsech(self) -> Self::Output {
+        (self.inverse() + (self.pow_int(-2i8) - FiLong::one()).sqrt()).ln()
+    }
+
+    fn arccsch(self) -> Self::Output {
+       (self.inverse() + (self.pow_int(-2i8) + FiLong::one()).sqrt()).ln()
+    }
 
     fn cot(self) -> Self::Output {
         let sin = (&self).sin();
@@ -939,6 +1027,231 @@ impl Trigonometry for FiLong{
 
     fn csc(self) -> Self::Output {
         FiLong::one() / self.sin()
+    }
+
+    fn arccot(self) -> Self::Output {
+        self.inverse().arctan()
+    }
+
+    fn arcsec(self) -> Self::Output {
+        self.inverse().arccos()
+    }
+
+    fn arccsc(self) -> Self::Output {
+        self.inverse().arcsin()
+    }
+
+    fn versin(self) -> Self::Output {
+        FiLong::one() - self.cos()
+    }
+
+    fn coversin(self) -> Self::Output {
+        FiLong::one() - self.sin()
+    }
+
+    fn vercos(self) -> Self::Output {
+        FiLong::one() + self.cos()
+    }
+
+    fn covercos(self) -> Self::Output {
+        FiLong::one() + self.sin()
+    }
+
+    fn exsec(self) -> Self::Output {
+        self.sec() - FiLong::one()
+    }
+
+    fn excsc(self) -> Self::Output {
+        self.csc() - FiLong::one()
+    }
+}
+
+impl Trigonometry for &FiLong{
+    type Output = FiLong;
+
+    fn sin(self) -> Self::Output {
+        let mut x = self % FiLong::pi();
+        if x > FiLong::pi_div_two() {
+            x -= FiLong::pi().value_of_sign(&self.sign);
+        }
+        let mut switch = true;
+        let mut sum = FiLong::ten();
+        for n in 1..13 {
+            let pow = (&x).pow(2 * n + 1);
+            let fact = lookup_fact(2 * n + 1).value_of_sign(&switch);
+            sum += FiLong::ten() * &pow / &fact;
+            switch ^= true;
+        }
+        sum / FiLong::ten()
+    }
+
+    fn cos(self) -> Self::Output {
+        let mut x = self % FiLong::pi();
+        if x > FiLong::pi_div_two() {
+            x -= FiLong::pi().value_of_sign(&self.sign);
+        }
+        let mut switch = true;
+        let mut sum = FiLong::ten();
+        for n in 1..13 {
+            let pow = (&x).pow(2 * n);
+            let fact = lookup_fact(2 * n).value_of_sign(&switch);
+            sum += FiLong::ten() * &pow / &fact;
+            switch ^= true;
+        }
+        sum / FiLong::ten()
+    }
+
+    fn tan(self) -> Self::Output { // seperate implementation? + exception
+        let sin = self.sin();
+        let cos = self.cos();
+        if cos == FiLong::new() {
+            panic!("The tangent function is not defined for values where x % pi/2 = 0")
+        } else {
+            sin / cos
+        }
+    }
+
+    fn arcsin(self) -> Self::Output {
+        if self.absolute() > FiLong::one() {
+            panic!("The inverse functions of trigonometric functions are defined for [-1; 1]")
+        }
+        let mut sum = FiLong::ten();
+        for n in 1..13 {
+            let pow = (&self).pow(2 * n + 1) + lookup_fact(2 * n);
+            let fact = lookup_fact(n).pow_int(2) * FiLong::four().pow_int(n) * FiLong::from(2 * n + 1);
+            sum += FiLong::ten() * &pow / &fact;
+        }
+        sum / FiLong::ten()
+    }
+
+    fn arccos(self) -> Self::Output {
+        FiLong::pi_div_two() - self.arcsin()
+    }
+
+    fn arctan(self) -> Self::Output {
+        if self.absolute() > FiLong::one() {
+            panic!("The inverse functions of trigonometric functions are defined for [-1; 1]")
+        }
+        let mut switch = true;
+        let mut sum = FiLong::ten();
+        for n in 1..13 {
+            let pow = (&self).pow(2 * n + 1);
+            let fact = FiLong::from(2 * n + 1).value_of_sign(&switch);
+            sum += FiLong::ten() * &pow / &fact;
+            switch ^= true;
+        }
+        sum / FiLong::ten()
+    }
+
+    fn sinh(self) -> Self::Output {
+        let mut x = self % FiLong::pi();
+        if x > FiLong::pi_div_two() {
+            x -= FiLong::pi().value_of_sign(&self.sign);
+        }
+        let mut sum = FiLong::ten();
+        for n in 1..13 {
+            let pow = (&x).pow(2 * n + 1);
+            let fact = lookup_fact(2 * n + 1);
+            sum += FiLong::ten() * &pow / &fact;
+        }
+        sum / FiLong::ten()
+    }
+
+    fn cosh(self) -> Self::Output {
+        let mut x = self % FiLong::pi();
+        if x > FiLong::pi_div_two() {
+            x -= FiLong::pi().value_of_sign(&self.sign);
+        }
+        let mut sum = FiLong::ten();
+        for n in 1..13 {
+            let pow = (&x).pow(2 * n);
+            let fact = lookup_fact(2 * n);
+            sum += FiLong::ten() * &pow / &fact;
+        }
+        sum / FiLong::ten()
+    }
+
+    fn tanh(self) -> Self::Output {
+        let sinh = self.sinh();
+        let cosh = self.cosh();
+        if cosh == FiLong::new() {
+            panic!("The tangent function is not defined for values where x % pi/2 = 0")
+        } else {
+            sinh / cosh
+        }
+    }
+
+    fn coth(self) -> Self::Output {
+        let sinh = self.sinh();
+        let cosh = self.cosh();
+        if sinh == FiLong::new() {
+            panic!("The cotangent function is not defined for values where x % pi/2 = 0")
+        } else {
+            cosh / sinh
+        }
+    }
+
+    fn sech(self) -> Self::Output {
+        FiLong::one() / self.cos()
+    }
+
+    fn csch(self) -> Self::Output {
+        FiLong::one() / self.sin()
+    }
+
+
+    fn arcsinh(self) -> Self::Output {
+        (self + (self.pow_int(2u8) + FiLong::one()).sqrt()).ln()
+    }
+
+    fn arccosh(self) -> Self::Output {
+        (self + (self.pow_int(2u8) - FiLong::one()).sqrt()).ln()
+    }
+
+    fn arctanh(self) -> Self::Output {
+        FiLong::one_half() * ((FiLong::one() + self) / (FiLong::one() - self)).ln()
+    }
+
+    fn arccoth(self) -> Self::Output {
+        FiLong::one_half() * ((self + FiLong::one()) / (self - FiLong::one())).ln()
+    }
+
+    fn arcsech(self) -> Self::Output {
+        (self.inverse() + (self.pow_int(-2i8) - FiLong::one()).sqrt()).ln()
+    }
+
+    fn arccsch(self) -> Self::Output {
+       (self.inverse() + (self.pow_int(-2i8) + FiLong::one()).sqrt()).ln()
+    }
+
+    fn cot(self) -> Self::Output {
+        let sin = self.sin();
+        let cos = self.cos();
+        if sin == FiLong::new() {
+            panic!("The cotangent function is not defined for values where x % pi/2 = 0")
+        } else {
+            cos / sin
+        }
+    }
+
+    fn sec(self) -> Self::Output {
+        FiLong::one() / self.cos()
+    }
+
+    fn csc(self) -> Self::Output {
+        FiLong::one() / self.sin()
+    }
+
+    fn arccot(self) -> Self::Output {
+        self.inverse().arctan()
+    }
+
+    fn arcsec(self) -> Self::Output {
+        self.inverse().arccos()
+    }
+
+    fn arccsc(self) -> Self::Output {
+        self.inverse().arcsin()
     }
 
     fn versin(self) -> Self::Output {

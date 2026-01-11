@@ -782,8 +782,8 @@ fn long_div(num1: &FiLong, num2: &FiLong) -> FiLong {
         r <<= 1;
         r[0] |= inverse[0] & 1;
         inverse >>= 1;
-        if &r >= num2 {
-            r -= num2;
+        if r >= num2.absolute() {
+            r -= num2.absolute();
             q |= &bit_mask;
         }
         
@@ -811,8 +811,8 @@ fn long_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
         r <<= 1;
         r[0] |= inverse[0] & 1;
         inverse >>= 1;
-        if &r >= num2 {
-            r -= num2;
+        if r >= num2.absolute() {
+            r -= num2.absolute();
         }
     }   
     r.sign = num1.sign;
@@ -966,8 +966,8 @@ fn floor_div(num1: &FiLong, num2: &FiLong) -> FiLong {
         r <<= 1;
         r[0] |= inverse[0] & 1;
         inverse >>= 1;
-        if &r >= num2 {
-            r -= num2;
+        if r >= num2.absolute() {
+            r -= num2.absolute();
             q |= &bit_mask;
         }
     }
@@ -1002,8 +1002,8 @@ fn ceil_div(num1: &FiLong, num2: &FiLong) -> FiLong {
         r <<= 1;
         r[0] |= inverse[0] & 1;
         inverse >>= 1;
-        if &r >= num2 {
-            r -= num2;
+        if r >= num2.absolute() {
+            r -= num2.absolute();
             q |= &bit_mask;
         }
     }  

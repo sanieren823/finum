@@ -65,6 +65,48 @@ pub trait Pow<Rhs = Self> {
     fn pow(self, rhs: Rhs) -> Self::Output;
 }
 
+pub trait Trigonometry {
+    type Output;
+
+    fn sin(self) -> Self::Output;
+
+    fn cos(self) -> Self::Output;
+
+    fn tan(self) -> Self::Output;
+
+    fn arcsin(self) -> Self::Output;
+
+    fn arccos(self) -> Self::Output;
+
+    fn arctan(self) -> Self::Output;
+
+    fn sinh(self) -> Self::Output;
+
+    fn cosh(self) -> Self::Output;
+
+    fn tanh(self) -> Self::Output;
+
+    fn arcsinh(self) -> Self::Output;
+
+    fn arccosh(self) -> Self::Output;
+
+    fn arctanh(self) -> Self::Output;
+
+    fn cot(self) -> Self::Output;
+
+    fn sec(self) -> Self::Output;
+
+    fn csc(self) -> Self::Output;
+
+    fn versin(self) -> Self::Output;
+
+    fn coversin(self) -> Self::Output;
+
+    fn exsec(self) -> Self::Output;
+
+    fn excsc(self) -> Self::Output;
+}
+
 
 // PowReal --> x^n = e^(n * ln(x)) --> e^x can be approximated used in taylor series and pre calculated factorials
 
@@ -533,11 +575,6 @@ impl Factorial for FiLong{// TODO finish + impl for &FiLong
     }
 }
 
-// fn lookup_inverse_fact(n: usize) -> FiLong {
-//     let arr = [FiLong{sign: false, value: vec![7766279631452241920, 5]}, FiLong{sign: false, value: vec![7766279631452241920, 5]}, FiLong{sign: false, value: vec![13106511852580896768, 2]}, FiLong{sign: false, value: vec![16666666666666666667]}, FiLong{sign: false, value: vec![4166666666666666667]}, FiLong{sign: false, value: vec![833333333333333333]}, FiLong{sign: false, value: vec![138888888888888889]}, FiLong{sign: false, value: vec![19841269841269841]}, FiLong{sign: false, value: vec![2480158730158730]}, FiLong{sign: false, value: vec![275573192239859]}, FiLong{sign: false, value: vec![27557319223986]}, FiLong{sign: false, value: vec![2505210838544]}, FiLong{sign: false, value: vec![208767569879]}, FiLong{sign: false, value: vec![16059043837]}, FiLong{sign: false, value: vec![1147074560]}, FiLong{sign: false, value: vec![76471637]}, FiLong{sign: false, value: vec![4779477]}, FiLong{sign: false, value: vec![281146]}, FiLong{sign: false, value: vec![15619]}, FiLong{sign: false, value: vec![822]}, FiLong{sign: false, value: vec![41]}, FiLong{sign: false, value: vec![2]}];
-//     arr[n].clone()
-// }
-
 fn lookup_fact(n: usize) -> FiLong {
     let arr = [FiLong{sign: false, value: vec![7766279631452241920, 5]}, FiLong{sign: false, value: vec![7766279631452241920, 5]}, FiLong{sign: false, value: vec![15532559262904483840, 10]}, FiLong{sign: false, value: vec![9704189641294348288, 32]}, FiLong{sign: false, value: vec![1923270417758289920, 130]}, FiLong{sign: false, value: vec![9616352088791449600, 650]}, FiLong{sign: false, value: vec![2357880311620042752, 3903]}, FiLong{sign: false, value: vec![16505162181340299264, 27321]}, FiLong{sign: false, value: vec![2914088934755532800, 218575]}, FiLong{sign: false, value: vec![7780056339090243584, 1967176]}, FiLong{sign: false, value: vec![4013587096064229376, 19671764]}, FiLong{sign: false, value: vec![7255969909287419904, 216389406]}, FiLong{sign: false, value: vec![13284662616610832384, 2596672876]}, FiLong{sign: false, value: vec![6679917352554856448, 33756747397]}, FiLong{sign: false, value: vec![1285122567220232192, 472594463563]}, FiLong{sign: false, value: vec![830094434593931264, 7088916953446]}, FiLong{sign: false, value: vec![13281510953502900224, 113422671255136]}, FiLong{sign: false, value: vec![4424757325034684416, 1928185411337324]}, FiLong{sign: false, value: vec![5858655555786113024, 34707337404071836]}, FiLong{sign: false, value: vec![633991117678837760, 659439410677364890]}, FiLong{sign: false, value: vec![12679822353576755200, 13188788213547297800]}, FiLong{sign: false, value: vec![8021852393178136576, 263391378849979574, 15]}, FiLong{sign: false, value: vec![10460055986533040128, 5794610334699550637, 330]}, FiLong{sign: false, value: vec![773614732035751936, 4148829182122803352, 7597]}, FiLong{sign: false, value: vec![120009495148494848, 7338180002399522369, 182333]}, FiLong{sign: false, value: vec![3000237378712371200, 17433803396602094681, 4558334]}, FiLong{sign: false, value: vec![4219195551683444736, 10557030542625222926, 118516708]}, FiLong{sign: false, value: vec![3237815453195698176, 8338663545237744768, 3199951131]}, FiLong{sign: false, value: vec![16871856394641342464, 12121650382142234116, 89598631680]}, FiLong{sign: false, value: vec![9668489528150589440, 1039723681643308686, 2598360318739]}, FiLong{sign: false, value: vec![13353524738874408960, 12744966375589708979, 77950809562171]}, FiLong{sign: false, value: vec![8130897283496542208, 7712332095380394435, 2416475096427322]}, FiLong{sign: false, value: vec![1934296039955628032, 6986954093948450926, 77327203085674317]}, FiLong{sign: false, value: vec![8491537097407070208, 9208556215784261169, 2551797701827252473]}, FiLong{sign: false, value: vec![12011100206197112832, 17943006157312053905, 12974145567288377634, 4]}, FiLong{sign: false, value: vec![14560137595288813568, 815916999797131753, 11373237086063978440, 164]}, FiLong{sign: false, value: vec![7656119366529843200, 10926267918987191520, 3608165476693088289, 5926]}, FiLong{sign: false, value: vec![6575255455960924160, 16890287454625502319, 4374914121677405402, 219269]}, FiLong{sign: false, value: vec![10052034368290947072, 14641624769644333191, 226039960355440766, 8332231]}, FiLong{sign: false, value: vec![4647714815446351872, 17621043804842445990, 8815558453862189904, 324957009]}, FiLong{sign: false, value: vec![1441151880758558720, 3865477392734878202, 2134200754006115494, 12998280379]}, FiLong{sign: false, value: vec![3746994889972252672, 10910620512453593357, 13715254619412528798, 532929495543]}, FiLong{sign: false, value: vec![9799832789158199296, 15524203754021682218, 4191627730330109444, 22383038812837]}, FiLong{sign: false, value: vec![15564440312192434176, 3457974769388477220, 14219295740808741584, 962470668952000]}, FiLong{sign: false, value: vec![2305843009213693952, 4576937263416584789, 16906458163169426376, 42348709433888033]}, FiLong{sign: false, value: vec![11529215046068469760, 3047992042941247734, 4474110320532570675, 1905691924524961526]}, FiLong{sign: false, value: vec![13835058055282163712, 11080425459330534480, 2894889933693183281, 13874852233310023743, 4]}, FiLong{sign: false, value: vec![4611686018427387904, 4271162524667675347, 6932618367612752923, 6482012385736809368, 223]}, FiLong{sign: false, value: vec![0, 2101616373243348892, 724288318640211227, 15988689336014023826, 10720]}, FiLong{sign: false, value: vec![0, 10745481920376337628, 17043383539660798512, 8682526368885999603, 525322]}];
     arr[n].clone()
@@ -548,23 +585,13 @@ fn lookup_ln_two(n: usize) -> FiLong {
     arr[n].clone()
 }
 
-// fn lookup_inverse_fact_billion(n: usize) -> FiLong {
-//     let arr = [FiLong{sign: false, value: vec![7886392056514347008, 5421010862]}, FiLong{sign: false, value: vec![7886392056514347008, 5421010862]}, FiLong{sign: false, value: vec![3943196028257173504, 2710505431]}, FiLong{sign: false, value: vec![7463313367322241707, 903501810]}, FiLong{sign: false, value: vec![11089200378685336235, 225875452]}, FiLong{sign: false, value: vec![9596537705220887893, 45175090]}, FiLong{sign: false, value: vec![13897252333343182393, 7529181]}, FiLong{sign: false, value: vec![7255820068680326518, 1075597]}, FiLong{sign: false, value: vec![12436192554653510575, 134449]}, FiLong{sign: false, value: vec![15729266785624485765, 14938]}, FiLong{sign: false, value: vec![16330321937530089869, 1493]}, FiLong{sign: false, value: vec![14900388593382409345, 135]}, FiLong{sign: false, value: vec![5853385067875922016, 11]}, FiLong{sign: false, value: vec![16059043836821614599]}, FiLong{sign: false, value: vec![1147074559772972471]}, FiLong{sign: false, value: vec![76471637318198165]}, FiLong{sign: false, value: vec![4779477332387385]}, FiLong{sign: false, value: vec![281145725434552]}, FiLong{sign: false, value: vec![15619206968586]}, FiLong{sign: false, value: vec![822063524662]}, FiLong{sign: false, value: vec![41103176233]}, FiLong{sign: false, value: vec![1957294106]}, FiLong{sign: false, value: vec![88967914]}, FiLong{sign: false, value: vec![3868170]}, FiLong{sign: false, value: vec![161174]}, FiLong{sign: false, value: vec![6447]}, FiLong{sign: false, value: vec![248]}, FiLong{sign: false, value: vec![9]}];
-//     arr[n].clone()
-// }
-
-// fn lookup_inverse_fact_trillion(n: usize) -> FiLong {
-//     let arr = [FiLong{sign: false, value: vec![9632337040368467968, 5421010862427]}, FiLong{sign: false, value: vec![9632337040368467968, 5421010862427]}, FiLong{sign: false, value: vec![14039540557039009792, 2710505431213]}, FiLong{sign: false, value: vec![10828761543582853803, 903501810404]}, FiLong{sign: false, value: vec![2707190385895713451, 225875452601]}, FiLong{sign: false, value: vec![4230786891921053013, 45175090520]}, FiLong{sign: false, value: vec![6854045839890026041, 7529181753]}, FiLong{sign: false, value: vec![6249647712472732753, 1075597393]}, FiLong{sign: false, value: vec![3087048973272785546, 134449674]}, FiLong{sign: false, value: vec![12640834823947788360, 14938852]}, FiLong{sign: false, value: vec![4953432297136689159, 1493885]}, FiLong{sign: false, value: vec![13866125898801191099, 135807]}, FiLong{sign: false, value: vec![5767196509994153829, 11317]}, FiLong{sign: false, value: vec![10376492694304693472, 870]}, FiLong{sign: false, value: vec![3376427202980271193, 62]}, FiLong{sign: false, value: vec![2684661023359958295, 4]}, FiLong{sign: false, value: vec![4779477332387385297]}, FiLong{sign: false, value: vec![281145725434552076]}, FiLong{sign: false, value: vec![15619206968586226]}, FiLong{sign: false, value: vec![822063524662433]}, FiLong{sign: false, value: vec![41103176233122]}, FiLong{sign: false, value: vec![1957294106339]}, FiLong{sign: false, value: vec![88967913925]}, FiLong{sign: false, value: vec![3868170171]}, FiLong{sign: false, value: vec![161173757]}, FiLong{sign: false, value: vec![6446950]}, FiLong{sign: false, value: vec![247960]}, FiLong{sign: false, value: vec![9184]}, FiLong{sign: false, value: vec![328]}, FiLong{sign: false, value: vec![11]}];
-//     arr[n].clone()
-// }
-
 impl PowerOfTwo for FiLong{// fix the floor function
     type Output = FiLong;
 
     fn pot(self) -> Self::Output {
         let mut decimals = self.decimal_part();
         let mut int_part = self.floor();
-        if decimals.absolute() > FiLong::half() {
+        if decimals.absolute() > FiLong::one_half() {
             int_part.gen_increment(decimals.sign);
             decimals.gen_decrement(decimals.sign);
         }
@@ -582,7 +609,7 @@ impl PowerOfTwo for &FiLong {
     fn pot(self) -> Self::Output {
         let mut decimals = self.decimal_part();
         let mut int_part = self.floor();
-        if decimals.absolute() > FiLong::half() {
+        if decimals.absolute() > FiLong::one_half() {
             int_part.gen_increment(decimals.sign);
             decimals.gen_decrement(decimals.sign);
             
@@ -637,7 +664,7 @@ impl Exponential for FiLong {
     fn exp(self) -> Self::Output {
         let mut decimals = self.decimal_part();
         let mut int_part = self.floor();
-        if decimals.absolute() > FiLong::half() {
+        if decimals.absolute() > FiLong::one_half() {
             int_part.gen_increment(decimals.sign);
             decimals.gen_decrement(decimals.sign);
         }
@@ -657,7 +684,7 @@ impl Exponential for &FiLong {
     fn exp(self) -> Self::Output {
         let mut decimals = self.decimal_part();
         let mut int_part = self.floor();
-        if decimals.absolute() > FiLong::half() {
+        if decimals.absolute() > FiLong::one_half() {
             int_part.gen_increment(decimals.sign);
             decimals.gen_decrement(decimals.sign);
         }
@@ -669,4 +696,205 @@ impl Exponential for &FiLong {
         println!("{:?}", int_part.to_bin().to_string());
         sum * FiLong::e().pow_int(int_part) * FiLong::tenth()
     }
+}
+
+impl Root<FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn root(self, num: FiLong) -> Self::Output {
+        self.pow(FiLong::one() / num)
+    }
+}
+
+impl Root<&FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn root(self, num: &FiLong) -> Self::Output {
+        self.pow(FiLong::one() / num)
+    }
+}
+
+impl Root<FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn root(self, num: FiLong) -> Self::Output {
+        self.pow(FiLong::one() / num)
+    }
+}
+
+impl Root<&FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn root(self, num: &FiLong) -> Self::Output {
+        self.pow(FiLong::one() / num)
+    }
+}
+
+impl Pow<FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn pow(self, num: FiLong) -> Self::Output {
+        if num.is_integer() {
+            self.pow_int(num)
+        } else {
+            self.pow_r(num)
+        }
+    }
+}
+
+impl Pow<&FiLong> for FiLong {
+    type Output = FiLong;
+
+    fn pow(self, num: &FiLong) -> Self::Output {
+        if num.is_integer() {
+            self.pow_int(num)
+        } else {
+            self.pow_r(num)
+        }
+    }
+}
+
+impl Pow<FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn pow(self, num: FiLong) -> Self::Output {
+        if num.is_integer() {
+            self.pow_int(num)
+        } else {
+            self.pow_r(num)
+        }
+    }
+}
+
+impl Pow<&FiLong> for &FiLong {
+    type Output = FiLong;
+
+    fn pow(self, num: &FiLong) -> Self::Output {
+        if num.is_integer() {
+            self.pow_int(num)
+        } else {
+            self.pow_r(num)
+        }
+    }
+}
+
+macro_rules! pow_for_int {
+    ($type:ty) => {
+        impl Pow<$type> for FiLong {
+            type Output = FiLong;
+
+            fn pow(self, num: $type) -> Self::Output {
+                self.pow_int(num)
+            }
+        }
+        impl Pow<&$type> for FiLong {
+            type Output = FiLong;
+
+            fn pow(self, num: &$type) -> Self::Output {
+                self.pow_int(num)
+            }
+        }
+        impl Pow<$type> for &FiLong {
+            type Output = FiLong;
+
+            fn pow(self, num: $type) -> Self::Output {
+                self.pow_int(num)
+            }
+        }
+        impl Pow<&$type> for &FiLong {
+            type Output = FiLong;
+
+            fn pow(self, num: &$type) -> Self::Output {
+                self.pow_int(num)
+            }  
+        }
+    };
+}
+
+pow_for_int!(isize);
+pow_for_int!(i8);
+pow_for_int!(i16);
+pow_for_int!(i32);
+pow_for_int!(i64);
+pow_for_int!(i128);
+pow_for_int!(usize);
+pow_for_int!(u8);
+pow_for_int!(u16);
+pow_for_int!(u32);
+pow_for_int!(u64);
+pow_for_int!(u128);
+
+// impl Trigonometry for FiLong{
+//     type Output = FiLong;
+
+//     fn sin(self) -> Self::Output {
+
+//     }
+
+//     fn cos(self) -> Self::Output {
+//         let mut x = &self % FiLong::pi();
+//         if x > FiLong::pi_div_two() {
+//             x -= FiLong::pi().value_of_sign(&self.sign);
+//         }
+//         let mut switch = true;
+//         let mut sum = FiLong::one();
+//         for n in 1..20 {
+//             sum += (&self).pow(2 * n) / lookup_fact(2 * n).value_of_sign(&switch);
+//             switch ^= true;
+//         }
+//         sum
+//     }
+
+//     fn tan(self) -> Self::Output;
+
+//     fn arcsin(self) -> Self::Output;
+
+//     fn arccos(self) -> Self::Output;
+
+//     fn arctan(self) -> Self::Output;
+
+//     fn sinh(self) -> Self::Output;
+
+//     fn cosh(self) -> Self::Output;
+
+//     fn tanh(self) -> Self::Output;
+
+//     fn arcsinh(self) -> Self::Output;
+
+//     fn arccosh(self) -> Self::Output;
+
+//     fn arctanh(self) -> Self::Output;
+
+//     fn cot(self) -> Self::Output;
+
+//     fn sec(self) -> Self::Output;
+
+//     fn csc(self) -> Self::Output;
+
+//     fn versin(self) -> Self::Output;
+
+//     fn coversin(self) -> Self::Output;
+
+//     fn exsec(self) -> Self::Output;
+
+//     fn excsc(self) -> Self::Output;
+// }
+
+pub fn cos(num: FiLong) -> FiLong {
+    let mut x = &num % FiLong::pi();
+        if x > FiLong::pi_div_two() {
+            x -= FiLong::pi().value_of_sign(&num.sign);
+        }
+        let mut switch = true;
+        let mut sum = FiLong::one();
+        println!("{:?}", sum);
+        for n in 1..20 {
+            let pow = (&num).pow(2 * n);
+            let fact = lookup_fact(2 * n).value_of_sign(&switch);
+            sum += &pow / &fact;
+            switch ^= true;
+            println!("pow: {:?} fact: {:?}", pow.to_string(), fact.to_string());
+            println!("n: {:?} val: {:?}", n,  ((&num).pow(2 * n) / lookup_fact(2 * n).value_of_sign(&switch)).to_string());
+        }
+        sum
 }

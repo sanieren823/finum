@@ -230,8 +230,8 @@ impl FiLong {
     }
 
     #[inline(always)]
-    pub fn value_of_sign(self, s: bool) -> Self {
-        FiLong{sign: s, value: self.value}
+    pub fn value_of_sign(self, s: &bool) -> Self {
+        FiLong{sign: *s, value: self.value}
     }
 
     #[inline(always)]
@@ -260,8 +260,88 @@ impl FiLong {
     }
 
     #[inline(always)]
+    pub fn neg_two() -> Self {
+        FiLong{sign: true, value: vec![15532559262904483840, 10]}
+    }
+
+    #[inline(always)]
+    pub fn three() -> Self {
+        FiLong{sign: false, value: vec![4852094820647174144, 16]}
+    }
+    
+    #[inline(always)]
+    pub fn neg_three() -> Self {
+        FiLong{sign: true, value: vec![4852094820647174144, 16]}
+    }
+
+    #[inline(always)]
+    pub fn four() -> Self {
+        FiLong{sign: false, value: vec![12618374452099416064, 21]}
+    }
+
+    #[inline(always)]
+    pub fn neg_four() -> Self {
+        FiLong{sign: true, value: vec![12618374452099416064, 21]}
+    }
+
+    #[inline(always)]
+    pub fn five() -> Self {
+        FiLong{sign: false, value: vec![1937910009842106368, 27]}
+    }
+
+    #[inline(always)]
+    pub fn neg_five() -> Self {
+        FiLong{sign: true, value: vec![1937910009842106368, 27]}
+    }
+
+    #[inline(always)]
+    pub fn six() -> Self {
+        FiLong{sign: false, value: vec![9704189641294348288, 32]}
+    }
+
+    #[inline(always)]
+    pub fn neg_six() -> Self {
+        FiLong{sign: true, value: vec![9704189641294348288, 32]}
+    }
+
+    #[inline(always)]
+    pub fn seven() -> Self {
+        FiLong{sign: false, value: vec![17470469272746590208, 37]}
+    }
+
+    #[inline(always)]
+    pub fn neg_seven() -> Self {
+        FiLong{sign: true, value: vec![17470469272746590208, 37]}
+    }
+
+    #[inline(always)]
+    pub fn eight() -> Self {
+        FiLong{sign: false, value: vec![6790004830489280512, 43]}
+    }
+
+    #[inline(always)]
+    pub fn neg_eight() -> Self {
+        FiLong{sign: true, value: vec![6790004830489280512, 43]}
+    }
+
+    #[inline(always)]
+    pub fn nine() -> Self {
+        FiLong{sign: false, value: vec![14556284461941522432, 48]}
+    }
+
+    #[inline(always)]
+    pub fn neg_nine() -> Self {
+        FiLong{sign: true, value: vec![14556284461941522432, 48]}
+    }
+
+    #[inline(always)]
     pub fn ten() -> Self {
         FiLong{sign: false, value: vec![3875820019684212736, 54]}
+    }
+
+    #[inline(always)]
+    pub fn neg_ten() -> Self {
+        FiLong{sign: true, value: vec![3875820019684212736, 54]}
     }
 
     #[inline(always)]
@@ -320,13 +400,73 @@ impl FiLong {
     }
 
     #[inline(always)]
+    pub fn pi() -> Self {
+        FiLong{sign: false, value: vec![564616105916946374, 17]}
+    }
+
+    #[inline(always)]
+    pub fn two_pi() -> Self {
+        FiLong{sign: false, value: vec![1129232211833892748, 34]}
+    }
+
+    #[inline(always)]
+    pub fn pi_div_two() -> Self {
+        FiLong{sign: false, value: vec![9505680089813248995, 8]}
+    }
+
+    #[inline(always)]
+    pub fn pi_div_three() -> Self {
+        FiLong{sign: false, value: vec![12486034751112016535, 5]}
+    }
+
+    #[inline(always)]
+    pub fn pi_div_four() -> Self {
+        FiLong{sign: false, value: vec![4752840044906624498, 4]}
+    }
+
+    #[inline(always)]
+    pub fn pi_div_five() -> Self {
+        FiLong{sign: false, value: vec![7491620850667209921, 3]}
+    }
+
+    #[inline(always)]
+    pub fn pi_div_six() -> Self {
+        FiLong{sign: false, value: vec![15466389412410784076, 2]}
+    }
+
+    #[inline(always)]
+    pub fn pi_div_eight() -> Self {
+        FiLong{sign: false, value: vec![2376420022453312249, 2]}
+    }
+
+    #[inline(always)]
+    pub fn pi_squared() -> Self {
+        FiLong{sign: false, value: vec![9283004202329626235, 53]}
+    }
+
+    #[inline(always)]
+    pub fn pi_recip() -> Self {
+        FiLong{sign: false, value: vec![13384244544669515538, 1]}
+    }
+
+    #[inline(always)]
     pub fn e() -> Self {
         FiLong{sign: false, value: vec![13573765813970800912, 14]}
     }
 
     #[inline(always)]
-    pub fn e_div_2() -> Self {
+    pub fn half_e() -> Self {
         FiLong {sign: false, value: vec![6786882906985400456, 7] }
+    }
+
+    #[inline(always)]
+    pub fn e_squared() -> Self {
+        FiLong{sign: false, value: vec![1035846944682958083, 40]}
+    }
+
+    #[inline(always)]
+    pub fn e_recip() -> Self {
+        FiLong{sign: false, value: vec![18341200043434680544, 1]}
     }
 
     #[inline(always)]
@@ -335,7 +475,22 @@ impl FiLong {
     }
 
     #[inline(always)]
-    pub fn half() -> Self {
+    pub fn ln3() -> Self {
+        FiLong{sign: false, value: vec![17627508498263211060, 5]}
+    }
+
+    #[inline(always)]
+    pub fn ln5() -> Self {
+        FiLong{sign: false, value: vec![13369838653733624532, 8]}
+    }
+
+    #[inline(always)]
+    pub fn ln10() -> Self {
+        FiLong{sign: false, value: vec![8897580414889949010, 12]}
+    }
+
+    #[inline(always)]
+    pub fn one_half() -> Self {
         FiLong{sign: false, value: vec![13106511852580896768, 2]}
     }
 }

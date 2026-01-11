@@ -1,4 +1,4 @@
-use crate::fi::FiBin;
+use crate::fi::{FiBin, FiLong};
 use crate::fi::Parsing;
 
 #[test]
@@ -85,7 +85,13 @@ fn neg_mul() {
     assert_eq!(FiBin::from(res), (FiBin::from(num1) * FiBin::from(num2)).spruce_up()); 
 }
 
-// TODO: implement float multiplication
+#[test]
+fn float_mul() {
+    let num1: f32 = 29.8;
+    let num2: f32 = 0.4;
+    let res: f32 = num1 * num2;
+    assert_eq!(FiBin::from(res.to_string()), (FiBin::from(num1.to_string()) * FiBin::from(num2.to_string())).spruce_up()); // TODO: remove .to_string() once float implementation is finished (for the next test as well)
+}
 
 #[test]
 fn reg_div() { 
@@ -147,8 +153,13 @@ fn neg_rem() {
     assert_eq!(FiBin::from(res), (FiBin::from(num1) % FiBin::from(num2)).spruce_up()); 
 }
 
-// TODO: implement float remainder
-
+#[test]
+fn float_rem() {
+    let num1: f32 = -13.9; // i initially tried 13.0 but the modulu operation lead to a floating-point error
+    let num2: f32 = 4.7;
+    let res: f32 = num1 % num2;
+    assert_eq!(FiBin::from(res.to_string()).spruce_up(), (FiBin::from(num1.to_string()) % FiBin::from(num2.to_string())).spruce_up()); // TODO: remove .to_string() once float implementation is finished (for the next test as well)
+}
 
 #[test]
 fn neg_int_conv() {

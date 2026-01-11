@@ -6,14 +6,14 @@ use crate::fi::Parsing;
 mod operations;
 use crate::fi::{FiBin, FiLong};
 use std::time::Instant;
-use crate::operations::arithm::{Floor, Ceil, Round, RoundN};
+use crate::operations::arithm::{Ceil, Floor, Round, RoundN, single_limb_div, single_limb_rem};
 use crate::operations::math::{Factorial, Logarithm, PowInteger, PowReal, PowerOfTwo, Exponential};
 fn main() {
     // let fixed = fi::fi{sign: false, value: vec![false, true, false, true, true, true, false, false, true]};
     // let string = "109019".to_string();
     let n1: FiBin = FiBin::from(String::from("14"));
     let n2: FiBin = FiBin::from(String::from("2.5"));
-    let dividend: FiBin = FiBin::from(String::from("0.30102999566398119521373889472449"));
+    let dividend: FiBin = FiBin::from(String::from("0.030102999566398119521373889472449"));
     let divisor: FiBin = FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
     let calc = dividend.clone() / divisor.clone();
     // let f1: FiBin = FiBin{sign: false, value: vec![true, true, true]};
@@ -30,7 +30,7 @@ fn main() {
     println!("val: {:?}", FiLong::from(2u128.pow(65)).parse::<u128>().unwrap());
     let mut new1 = n1.to_long();
     let mut new2 = n2.to_long();
-    println!("{:?}", FiLong::e() / 2);
+    println!("sld: {:?}", single_limb_rem(&FiLong::e(), &FiLong::hundredth()));
     println!("{:?}", (dividend.to_long() % FiLong::one()).to_bin().to_string());
     println!("round: {:?}", dividend.to_long());
     println!("{:?}, {:?}", new1, new2);

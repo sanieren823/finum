@@ -537,12 +537,8 @@ impl Mul<&FiLong> for &FiLong {
     type Output = FiLong;
 
     fn mul(self, num: &FiLong) -> Self::Output {
-        let time = Instant::now();
         let res = long_mul(self, num);
-        println!("mul: {:?}", time.elapsed());
-        let val = long_div(&res, &FiLong{sign: false, value: vec![7766279631452241920, 5]}).spruce_up();
-        // println!("mul: {:?}; {:?}", res, val);
-        val
+        long_div(&res, &FiLong{sign: false, value: vec![7766279631452241920, 5]}).spruce_up()
     }
 }
 
@@ -1365,3 +1361,60 @@ int_arithmetic!(u16);
 int_arithmetic!(u32);
 int_arithmetic!(u64);
 int_arithmetic!(u128);
+
+
+
+
+
+
+
+
+
+
+
+
+
+pub fn single_limb_div(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
+    let sign; // "calculates" the sign of the result
+    if num1.sign == num2.sign {
+        sign = false;
+    } else {
+        sign = true;
+    }
+    if num2[0] == 1 {
+        return num1.clone();
+    }
+    let len = num1.len();
+    let mut res = FiLong{sign: sign, value: Vec::with_capacity(len)};
+    res.value.resize(len, 0);
+    let mut carry: u128 = num1[len - 1] as u128;
+    for i in (0..len - 1).rev() {
+        let num = carry * 2u128.pow(64) + num1[i] as u128;
+        let div = num / num2[0] as u128;
+        let rem = num % num2[0] as u128;
+        res[i + 1] += high_bits(div) as u64;
+        res[i] += low_bits(div) as u64;
+        carry = rem;
+    }
+    res
+}
+
+pub fn single_limb_rem(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
+    let sign; // "calculates" the sign of the result
+    if num1.sign == num2.sign {
+        sign = false;
+    } else {
+        sign = true;
+    }
+    if num2[0] == 1 {
+        return FiLong::one();
+    }
+    let len = num1.len();
+    let mut carry: u128 = num1[len - 1] as u128;
+    for i in (0..len - 1).rev() {
+        let num = carry * 2u128.pow(64) + num1[i] as u128;
+        let rem = num % num2[0] as u128;
+        carry = rem;
+    }
+    FiLong{sign: sign, value: vec![carry as u64]}
+}

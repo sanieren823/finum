@@ -208,7 +208,7 @@ impl FiLong {
 
     #[inline(always)]
     pub fn is_integer(&self) -> bool {
-        self % FiLong::one() == FiLong::new()
+        (self % FiLong::one()).is_zero()
     }
 
     #[inline(always)]

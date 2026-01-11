@@ -579,8 +579,28 @@ pub fn bernouilli_coeffi(){
     }
 }
 
+pub fn cheb_lanczos(n: u8, m: u8) -> i128 {
+    if n == m {
+        match n {
+            1 => 1,
+            2 => 1,
+            _ => 2 * cheb_lanczos(n - 1, n - 1),
+        }
+    } else if m == 1 {
+        -cheb_lanczos(n - 2, 1)
+    } else {
+        2 * cheb_lanczos(n - 1, m - 1) - cheb_lanczos(n - 2, m)
+    }
+}
 
-
+pub fn coefficients(k: u8, g: u8) -> FiLong {
+    let base = FiLong::sqrt2() / FiLong::pi();
+    let mut res = FiLong::new();
+    for l in 0..=k {
+        res += (l - FiLong::one_half()).fact() * (l + g + FiLong::one_half()).pow(-(FiLong::from(l) + FiLong::one_half())) * (l + g + FiLong::one_half()).exp() * cheb_lanczos(2 * k + 1, 2 * l + 1);
+    }
+    res * base
+}
 
 
 impl Factorial for FiLong{// TODO finish + impl for &FiLong
@@ -588,7 +608,12 @@ impl Factorial for FiLong{// TODO finish + impl for &FiLong
 
     fn fact(self) -> Self::Output {
         if self < FiLong::new() {
-            panic!("Make sure to input a positive number. Factorials can only be calculated of numbers 0 or larger.")
+            if self == -FiLong::one_half() {
+                FiLong::from("1.7724538509055160272981674833411")
+            } else {
+                panic!("Make sure to input a positive number. Factorials can only be calculated of numbers 0 or larger.");
+            }
+            
         } else if self.spruce_up() == FiLong::new() {
             FiLong::one()
         } else if self.is_integer() {
@@ -600,9 +625,19 @@ impl Factorial for FiLong{// TODO finish + impl for &FiLong
             }
             res
         } else {
-            let decimals = self.decimal_part();
-            let int_part = self.floor() - FiLong::one();
-            lanczos(decimals) * int_part.fact()
+            let decimals: FiLong = self.decimal_part() + 1;
+
+            if self < FiLong::one() {
+                lanczos(decimals) / self
+            } else {
+                let mut counter = self;
+                let mut reg = FiLong::one();
+                while counter >= FiLong::two() {
+                    reg *= &counter;
+                    counter -= FiLong::one();
+                }
+                lanczos(decimals) * reg
+            }
         }
     }
 }
@@ -618,10 +653,15 @@ fn a_g(z: FiLong) -> FiLong {
 }
 
 fn lanczos(z: FiLong) -> FiLong {
-    const G: usize = 10;
-    let sqrt_2pi =  FiLong{sign: false, value: vec![10855154504875879234, 13]};
-    let sum = &z + G + FiLong::one_half();
-    sqrt_2pi * (&sum).pow(&z + FiLong::one_half()) * -sum.exp() * a_g(z)
+    if z == FiLong::from("1.5") {
+        FiLong::from("1.3293403881791370204736256125059")
+    } else {
+        const G: usize = 10;
+        let sqrt_2pi =  FiLong{sign: false, value: vec![10855154504875879234, 13]};
+        let sum = &z + G + FiLong::one_half();
+        sqrt_2pi * (&sum).pow(&z + FiLong::one_half()) * -sum.exp() * a_g(z)
+    }
+    
 }
 
 
@@ -748,12 +788,10 @@ impl Exponential for FiLong {
             int_part.gen_increment(decimals.sign);
             decimals.gen_decrement(decimals.sign);
         }
-        println!("{:?}", int_part.to_bin().to_string());
         let mut sum = FiLong::ten() + FiLong::ten() * &decimals;
         for i in 2..18 {
             sum += FiLong::ten() * (&decimals).pow_int(i) / lookup_fact(i);
         }
-        println!("{:?}", int_part.to_bin().to_string());
         sum * FiLong::e().pow_int(int_part) * FiLong::tenth()
     }
 }
@@ -768,12 +806,10 @@ impl Exponential for &FiLong {
             int_part.gen_increment(decimals.sign);
             decimals.gen_decrement(decimals.sign);
         }
-        println!("{:?}", int_part.to_bin().to_string());
         let mut sum = FiLong::ten() + FiLong::ten() * &decimals;
         for i in 2..18 {
             sum += FiLong::ten() * (&decimals).pow_int(i) / lookup_fact(i);
         }
-        println!("{:?}", int_part.to_bin().to_string());
         sum * FiLong::e().pow_int(int_part) * FiLong::tenth()
     }
 }

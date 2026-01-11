@@ -1349,3 +1349,24 @@ pub fn single_limb_rem(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
     }
     FiLong{sign: sign, value: vec![carry as u64]}
 }
+
+pub fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong { 
+    let n = num2.len();
+    let m = num1.len() - n;
+    let b: u128 = u64::MAX as u128 + 1;
+    let mut d = u64::MAX / num2[n - 1];
+    let mut q_high: u128;
+    let mut q_low: u128;
+    let mut r_high: u128;
+    let mut r_low: u128;
+    for j in (0..=m).rev() {
+        q_low = (num1[n + j] as u128 * 2u128.pow(64) + num1[n - 1 + j] as u128) / num2[n - 1] as u128;
+        r_low = (num1[n + j] as u128 * 2u128.pow(64) + num1[n - 1 + j] as u128) % num2[n - 1] as u128;
+        if q_low == b || (q_low * num2[n - 2] as u128) > (r_low * b + num1[n - 2 + j] as u128) {
+            q_low -= 1;
+            r_low += num2[n - 1] as u128;
+        }
+    }
+
+    FiLong::new()
+}

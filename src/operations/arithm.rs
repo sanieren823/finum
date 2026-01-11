@@ -27,16 +27,6 @@ pub trait RoundN<Rhs = Self> {
     fn round_n(self, rhs: Rhs) -> Self::Output;
 }
 
-
-
-
-
-
-
-
-
-
-
 impl Add for FiBin {
     type Output = FiBin;
 
@@ -685,7 +675,7 @@ fn long_mul(num1: &FiLong, num2: &FiLong) -> FiLong {
     // if carries[len - 1] != 0 { // checks if there's a carry in the last operation
     //     result[len - 1] = carries[len - 1] as u64;
     // }
-    result
+    result.spruce_up()
 }
 
 fn long_div(num1: &FiLong, num2: &FiLong) -> FiLong {
@@ -902,7 +892,7 @@ fn floor_div(num1: &FiLong, num2: &FiLong) -> FiLong {
             q |= &bit_mask;
         }
     }
-    q
+    q.spruce_up()
 }
 
 
@@ -942,7 +932,7 @@ fn ceil_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     if !r.is_zero() { // rounds if necessary
         q |= bit_mask;
     }
-    q
+    q.spruce_up()
 }
 
 macro_rules! int_arithmetic {
@@ -1350,23 +1340,45 @@ pub fn single_limb_rem(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
     FiLong{sign: sign, value: vec![carry as u64]}
 }
 
-pub fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong { 
-    let n = num2.len();
-    let m = num1.len() - n;
-    let b: u128 = u64::MAX as u128 + 1;
-    let mut d = u64::MAX / num2[n - 1];
-    let mut q_high: u128;
-    let mut q_low: u128;
-    let mut r_high: u128;
-    let mut r_low: u128;
-    for j in (0..=m).rev() {
-        q_low = (num1[n + j] as u128 * 2u128.pow(64) + num1[n - 1 + j] as u128) / num2[n - 1] as u128;
-        r_low = (num1[n + j] as u128 * 2u128.pow(64) + num1[n - 1 + j] as u128) % num2[n - 1] as u128;
-        if q_low == b || (q_low * num2[n - 2] as u128) > (r_low * b + num1[n - 2 + j] as u128) {
-            q_low -= 1;
-            r_low += num2[n - 1] as u128;
-        }
-    }
+// pub fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong { 
+//     let sign = num1.sign ^ num2.sign;
+//     let n = num2.len();
+//     let m = num1.len() - n;
+//     let b: u128 = u64::MAX as u128 + 1;
+//     let d = u64::MAX / num2[n - 1];
+//     let mut u: Vec<u128> = Vec::with_capacity(m + n);
+//     let mut v: Vec<u128> = Vec::with_capacity(n);
+//     for el in num1.value.iter() {
+//         u.push(*el as u128 * d as u128);
+//     }
+//     for el in num2.value.iter() {
+//         v.push(*el as u128 * d as u128);
+//     }
+    
+//     let mut q_low: u128;
+//     let mut r_low: u128;
+//     let mut q_high: u128;
+//     let mut r_high: u128;
+//     for j in (0..=m).rev() {
+//         q = (u[n + j] as u128 * 2u128.pow(64) + u[n - 1 + j] as u128) / v[n - 1] as u128;
+//         r = (u[n + j] as u128 * 2u128.pow(64) + u[n - 1 + j] as u128) % v[n - 1] as u128;
+//         loop {
+//             let mid = high_bits(q) * v[n - 2] as u128;
+//             let low = low_bits(q) * v[n - 2] as u128 + low_bits(mid);
+//             let high = high_bits(mid);
+//             if (q >= b) || low > (r * b + u[n - 2 + j] as u128) || high != 0 { // if clause
+//                 q -= 1;
+                
+//                 r += v[n - 1] as u128;
+//                 if r > b {
+//                     break;
+//                 }
+//             } else {
+//                 break;
+//             }
+//         }
+        
+//     }
 
-    FiLong::new()
-}
+//     FiLong::new()
+// }

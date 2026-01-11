@@ -262,7 +262,7 @@ impl FiLong {
 
     #[inline(always)]
     pub fn neg_one() -> Self {
-        FiLong{sign: false, value: vec![7766279631452241920, 5]}
+        FiLong{sign: true, value: vec![7766279631452241920, 5]}
     }
 
     #[inline(always)]

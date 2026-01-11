@@ -296,17 +296,6 @@ pub trait Trigonometry {
 //     Ok(res)
 // }
 
-// impl FiLong{// helper functions for the log2 calculation
-//     #[inline(always)]
-//     fn hundred() -> FiLong {
-//         FiLong{sign: false, value: vec![1864712049423024128, 542]}
-//     }
-//     #[inline(always)]
-//     fn hundredth() -> FiLong {
-//         FiLong{sign: false, value: vec![1000000000000000000]}
-//     }
-// }
-
 fn fl_log_2_long(num: &FiLong) -> Result<FiLong, FiError>{
     let mut shifted;
     let mut res: FiLong = FiLong::new();
@@ -329,30 +318,6 @@ fn fl_log_2_long(num: &FiLong) -> Result<FiLong, FiError>{
     // println!("{:?}", res.to_bin().to_string());
     Ok(res)
 }
-
-// pub fn tenth_log_long(num: &FiLong) -> FiLong{// TODO: remove
-//     let mut shifted;
-//     let mut res: FiLong = FiLong::new();
-//     let mut sign = false;
-//     if num.sign {
-//         panic!("readsoon");
-//     } else if *num < FiLong::one() {
-//         shifted = FiLong::one() / num;
-//         sign = true;
-//     } else {
-//         shifted = num.clone();
-//     }
-//     while shifted >= FiLong::two() {
-//         shifted >>= 1;
-//         res += 1;
-//     }
-//     res *= 1000;
-//     res += decimals_log_2_long(&shifted, &FiLong::ten()); // this adds precision; from what i measured 100 is usually enough
-//     res.sign = sign;
-//     // println!("{:?}", res.to_bin().to_string());
-//     res
-// }
-
 
 fn decimals_log_2_long(num: &FiLong, factor: &FiLong) -> FiLong{// input must be the residue --> between 1 and 2
     
@@ -597,9 +562,8 @@ impl Factorial for FiLong{// TODO finish + impl for &FiLong
     type Output = FiLong;
 
     fn fact(self) -> Self::Output {
-        // println!("{:?}", &self % FiLong::one());
         if self < FiLong::new() {
-            panic!("negative lol") // TODO obv
+            panic!("Make sure to input a positive number. Factorials can only be calculated of numbers 0 or larger.")
         } else if self.spruce_up() == FiLong::new() {
             FiLong::one()
         } else if self.is_integer() {
@@ -608,7 +572,6 @@ impl Factorial for FiLong{// TODO finish + impl for &FiLong
             while num > FiLong::one() {
                 res *= &num;
                 num -= FiLong::one();
-                // println!("{:?}", res);
             }
             res
         } else {

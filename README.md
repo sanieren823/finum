@@ -5,7 +5,7 @@ Most decimal numbers get represented by floating-point numbers. Floats usually c
 
 # Precision
 
-The fi crate has a precision of **20 decimal digits**. Any number with more than 20 decimal digits will automatically be rounded to 20 decimals digits. The number $2$ is actually $2.000... * 10^{20}$, that way every number is an integer disguised as a decimal numeral.
+The fi crate has a precision of **20 decimal digits**. Any number with more than 20 decimal digits will automatically be rounded to 20 decimal digits. The number $2$ is actually $2.000... * 10^{20}$; that way every number is an integer disguised as a decimal numeral.
 
 ## Operations
 This Table shows how precise each Operation is:

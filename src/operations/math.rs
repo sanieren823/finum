@@ -597,7 +597,7 @@ pub fn coefficients(k: u8, g: u8) -> FiLong {
     let base = FiLong::sqrt2() / FiLong::pi();
     let mut res = FiLong::new();
     for l in 0..=k {
-        res += (l - FiLong::one_half()).fact() * (l + g + FiLong::one_half()).pow(-(FiLong::from(l) + FiLong::one_half())) * (l + g + FiLong::one_half()).exp() * cheb_lanczos(2 * k + 1, 2 * l + 1);
+        res += (l - FiLong::one_half()).fact() * (l + g + FiLong::one_half()).pow(-(l + FiLong::one_half())) * (l + g + FiLong::one_half()).exp() * cheb_lanczos(2 * k + 1, 2 * l + 1);
     }
     res * base
 }
@@ -614,7 +614,7 @@ impl Factorial for FiLong{// TODO finish + impl for &FiLong
                 panic!("Make sure to input a positive number. Factorials can only be calculated of numbers 0 or larger.");
             }
             
-        } else if self.spruce_up() == FiLong::new() {
+        } else if self.is_zero() {
             FiLong::one()
         } else if self.is_integer() {
             let mut res = FiLong::one();
@@ -628,7 +628,7 @@ impl Factorial for FiLong{// TODO finish + impl for &FiLong
             let decimals: FiLong = self.decimal_part() + 1;
 
             if self < FiLong::one() {
-                lanczos(decimals) / self
+                lanczos(decimals, 10) / self
             } else {
                 let mut counter = self;
                 let mut reg = FiLong::one();
@@ -636,30 +636,63 @@ impl Factorial for FiLong{// TODO finish + impl for &FiLong
                     reg *= &counter;
                     counter -= FiLong::one();
                 }
-                lanczos(decimals) * reg
+                lanczos(decimals, 10) * reg
             }
         }
     }
 }
 
-
-fn a_g(z: FiLong) -> FiLong {
-    let coefficients = [FiLong::new()]; // TODO: calculate constants
-    let mut res = coefficients[0].clone();
-    for i in 1..coefficients.len() {
-        res += &coefficients[i] / (&z + i);
+fn sum_coef(z: FiLong, g: usize) -> FiLong {
+    let mut res = FiLong::new();
+    for k in 0..9 {
+        res += &coef(k, g) * FiLong::neg_one().pow_int(k) * k_loop(k, -(&z)) / k_loop(k, &z + 1);
     }
     res
 }
 
-fn lanczos(z: FiLong) -> FiLong {
+fn coef(k: usize, g: usize) -> FiLong {
+    let base = FiLong::from(g).exp() * epsilon(k) * FiLong::neg_one().pow_int(k) / FiLong{sign: false, value: vec![10855154504875879234, 13]};
+    let mut sum = FiLong::new();
+    for r in 0..=k {
+        sum += FiLong::neg_one().pow_int(r) * (FiLong::from(k).fact() / (FiLong::from((k - r)).fact() * FiLong::from(r).fact())) * k_loop(r, FiLong::from(k)) * (FiLong::e() * FiLong::million() / (r + g + FiLong::one_half())).pow(r + FiLong::one_half()) / (FiLong::million()).pow(r + FiLong::one_half());
+        println!("fact: {:?}", (FiLong::from(k).fact() / (FiLong::from((k - r)).fact() * FiLong::from(r).fact())));
+        println!("k: {:?}", k_loop(r, FiLong::from(k)));
+        println!("pow: {:?}", (FiLong::e() / (r + g + FiLong::one_half())).pow(r + FiLong::one_half()));
+        println!("-1: {:?}", FiLong::neg_one().pow_int(r));
+    }
+    println!("base: {:?}, sum: {:?}", &base, &sum);
+    println!("{:?}, k: {:?}", &base * &sum, k);
+    base * sum
+}
+
+fn epsilon(k: usize) -> FiLong {
+    match k {
+        0 => FiLong::one(),
+        _ => FiLong::two(),
+    }
+}
+
+fn k_loop(k: usize, subject: FiLong) -> FiLong {
+    let mut res = FiLong::one();
+    if k == 0 {
+        res
+    } else {
+        for i in 0..k {
+            res *= &subject + i;
+        }
+        res
+    }
+    
+}
+
+
+fn lanczos(z: FiLong, g: usize) -> FiLong {
     if z == FiLong::from("1.5") {
         FiLong::from("1.3293403881791370204736256125059")
     } else {
-        const G: usize = 10;
         let sqrt_2pi =  FiLong{sign: false, value: vec![10855154504875879234, 13]};
-        let sum = &z + G + FiLong::one_half();
-        sqrt_2pi * (&sum).pow(&z + FiLong::one_half()) * -sum.exp() * a_g(z)
+        let sum = &z + g + FiLong::one_half();
+        sqrt_2pi * (&sum).pow(&z + FiLong::one_half()) * (-sum).exp() * sum_coef(z, g)
     }
     
 }

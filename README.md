@@ -19,5 +19,5 @@ This Table shows how precise each Operation is:
 |Exponentiation (exponent is an integer)  | 20 digits                                           |
 |Exponentiation (all cases)               | ~16-17 digits                                       |
 |Nth Root                                 | ~16-17 digits                                       |
-|Factorial & Termial                      | 20 digits                                           |
+|Factorial & Termial                      | ~15 digits                                          |
 |Trigonometry                             | 20 digits                                           |

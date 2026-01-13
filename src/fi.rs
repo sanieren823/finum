@@ -37,14 +37,12 @@ pub trait Parsing {
 
     
 }
-// TODO: implement Display for as a readable chain of bits in BE (signed)
 
-
-
+// Implemented in LE as you would read it unlike the vector representation
 impl fmt::Display for FiBin {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut string: String = String::new();
-        for el in self.value.iter() {
+        for el in self.value.iter().rev() {
             string += &match_u8(el).to_string();
         }
         let sign: String;

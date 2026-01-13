@@ -117,12 +117,17 @@ impl Neg for FiBin {
         FiBin{sign: !self.sign, value: self.value}
     }
 }
-// TODO: look for a better implementation
+
+// Implemented as Nothing/Something (something = 1)
 impl Not for FiBin {
     type Output = FiBin; 
 
     fn not(self) -> Self::Output {
-        FiBin{sign: !self.sign, value: self.value}
+        if self.is_zero() {
+            FiBin::one()
+        } else {
+            FiBin::new()
+        }
     }
 }
 

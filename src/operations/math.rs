@@ -702,12 +702,11 @@ impl Termial for FiLong {
     type Output = FiLong;
 
     fn term(self) -> Self::Output {
-        let mut sum = self.decimal_part();
-        let mut int_part = self.floor();
-        
-        while int_part >= FiLong::one() {
-            sum += &int_part;
-            int_part -= FiLong::one();
+        let mut sum = FiLong::new();
+        let mut val = self;
+        while val >= FiLong::one() {
+            sum += &val;
+            val -= FiLong::one();
         }
         sum
     }
@@ -717,12 +716,11 @@ impl Termial for &FiLong {
     type Output = FiLong;
 
     fn term(self) -> Self::Output {
-        let mut sum = self.decimal_part();
-        let mut int_part = self.floor();
-        
-        while int_part >= FiLong::one() {
-            sum += &int_part;
-            int_part -= FiLong::one();
+        let mut sum = FiLong::new();
+        let mut val = self.clone();
+        while val >= FiLong::one() {
+            sum += &val;
+            val -= FiLong::one();
         }
         sum
     }

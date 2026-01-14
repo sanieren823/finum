@@ -38,9 +38,9 @@ impl FiBin {
         // inserts the decimal point (and adds zeros if required)
         let len = string.chars().count();
         if len > 20 + base {
-            string.insert(len + base - 20, '.');
+            string.insert(len - 20, '.');
         } else {
-            for _num in 0..=20+base-len {
+            for _num in 0..=20-len {
                 string.insert(0 + base, '0');
             }
             string.insert(1 + base, '.');

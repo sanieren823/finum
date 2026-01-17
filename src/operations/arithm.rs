@@ -535,7 +535,14 @@ impl DivAssign<FiLong> for FiLong {
 impl DivAssign<&FiLong> for FiLong {
     fn div_assign(&mut self, other: &FiLong) {
         let dividend = long_mul(&self, &FiLong{sign: false, value: vec![7766279631452241920, 5]});
-        *self = long_div(&dividend, other).spruce_up();
+        if other.absolute() > dividend.absolute() {
+            *self = FiLong::new();
+        }
+        *self = match other.len() {
+            0 => panic!("You cannot divide by 0 in any cases."),
+            1 => single_limb_div(&dividend, &other).spruce_up(),
+            _=> algorithm_d_div(&dividend, &other).spruce_up(),
+        }
     }
 }
 
@@ -567,7 +574,11 @@ impl Rem<&FiLong> for &FiLong {
     type Output = FiLong;
 
     fn rem(self, num: &FiLong) -> Self::Output {
-        long_rem(self, num)
+        match num.len() {
+            0 => self.clone(),
+            1 => single_limb_rem(&self, &num).spruce_up(),
+            _=> algorithm_d_rem(&self, &num).spruce_up(),
+        }
     }
 }
 
@@ -579,7 +590,11 @@ impl RemAssign<FiLong> for FiLong {
 
 impl RemAssign<&FiLong> for FiLong {
     fn rem_assign(&mut self, other: &FiLong) {
-        *self = long_rem(self, other);
+        *self = match other.len() {
+            0 => self.clone(),
+            1 => single_limb_rem(&self, &other).spruce_up(),
+            _=> algorithm_d_rem(&self, &other).spruce_up(),
+        }
     }
 }
 
@@ -1340,7 +1355,7 @@ pub fn single_limb_div(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
     res
 }
 
-pub fn single_limb_rem(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
+fn single_limb_rem(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
     let sign; // "calculates" the sign of the result
     if num1.sign == num2.sign {
         sign = false;
@@ -1360,10 +1375,13 @@ pub fn single_limb_rem(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
     FiLong{sign: sign, value: vec![carry as u64]}
 }
 
-pub fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong { 
-    // important length constants
+
+// https://skanthak.hier-im-netz.de/division.html
+fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong { 
+    // important constants
     let n = num2.len();
     let m = num1.len() - n;
+    const B: u128 = u64::MAX as u128 + 1;
 
     // result handeling
     let sign = num1.sign ^ num2.sign;
@@ -1371,7 +1389,7 @@ pub fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     res.sign = sign;
     res.resize(m + 1, 0);
     
-    let b: u128 = u64::MAX as u128 + 1;
+    // initial multiplication
     let s = num2[n - 1].leading_zeros();
     let mut v: Vec<u64> = Vec::with_capacity(n);
     for i in 0..n {
@@ -1394,33 +1412,18 @@ pub fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong {
         u.push(high_bits | low_bits);
     }
     u.push(num1.value[num1.len() - 1] >> (64 - s)); 
+
     let mut q: u128;
     let mut r: u128;
     for j in (0..=m).rev() {
-        // println!("u: {:?}", u);
-        // println!("v: {:?}", v);
-        q = (u[n + j] as u128 * b + u[n + j - 1] as u128) / v[n - 1] as u128; 
-        r = (u[n + j] as u128 * b + u[n + j - 1] as u128) % v[n - 1] as u128;
-        // println!("q: {:?}", q);
-        // println!("{:?}", u[n + j] as u128 * b + u[n + j - 1] as u128);
-        // println!("{:?}", u[n + j] as u128 * b);
-        // println!("{:?}", u[n + j - 1] as u128);
-        // println!("r: {:?}", r);
+        q = (u[n + j] as u128 * B + u[n + j - 1] as u128) / v[n - 1] as u128; 
+        r = (u[n + j] as u128 * B + u[n + j - 1] as u128) % v[n - 1] as u128;
         loop {
-            // let mid = high_bits(q) * v[n - 2] as u128;
-            // let low = low_bits(q) * v[n - 2] as u128;
-            // let temp = high_bits(low) + low_bits(mid);
-            // let high = high_bits(mid) + high_bits(temp);
-            // let low = low_bits(low) + low_bits(temp) * b;
-            // println!("low: {:?}", low);
-            // println!("{:?}", (r * b + u[n + j - 2] as u128));
-            // println!("{:?}", high);
-            // println!("{:?}", q * v[n - 2] as u128);
-            if (q >= b) || q * v[n - 2] as u128 > (r * b + u[n + j - 2] as u128) { // the c implementation shows a >= for the first clause
+            if (q >= B) || q * v[n - 2] as u128 > (r * B + u[n + j - 2] as u128) {
                 q -= 1;
                 
                 r += v[n - 1] as u128;
-                if r > b {
+                if r > B {
                     break;
                 }
             } else {
@@ -1429,15 +1432,14 @@ pub fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong {
         }
         let mut product = v.clone();
         multiply(&mut product, q, 0);
-        // if q_high > 0 {
-        //     multiply(&mut product, q_high, 1);
-        // }
+        // checks if value would be negative
         if compare(&u, &product, j, n) {
             q -= 1;
             product = v.clone();
             multiply(&mut product, q, 0);
         }
         res[j] = q as u64;
+        // subtraction logic
         let mut borrow: u64 = 0;
         for i in 0..=n {
             let ui = u[i + j] as u128;
@@ -1446,16 +1448,97 @@ pub fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong {
                 u[i + j] = (ui - pi) as u64;
                 borrow = 0;
             } else {
-                u[i + j] = ((ui + b) - pi) as u64;
+                u[i + j] = ((ui + B) - pi) as u64;
                 borrow = 1;
             }
         }
-        // res[j] = q;
     }
-
     res
 }
 
+
+// https://skanthak.hier-im-netz.de/division.html
+fn algorithm_d_rem(num1: &FiLong, num2: &FiLong) -> FiLong { 
+    // important constants
+    let n = num2.len();
+    let m = num1.len() - n;
+    const B: u128 = u64::MAX as u128 + 1;
+    
+    // initial multiplication
+    let s = num2[n - 1].leading_zeros();
+    let mut v: Vec<u64> = Vec::with_capacity(n);
+    for i in 0..n {
+        let high_bits = num2.value[i] << s;
+        let low_bits = if i > 0 {
+            num2.value[i - 1] >> (64 - s)
+        } else {
+            0
+        };
+        v.push(high_bits | low_bits);
+    }
+    let mut u: Vec<u64> = Vec::with_capacity(m + n + 1);
+    for i in 0..num1.len() {
+        let high_bits = num1.value[i] << s;
+        let low_bits = if i > 0 {
+            num1.value[i - 1] >> (64 - s)
+        } else {
+            0
+        };
+        u.push(high_bits | low_bits);
+    }
+    u.push(num1.value[num1.len() - 1] >> (64 - s)); 
+
+    let mut q: u128;
+    let mut r: u128;
+    for j in (0..=m).rev() {
+        q = (u[n + j] as u128 * B + u[n + j - 1] as u128) / v[n - 1] as u128; 
+        r = (u[n + j] as u128 * B + u[n + j - 1] as u128) % v[n - 1] as u128;
+        loop {
+            if (q >= B) || q * v[n - 2] as u128 > (r * B + u[n + j - 2] as u128) {
+                q -= 1;
+                
+                r += v[n - 1] as u128;
+                if r > B {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        let mut product = v.clone();
+        multiply(&mut product, q, 0);
+        // checks if value would be negative
+        if compare(&u, &product, j, n) {
+            q -= 1;
+            product = v.clone();
+            multiply(&mut product, q, 0);
+        }
+        // subtraction logic
+        let mut borrow: u64 = 0;
+        for i in 0..=n {
+            let ui = u[i + j] as u128;
+            let pi = product[i] as u128 + borrow as u128;
+            if ui >= pi {
+                u[i + j] = (ui - pi) as u64;
+                borrow = 0;
+            } else {
+                u[i + j] = ((ui + B) - pi) as u64;
+                borrow = 1;
+            }
+        }
+    }
+
+    // bit shifting algorithm
+    let mut result: Vec<u64> = Vec::with_capacity(u.capacity());
+    result.resize(u.len(), 0);
+    for i in (0..u.len()).rev() {
+        result[i] |= u[i] >> s;
+        if i > 0 {
+            result[i - 1] |= u[i] << (64 - s);
+        }
+    }
+    FiLong{sign: num1.sign, value: result}
+}
 
 fn multiply(vec: &mut Vec<u64>, factor: u128, start: usize) {
     let mut carry: u128 = 0;

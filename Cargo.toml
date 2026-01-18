@@ -2,5 +2,8 @@
 name = "fi"
 version = "0.1.0"
 edition = "2021"
+description = "A numeric type of variable length (20 decimal digits)"
+license = "MIT"
+
 
 [dependencies]

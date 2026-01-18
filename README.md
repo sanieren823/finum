@@ -2,8 +2,16 @@
 
 Most decimal numbers get represented by floating-point numbers. Floats usually create floating-point errors, which are quite annoying when you need the exact value. Therefore this type uses **fixed-point integers**. 
 
+## Usage
 
-# Precision
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies]
+fi = "0.1.0"
+```
+
+## Precision
 
 The fi crate has a precision of **20 decimal digits**. Any number with more than 20 decimal digits will automatically be rounded to 20 decimal digits. The number $2$ is actually $2.000... * 10^{20}$; that way every number is an integer disguised as a decimal numeral.
 

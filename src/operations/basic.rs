@@ -1,5 +1,5 @@
 
-use crate::fi::{FiBin, FiLong};
+use crate::finum::{FiBin, FiLong};
 use std::ops::{Index, IndexMut};
 use core::slice::{Iter, IterMut};
 

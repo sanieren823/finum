@@ -1,5 +1,5 @@
-use crate::fi::FiBin;
-use crate::fi::FiBcd;
+use crate::finum::FiBin;
+use crate::finum::FiBcd;
 
 
 // matches a 4-bit in LE integer to its approriate value

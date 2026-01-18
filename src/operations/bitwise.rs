@@ -1,4 +1,4 @@
-use crate::fi::{FiBin, FiLong};
+use crate::finum::{FiBin, FiLong};
 use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Shl, ShlAssign, Shr, ShrAssign};
 
 // TODO: write tests for all bitwise functions

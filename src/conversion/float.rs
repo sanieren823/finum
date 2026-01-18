@@ -1,4 +1,4 @@
-use crate::fi::{FiBin, FiLong};
+use crate::finum::{FiBin, FiLong};
 use crate::errors::FiError;
 use crate::errors::FiErrorKind;
 use crate::operations::arithm::Floor;

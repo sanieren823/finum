@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use crate::fi::{FiBin, FiLong};
+use crate::finum::{FiBin, FiLong};
 
 // comparison logic for FiBin + FiLong
 

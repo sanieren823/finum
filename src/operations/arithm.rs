@@ -1,4 +1,4 @@
-use crate::fi::{FiBin, FiLong};
+use crate::finum::{FiBin, FiLong};
 use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Rem, RemAssign, Neg, Not};
 
 // TODO: decide whether the spruce_up() method should be called

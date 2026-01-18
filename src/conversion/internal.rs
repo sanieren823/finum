@@ -2,8 +2,8 @@
 use std::process::Output;
 
 // TODO: consider that all input can be non-spruced-up values 
-use crate::fi::FiBin;
-use crate::fi::FiLong;
+use crate::finum::FiBin;
+use crate::finum::FiLong;
 
 impl FiBin {
 	pub fn to_long(&self) -> FiLong {

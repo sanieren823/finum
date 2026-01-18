@@ -1,4 +1,4 @@
-use crate::fi::{FiBin, FiBcd, FiLong};
+use crate::finum::{FiBin, FiBcd, FiLong};
 
 impl FiBin {
     pub fn to_string(&self) -> String {

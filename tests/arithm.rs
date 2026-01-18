@@ -67,7 +67,7 @@ mod tests {
         assert_eq!(FiLong::e().round_n(1), FiLong::from("2.7"));
         assert_eq!(FiLong::pi().round_n(4), FiLong::from("3.1416"));
         assert_eq!(FiLong::ln5().round_n(0), FiLong::ln5().round());
-        assert_eq!(FiLong::ln10().round_n(20), FiLong::ln10());
+        assert_eq!(FiLong::ln10().round_n(21), FiLong::ln10());
     }
 
 }

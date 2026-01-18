@@ -1,6 +1,7 @@
 # finum
 
-Most decimal numbers get represented by floating-point numbers. Floats usually create floating-point errors, which are quite annoying when you need the exact value. Therefore this type uses **fixed-point integers**. 
+This crate aims to solve precision problems for most cases. Numbers are represented by **fixed-point integers** of variable length.
+ 
 
 ## Usage
 

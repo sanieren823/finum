@@ -266,6 +266,11 @@ impl FiLong {
     }
 
     #[inline(always)]
+    pub fn smallest_val() -> Self {
+        FiLong{sign: false, value: vec![1]}
+    }
+
+    #[inline(always)]
     pub fn one() -> Self {
         FiLong{sign: false, value: vec![7766279631452241920, 5]}
     }

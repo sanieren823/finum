@@ -2,8 +2,6 @@ use crate::finum::{FiBin, FiLong};
 use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Rem, RemAssign, Neg, Not};
 use crate::operations::math::PowInteger;
 
-// TODO: decide whether the spruce_up() method should be called
-
 pub trait Floor {
     type Output;
 
@@ -711,67 +709,69 @@ fn long_mul(num1: &FiLong, num2: &FiLong) -> FiLong {
     result.spruce_up()
 }
 
-fn long_div(num1: &FiLong, num2: &FiLong) -> FiLong {
-    let sign; // "calculates" the sign of the result
-    if num1.sign == num2.sign {
-        sign = false;
-    } else {
-        sign = true;
-    }
-    if num2.is_zero() { // checks if either input is zero
-        panic!("You can't divide by 0. Make sure your dividend is not equal to 0.") // i know it's not proper error handeling but it's an internal function that's not meant to be used by anyone + run time?
-    } else if num1.is_zero() {
-        return FiLong::new();
-    }
-    let dividend = num1.spruce_up();
-    let offset = dividend[dividend.len() - 1].leading_zeros() as usize;
-    let n: FiLong = dividend << offset;
-    let mut inverse: FiLong = n.reverse_bits(); // in normal long division you iterate through the number/vector/bits from end to start. for some reason i wanted to avoid that which is why i calculated the inverse number (i think i belived that the num_bits - i would be less efficient than just computing the inverse given that the run time scales with size)
-    let mut q = FiLong{sign: sign, value: vec![0; num1.value.capacity()]};
-    let mut r: FiLong = FiLong{sign: false, value: vec![0]};
-    let num_bits = (inverse.len() * 64) - offset;
-    let mut bit_mask = FiLong{sign: false, value: vec![1]} << num_bits;
-    for _ in 0..num_bits{ // standard long division
-        bit_mask >>= 1;
-        r <<= 1;
-        r[0] |= inverse[0] & 1;
-        inverse >>= 1;
-        if r >= num2.absolute() {
-            r -= num2.absolute();
-            q |= &bit_mask;
-        }
-        
-    }
-    r <<= 1;
-    if r >= num2.absolute() { // rounds if necessary
-        return long_add(&q, &bit_mask);
-    }
-    q.spruce_up()
-}
 
-fn long_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
-    if num2.is_zero() { // special cases
-        return num1.clone();
-    } else if num1.is_zero() {
-        return FiLong::new();
-    }
-    let dividend = num1.spruce_up(); // i think it's still called dividend for a modulu operation
-    let offset = dividend[dividend.len() - 1].leading_zeros() as usize;
-    let n: FiLong = dividend << offset;
-    let mut inverse: FiLong = n.reverse_bits();
-    let mut r: FiLong = FiLong{sign: false, value: vec![0]};
-    let num_bits = (inverse.len() * 64) - offset;
-    for _ in 0..num_bits{ // long division
-        r <<= 1;
-        r[0] |= inverse[0] & 1;
-        inverse >>= 1;
-        if r >= num2.absolute() {
-            r -= num2.absolute();
-        }
-    }   
-    r.sign = num1.sign;
-    r.spruce_up()
-}
+// regular long division --> fully tested stays for redundancy purposes
+// fn long_div(num1: &FiLong, num2: &FiLong) -> FiLong {
+//     let sign; // "calculates" the sign of the result
+//     if num1.sign == num2.sign {
+//         sign = false;
+//     } else {
+//         sign = true;
+//     }
+//     if num2.is_zero() { // checks if either input is zero
+//         panic!("You can't divide by 0. Make sure your dividend is not equal to 0.") // i know it's not proper error handeling but it's an internal function that's not meant to be used by anyone + run time?
+//     } else if num1.is_zero() {
+//         return FiLong::new();
+//     }
+//     let dividend = num1.spruce_up();
+//     let offset = dividend[dividend.len() - 1].leading_zeros() as usize;
+//     let n: FiLong = dividend << offset;
+//     let mut inverse: FiLong = n.reverse_bits(); // in normal long division you iterate through the number/vector/bits from end to start. for some reason i wanted to avoid that which is why i calculated the inverse number (i think i belived that the num_bits - i would be less efficient than just computing the inverse given that the run time scales with size)
+//     let mut q = FiLong{sign: sign, value: vec![0; num1.value.capacity()]};
+//     let mut r: FiLong = FiLong{sign: false, value: vec![0]};
+//     let num_bits = (inverse.len() * 64) - offset;
+//     let mut bit_mask = FiLong{sign: false, value: vec![1]} << num_bits;
+//     for _ in 0..num_bits{ // standard long division
+//         bit_mask >>= 1;
+//         r <<= 1;
+//         r[0] |= inverse[0] & 1;
+//         inverse >>= 1;
+//         if r >= num2.absolute() {
+//             r -= num2.absolute();
+//             q |= &bit_mask;
+//         }
+        
+//     }
+//     r <<= 1;
+//     if r >= num2.absolute() { // rounds if necessary
+//         return long_add(&q, &bit_mask);
+//     }
+//     q.spruce_up()
+// }
+
+// fn long_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
+//     if num2.is_zero() { // special cases
+//         return num1.clone();
+//     } else if num1.is_zero() {
+//         return FiLong::new();
+//     }
+//     let dividend = num1.spruce_up(); // i think it's still called dividend for a modulu operation
+//     let offset = dividend[dividend.len() - 1].leading_zeros() as usize;
+//     let n: FiLong = dividend << offset;
+//     let mut inverse: FiLong = n.reverse_bits();
+//     let mut r: FiLong = FiLong{sign: false, value: vec![0]};
+//     let num_bits = (inverse.len() * 64) - offset;
+//     for _ in 0..num_bits{ // long division
+//         r <<= 1;
+//         r[0] |= inverse[0] & 1;
+//         inverse >>= 1;
+//         if r >= num2.absolute() {
+//             r -= num2.absolute();
+//         }
+//     }   
+//     r.sign = num1.sign;
+//     r.spruce_up()
+// }
 
 
 impl Floor for FiLong {

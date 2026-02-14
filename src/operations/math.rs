@@ -1067,7 +1067,7 @@ impl Trigonometry for FiLong {
             x -= FiLong::pi().value_of_sign(&self.sign);
         }
         let mut switch = true;
-        let mut sum = FiLong::ten();
+        let mut sum = FiLong::ten() * &x;
         for n in 1..13 {
             let pow = (&x).pow(2 * n + 1);
             let fact = lookup_fact(2 * n + 1).value_of_sign(&switch);
@@ -1107,7 +1107,7 @@ impl Trigonometry for FiLong {
         if self.absolute() > FiLong::one() {
             panic!("The inverse functions of trigonometric functions are defined for [-1; 1]")
         }
-        let mut sum = FiLong::ten();
+        let mut sum = FiLong::ten() * &self;
         for n in 1..13 {
             let pow = (&self).pow(2 * n + 1) + lookup_fact(2 * n);
             let fact = lookup_fact(n).pow_int(2) * FiLong::four().pow_int(n) * FiLong::from(2 * n + 1);
@@ -1125,7 +1125,7 @@ impl Trigonometry for FiLong {
             panic!("The inverse functions of trigonometric functions are defined for [-1; 1]")
         }
         let mut switch = true;
-        let mut sum = FiLong::ten();
+        let mut sum = FiLong::ten() * &self;
         for n in 1..13 {
             let pow = (&self).pow(2 * n + 1);
             let fact = FiLong::from(2 * n + 1).value_of_sign(&switch);
@@ -1140,7 +1140,7 @@ impl Trigonometry for FiLong {
         if x > FiLong::pi_div_two() {
             x -= FiLong::pi().value_of_sign(&self.sign);
         }
-        let mut sum = FiLong::ten();
+        let mut sum = FiLong::ten() * &self;
         for n in 1..13 {
             let pow = (&x).pow(2 * n + 1);
             let fact = lookup_fact(2 * n + 1);

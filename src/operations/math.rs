@@ -629,7 +629,7 @@ impl FiLong {
 // }
 
 
-impl Factorial for FiLong{// TODO finish + impl for &FiLong
+impl Factorial for FiLong {
     type Output = FiLong;
 
     fn fact(self) -> Self::Output {
@@ -661,6 +661,45 @@ impl Factorial for FiLong{// TODO finish + impl for &FiLong
                 while counter >= FiLong::two() {
                     reg *= &counter;
                     counter -= FiLong::one();
+                }
+                lanczos(decimals) * reg
+            }
+        }
+    }
+}
+
+impl Factorial for &FiLong {
+    type Output = FiLong;
+
+    fn fact(self) -> Self::Output {
+        if *self < FiLong::new() {
+            if *self == -FiLong::one_half() {
+                FiLong::from("1.7724538509055160272981674833411")
+            } else {
+                panic!("Make sure to input a positive number. Factorials can only be calculated of numbers 0 or larger.");
+            }
+            
+        } else if self.is_zero() {
+            FiLong::one()
+        } else if self.is_integer() {
+            let mut res = FiLong::one();
+            let mut num = self.clone();
+            while num > FiLong::one() {
+                res *= &num;
+                num -= FiLong::one();
+            }
+            res
+        } else {
+            let decimals: FiLong = self.decimal_part() + 1;
+
+            if *self < FiLong::one() {
+                lanczos(decimals) / self
+            } else {
+                let mut counter = self.clone();
+                let mut reg = FiLong::one();
+                while counter >= FiLong::two() {
+                    reg *= &counter;
+                    counter = counter - FiLong::one();
                 }
                 lanczos(decimals) * reg
             }

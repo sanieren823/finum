@@ -9,7 +9,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fi = "0.4.0"
+fi = "0.5.0"
 ```
 
 ## Precision

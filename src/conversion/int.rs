@@ -62,11 +62,13 @@ macro_rules! impl_numeric {
     }
 }
 
+impl_numeric!(isize);
 impl_numeric!(i8);
 impl_numeric!(i16);
 impl_numeric!(i32);
 impl_numeric!(i64);
 impl_numeric!(i128);
+impl_numeric!(usize);
 impl_numeric!(u8);
 impl_numeric!(u16);
 impl_numeric!(u32);

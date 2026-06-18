@@ -1,6 +1,5 @@
+use crate::errors::{FiError, FiErrorKind, FiNum};
 use crate::finum::{FiBin, FiLong};
-use crate::errors::FiError;
-use crate::errors::FiErrorKind;
 
 // TODO: add a function that converts every number to it's usual binary representaiotn in FiBin --> 6 --> 110 (not a 40 digit long vec)
 trait Numeric {
@@ -19,7 +18,6 @@ trait Numeric {
     fn to_u128(self) -> u128;
     fn add_u128(&self, num: u128) -> Self;
 }
-
 
 macro_rules! impl_numeric {
     ($type:ty) => {
@@ -59,7 +57,7 @@ macro_rules! impl_numeric {
                 self + num as Self
             }
         }
-    }
+    };
 }
 
 impl_numeric!(isize);
@@ -80,7 +78,7 @@ macro_rules! impl_from_for_fibin {
         impl From<$type> for FiBin {
             fn from(val: $type) -> FiBin {
                 let mut fixed_int = FiBin::new();
-                if val < 0 { 
+                if val < 0 {
                     fixed_int.sign = true;
                 }
                 let mut num: $type = val.abs_diff(0) as $type;
@@ -110,7 +108,7 @@ macro_rules! impl_from_for_filong {
         impl From<$type> for FiLong {
             fn from(val: $type) -> FiLong {
                 let mut fixed_int = FiLong::new();
-                if val < 0 { 
+                if val < 0 {
                     fixed_int.sign = true;
                 }
                 let num: u128 = val.abs_diff(0) as u128;
@@ -130,36 +128,57 @@ macro_rules! impl_from_for_filong {
 
 #[inline(always)]
 fn low_bits(num: u128) -> u128 {
-	(num << 64) >> 64
+    (num << 64) >> 64
 }
 
 #[inline(always)]
 fn high_bits(num: u128) -> u128 {
-	num >> 64
+    num >> 64
 }
 
 // TODO: polish (might even refactor)
 impl FiBin {
     pub fn parse<S: Numeric + std::fmt::Debug>(&self) -> Result<S, FiError>
     where
-        S: Numeric
+        S: Numeric,
     {
-        let divisor: FiBin = FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true]};
+        let divisor: FiBin = FiBin {
+            sign: false,
+            value: vec![
+                false, false, false, false, false, false, false, false, false, false, false, false,
+                false, false, false, false, false, false, false, false, false, false, false, false,
+                false, false, false, false, false, false, false, false, false, false, false, false,
+                false, false, false, false, true, false, false, false, false, true, true, false,
+                true, false, true, false, true, true, true, true, true, false, false, true, true,
+                true, false, true, true, true, false, true, false, true, false, true, true, true,
+                true, true, true, true, false, true, false, false, true, false, false, true, false,
+                true, false, false, true, true, true, false, true, false, true, true, false, false,
+                false, false, true, true, true, false, false, false, true, true, true, true, true,
+                false, false, true, false, true, false, false, true, true, false, false, false,
+                true, true, false, true, false, true, true, true,
+            ],
+        };
         let bits: FiBin = (self.clone() / divisor).spruce_up(); // converts the number to an integer
-        if (bits.len() + match_u8(&!<S>::MIN.is_zero()) as usize) > <S>::BITS as usize { // checks if the numbes is larger than the type allows
-            return Err(FiError::new(FiErrorKind::NumberTooLarge, "The type you're trying to parse the fixed integer does NOT support numbers this large."));
+        if (bits.len() + match_u8(&!<S>::MIN.is_zero()) as usize) > <S>::BITS as usize {
+            // checks if the numbes is larger than the type allows
+            return Err(FiError::new(FiErrorKind::NumberTooLarge, "The type you're trying to parse the fixed integer does NOT support numbers this large.", FiNum::Bin(self.clone())));
         }
         let mut res: S = S::new();
-        for i in 0..bits.len() { // this loop actually parses the number
-            res = res.add(S::two().pow(i as u32).mul(S::u8_to_numeric(match_u8(&bits[i as usize])))); 
+        for i in 0..bits.len() {
+            // this loop actually parses the number
+            res = res.add(
+                S::two()
+                    .pow(i as u32)
+                    .mul(S::u8_to_numeric(match_u8(&bits[i as usize]))),
+            );
         }
         if self.sign {
-            if !<S>::MIN.is_zero() { // basically checks if a type is signed
+            if !<S>::MIN.is_zero() {
+                // basically checks if a type is signed
                 res.neg();
             } else {
-                return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "You can't assign a negative number to an unsigned type. Make sure the fixed interger is greater than zero before parsing into an unsigned number."));
+                return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "You can't assign a negative number to an unsigned type. Make sure the fixed integer is greater than zero before parsing into an unsigned number.", FiNum::Bin(self.clone())));
             }
-            
         }
         Ok(res)
     }
@@ -168,35 +187,33 @@ impl FiBin {
 impl FiLong {
     pub fn parse<S: Numeric + std::fmt::Debug>(&self) -> Result<S, FiError>
     where
-        S: Numeric
+        S: Numeric,
     {
         let bits: FiLong = (self.clone() / FiLong::decimals()).spruce_up(); // converts the number to an integer
         let num: u128 = match bits.len() {
             0 => return Ok(S::new()),
             1 => bits[0] as u128,
             2 => bits[0] as u128 + bits[1] as u128 * 2u128.pow(64),
-            _ => return Err(FiError::new(FiErrorKind::NumberTooLarge, "The type you're trying to parse the fixed integer does NOT support numbers this large.")),
+            _ => return Err(FiError::new(FiErrorKind::NumberTooLarge, "The type you're trying to parse the fixed integer does NOT support numbers this large.", FiNum::Long(self.clone()))),
         };
         let mut res: S = S::new();
         if num > <S>::MAX.to_u128() {
-            return Err(FiError::new(FiErrorKind::NumberTooLarge, "The type you're trying to parse the fixed integer does NOT support numbers this large."));
+            return Err(FiError::new(FiErrorKind::NumberTooLarge, "The type you're trying to parse the fixed integer does NOT support numbers this large.", FiNum::Long(self.clone())));
         } else {
             res = res.add_u128(num);
         }
-        
+
         if self.sign {
-            if !<S>::MIN.is_zero() { // basically checks if a type is signed
+            if !<S>::MIN.is_zero() {
+                // basically checks if a type is signed
                 res.neg();
             } else {
-                return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "You can't assign a negative number to an unsigned type. Make sure the fixed interger is greater than zero before parsing into an unsigned number."));
+                return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "You can't assign a negative number to an unsigned type. Make sure the fixed integer is greater than zero before parsing into an unsigned number.", FiNum::Long(self.clone())));
             }
-            
         }
         Ok(res)
     }
 }
-
-
 
 fn match_u8(bit: &bool) -> u8 {
     match bit {
@@ -204,7 +221,6 @@ fn match_u8(bit: &bool) -> u8 {
         false => 0,
     }
 }
-
 
 impl_from_for_fibin!(isize);
 impl_from_for_fibin!(i8);

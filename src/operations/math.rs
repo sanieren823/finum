@@ -1,9 +1,7 @@
+use crate::errors::{FiError, FiErrorKind, FiNum};
 use crate::finum::{FiBin, FiLong};
-use std::time::Instant;
-use crate::errors::FiError;
-use crate::errors::FiErrorKind;
 use crate::operations::arithm::Floor;
-
+use std::time::Instant;
 
 pub trait PowInteger<Rhs = Self> {
     type Output;
@@ -53,14 +51,15 @@ pub trait Sqrt {
     fn sqrt(self) -> Self::Output;
 }
 
-pub trait Root<Rhs = Self>{ // it's actually not quite the nth root as one might assume since real numbers are permittable for rhs
+pub trait Root<Rhs = Self> {
+    // it's actually not quite the nth root as one might assume since real numbers are permittable for rhs
     type Output;
 
     fn root(self, rhs: Rhs) -> Self::Output;
 }
 
 pub trait Pow<Rhs = Self> {
-    type Output; 
+    type Output;
 
     fn pow(self, rhs: Rhs) -> Self::Output;
 }
@@ -129,23 +128,12 @@ pub trait Trigonometry {
     fn excsc(self) -> Self::Output;
 }
 
-
 // PowReal --> x^n = e^(n * ln(x)) --> e^x can be approximated used in taylor series and pre calculated factorials
 
 // traits to implement: Factorial + Termial + PowReal + Exponential + Trigonometry + Sqrt + Root
 // macro for pow? or seperate trait?
 
-
 // TODO: power int should have a check whether it's actually an integer
-
-
-
-
-
-
-
-
-
 
 // impl FiBin {
 //     pub fn pow(self, n: Self) -> Self {
@@ -154,7 +142,7 @@ pub trait Trigonometry {
 //         } else {
 //             binominal_series(self - 1.into(), n)
 //         }
-        
+
 //     }
 
 //     pub fn sqrt(self) -> Self {
@@ -206,10 +194,9 @@ pub trait Trigonometry {
 //     }
 // }
 
-
 // fn gen_int_pow(base: FiBin, exponent: FiBin) -> FiBin {
 //     let mut res: FiBin = 1.into();
-//     let mut counter = exponent.clone(); 
+//     let mut counter = exponent.clone();
 //     let time = Instant::now();
 //     while !counter.is_zero() {
 //         let single = Instant::now();
@@ -250,7 +237,6 @@ pub trait Trigonometry {
 //     sum
 // }
 
-
 // fn binominal_coefficent_recursive(alpha: FiBin, k: FiBin) -> FiBin {
 //     if k.is_zero() {
 //         1.into()
@@ -258,7 +244,7 @@ pub trait Trigonometry {
 //         let prev: FiBin = k.clone() - 1.into();
 //         binominal_coefficent_recursive(alpha.clone(), prev.clone()) * (alpha - prev) / k
 //     }
-    
+
 // }
 
 // fn binominal_coefficent(alpha: FiBin, k: FiBin, prev: FiBin) -> FiBin {
@@ -267,9 +253,8 @@ pub trait Trigonometry {
 //     } else {
 //         prev * ((alpha - (k.clone() - 1.into())) / k)
 //     }
-    
-// }
 
+// }
 
 // fn fl_log_2(num: FiBin) -> Result<FiBin, FiError>{
 //     let mut shifted;
@@ -278,13 +263,13 @@ pub trait Trigonometry {
 //         return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "Mind that the logarithmic function doesn't implement negative numbers."));
 //     } else if num < FiBin::one() {
 //         shifted = FiBin::one() / num;
-//         res.sign = true;  
+//         res.sign = true;
 //     } else {
 //         shifted = num
 //     }
 //     shifted = shifted / FiBin::decimals();
 //     println!("{:?}", shifted.to_string());
-    
+
 //     while shifted.len() > 1 {
 //         shifted = shifted.clone() >> 1;
 //         if res.sign {
@@ -301,7 +286,11 @@ fn fl_log_2_long(num: &FiLong) -> Result<FiLong, FiError> {
     let mut res: FiLong = FiLong::new();
     let mut sign = false;
     if num.sign {
-        return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "Mind that the logarithmic function doesn't implement negative numbers."));
+        return Err(FiError::new(
+            FiErrorKind::NumberCannotBeNegative,
+            "Mind that the logarithmic function doesn't implement negative numbers.",
+            FiNum::Long(num.clone()),
+        ));
     } else if *num < FiLong::one() {
         shifted = FiLong::one() / num;
         sign = true;
@@ -318,12 +307,17 @@ fn fl_log_2_long(num: &FiLong) -> Result<FiLong, FiError> {
     Ok(res)
 }
 
-fn fl_log_2_long_hundred_x(num: &FiLong) -> Result<FiLong, FiError> { // solely used for the implementation of the PowerReal trait
+fn fl_log_2_long_hundred_x(num: &FiLong) -> Result<FiLong, FiError> {
+    // solely used for the implementation of the PowerReal trait
     let mut shifted;
     let mut res: FiLong = FiLong::new();
     let mut sign = false;
     if num.sign {
-        return Err(FiError::new(FiErrorKind::NumberCannotBeNegative, "Mind that the logarithmic function doesn't implement negative numbers."));
+        return Err(FiError::new(
+            FiErrorKind::NumberCannotBeNegative,
+            "Mind that the logarithmic function doesn't implement negative numbers.",
+            FiNum::Long(num.clone()),
+        ));
     } else if *num < FiLong::one() {
         shifted = FiLong::one() / num;
         sign = true;
@@ -341,7 +335,8 @@ fn fl_log_2_long_hundred_x(num: &FiLong) -> Result<FiLong, FiError> { // solely 
     Ok(res)
 }
 
-fn decimals_log_2_long(num: &FiLong, factor: &FiLong) -> FiLong{ // input must be the residue --> between 1 and 2 
+fn decimals_log_2_long(num: &FiLong, factor: &FiLong) -> FiLong {
+    // input must be the residue --> between 1 and 2
     if *num == FiLong::one() {
         return FiLong::new();
     }
@@ -366,7 +361,10 @@ impl PowInteger<FiLong> for FiLong {
 
     fn pow_int(self, num: FiLong) -> Self::Output {
         if !num.is_integer() {
-            panic!("The pow_int() function requires the input to be an integer. Your input was: {:?}", num.to_string())
+            panic!(
+                "The pow_int() function requires the input to be an integer. Your input was: {:?}",
+                num.to_string()
+            )
         }
         let mut res: FiLong = FiLong::one();
         let mut counter = num.absolute();
@@ -386,7 +384,10 @@ impl PowInteger<&FiLong> for FiLong {
 
     fn pow_int(self, num: &FiLong) -> Self::Output {
         if !num.is_integer() {
-            panic!("The pow_int() function requires the input to be an integer. Your input was: {:?}", num.to_string())
+            panic!(
+                "The pow_int() function requires the input to be an integer. Your input was: {:?}",
+                num.to_string()
+            )
         }
         let mut res: FiLong = FiLong::one();
         let mut counter = num.absolute();
@@ -406,7 +407,10 @@ impl PowInteger<FiLong> for &FiLong {
 
     fn pow_int(self, num: FiLong) -> Self::Output {
         if !num.is_integer() {
-            panic!("The pow_int() function requires the input to be an integer. Your input was: {:?}", num.to_string())
+            panic!(
+                "The pow_int() function requires the input to be an integer. Your input was: {:?}",
+                num.to_string()
+            )
         }
         let mut res: FiLong = FiLong::one();
         let mut counter = num.absolute();
@@ -426,7 +430,10 @@ impl PowInteger<&FiLong> for &FiLong {
 
     fn pow_int(self, num: &FiLong) -> Self::Output {
         if !num.is_integer() {
-            panic!("The pow_int() function requires the input to be an integer. Your input was: {:?}", num.to_string())
+            panic!(
+                "The pow_int() function requires the input to be an integer. Your input was: {:?}",
+                num.to_string()
+            )
         }
         let mut res: FiLong = FiLong::one();
         let mut counter = num.absolute();
@@ -501,7 +508,7 @@ macro_rules! pow_int_for_int {
                     res = 1 / res;
                 }
                 res
-            }  
+            }
         }
     };
 }
@@ -518,7 +525,6 @@ pow_int_for_int!(u16);
 pow_int_for_int!(u32);
 pow_int_for_int!(u64);
 pow_int_for_int!(u128);
-
 
 impl Logarithm<FiLong> for FiLong {
     type Output = FiLong;
@@ -561,11 +567,19 @@ impl FiLong {
     }
 
     pub fn ln(&self) -> FiLong {
-        self.log2() * FiLong{sign: false, value: vec![13974485834865876094, 3]}
+        self.log2()
+            * FiLong {
+                sign: false,
+                value: vec![13974485834865876094, 3],
+            }
     }
 
     pub fn log10(&self) -> FiLong {
-        self.log2() * FiLong{sign: false, value: vec![11656255492688567905, 1]}
+        self.log2()
+            * FiLong {
+                sign: false,
+                value: vec![11656255492688567905, 1],
+            }
     }
 
     fn squared(&self) -> FiLong {
@@ -628,7 +642,6 @@ impl FiLong {
 //     res * base
 // }
 
-
 impl Factorial for FiLong {
     type Output = FiLong;
 
@@ -639,7 +652,6 @@ impl Factorial for FiLong {
             } else {
                 panic!("Make sure to input a positive number. Factorials can only be calculated of numbers 0 or larger.");
             }
-            
         } else if self.is_zero() {
             FiLong::one()
         } else if self.is_integer() {
@@ -678,7 +690,6 @@ impl Factorial for &FiLong {
             } else {
                 panic!("Make sure to input a positive number. Factorials can only be calculated of numbers 0 or larger.");
             }
-            
         } else if self.is_zero() {
             FiLong::one()
         } else if self.is_integer() {
@@ -710,7 +721,88 @@ impl Factorial for &FiLong {
 fn sum_coef(z: FiLong) -> FiLong {
     let mut res = FiLong::new();
     let mut switch = FiLong::one();
-    let coef_twelve = [FiLong{sign: false, value: vec![5655420753803098240, 12550719351629465632, 889808]}, FiLong{sign: true, value: vec![5759209242382629472, 15508038588553078148, 1434810]}, FiLong{sign: false, value: vec![1719681165827774528, 5454905171872129182, 748810]}, FiLong{sign: true, value: vec![5939328030905055520, 9058466794327978989, 249676]}, FiLong{sign: false, value: vec![11530377041770882496, 12150207231186060905, 51954]}, FiLong{sign: true, value: vec![15358575742817413248, 1336561032396605874, 6503]}, FiLong{sign: false, value: vec![797747411212404448, 1899484714887658214, 463]}, FiLong{sign: true, value: vec![8877185043148587566, 4380987846065090874, 17]}, FiLong{sign: false, value: vec![16315208703988852500, 5407548214217688165]}, FiLong{sign: true, value: vec![13721643952721114792, 33349620271578982]}, FiLong{sign: false, value: vec![14392119779952995784, 47307858499180]}, FiLong{sign: true, value: vec![7678450685963492512, 4861947081]}, FiLong{sign: true, value: vec![9843454345403411574, 1198]}, FiLong{sign: true, value: vec![8226791211201053945, 1]}, FiLong{sign: false, value: vec![10479273227777144207, 10]}, FiLong{sign: true, value: vec![8332778112712234143]}, FiLong{sign: true, value: vec![862254331002304897]}, FiLong{sign: false, value: vec![252294143677683587]}, FiLong{sign: true, value: vec![41095506565101812]}, FiLong{sign: false, value: vec![5381427574453909]}];
+    let coef_twelve = [
+        FiLong {
+            sign: false,
+            value: vec![5655420753803098240, 12550719351629465632, 889808],
+        },
+        FiLong {
+            sign: true,
+            value: vec![5759209242382629472, 15508038588553078148, 1434810],
+        },
+        FiLong {
+            sign: false,
+            value: vec![1719681165827774528, 5454905171872129182, 748810],
+        },
+        FiLong {
+            sign: true,
+            value: vec![5939328030905055520, 9058466794327978989, 249676],
+        },
+        FiLong {
+            sign: false,
+            value: vec![11530377041770882496, 12150207231186060905, 51954],
+        },
+        FiLong {
+            sign: true,
+            value: vec![15358575742817413248, 1336561032396605874, 6503],
+        },
+        FiLong {
+            sign: false,
+            value: vec![797747411212404448, 1899484714887658214, 463],
+        },
+        FiLong {
+            sign: true,
+            value: vec![8877185043148587566, 4380987846065090874, 17],
+        },
+        FiLong {
+            sign: false,
+            value: vec![16315208703988852500, 5407548214217688165],
+        },
+        FiLong {
+            sign: true,
+            value: vec![13721643952721114792, 33349620271578982],
+        },
+        FiLong {
+            sign: false,
+            value: vec![14392119779952995784, 47307858499180],
+        },
+        FiLong {
+            sign: true,
+            value: vec![7678450685963492512, 4861947081],
+        },
+        FiLong {
+            sign: true,
+            value: vec![9843454345403411574, 1198],
+        },
+        FiLong {
+            sign: true,
+            value: vec![8226791211201053945, 1],
+        },
+        FiLong {
+            sign: false,
+            value: vec![10479273227777144207, 10],
+        },
+        FiLong {
+            sign: true,
+            value: vec![8332778112712234143],
+        },
+        FiLong {
+            sign: true,
+            value: vec![862254331002304897],
+        },
+        FiLong {
+            sign: false,
+            value: vec![252294143677683587],
+        },
+        FiLong {
+            sign: true,
+            value: vec![41095506565101812],
+        },
+        FiLong {
+            sign: false,
+            value: vec![5381427574453909],
+        },
+    ];
     for k in 0..16 {
         res += &coef_twelve[k] * &switch * k_loop(k, -(&z)) / k_loop(k, &z + 1);
         switch.sign ^= true;
@@ -728,22 +820,27 @@ fn k_loop(k: usize, subject: FiLong) -> FiLong {
         }
         res
     }
-    
 }
 
-
-fn lanczos(z: FiLong) -> FiLong { // the approximation is not accurate to 20 decimal digits as not all parts of the calculation have reached an accuracy of that equal to the coefficients accuracy
-    if z == FiLong::from("1.5") { // common value
+fn lanczos(z: FiLong) -> FiLong {
+    // the approximation is not accurate to 20 decimal digits as not all parts of the calculation have reached an accuracy of that equal to the coefficients accuracy
+    if z == FiLong::from("1.5") {
+        // common value
         FiLong::from("1.3293403881791370204736256125059")
     } else {
         const G: usize = 12; // coefficients are calculated for g = 12
-        let sqrt_2pi =  FiLong{sign: false, value: vec![10855154504875879234, 13]};
+        let sqrt_2pi = FiLong {
+            sign: false,
+            value: vec![10855154504875879234, 13],
+        };
         let sum = &z + G + FiLong::one_half();
-        sqrt_2pi * (&sum).pow(&z + FiLong::one_half() + FiLong::trillion().log(&sum)) * (-sum + FiLong::trillion().ln()).exp() * sum_coef(z) / FiLong::ten().pow_int(44)
+        sqrt_2pi
+            * (&sum).pow(&z + FiLong::one_half() + FiLong::trillion().log(&sum))
+            * (-sum + FiLong::trillion().ln()).exp()
+            * sum_coef(z)
+            / FiLong::ten().pow_int(44)
     }
-    
 }
-
 
 impl Termial for FiLong {
     type Output = FiLong;
@@ -774,16 +871,507 @@ impl Termial for &FiLong {
 }
 
 fn lookup_fact(n: usize) -> FiLong {
-    let arr = [FiLong{sign: false, value: vec![7766279631452241920, 5]}, FiLong{sign: false, value: vec![7766279631452241920, 5]}, FiLong{sign: false, value: vec![15532559262904483840, 10]}, FiLong{sign: false, value: vec![9704189641294348288, 32]}, FiLong{sign: false, value: vec![1923270417758289920, 130]}, FiLong{sign: false, value: vec![9616352088791449600, 650]}, FiLong{sign: false, value: vec![2357880311620042752, 3903]}, FiLong{sign: false, value: vec![16505162181340299264, 27321]}, FiLong{sign: false, value: vec![2914088934755532800, 218575]}, FiLong{sign: false, value: vec![7780056339090243584, 1967176]}, FiLong{sign: false, value: vec![4013587096064229376, 19671764]}, FiLong{sign: false, value: vec![7255969909287419904, 216389406]}, FiLong{sign: false, value: vec![13284662616610832384, 2596672876]}, FiLong{sign: false, value: vec![6679917352554856448, 33756747397]}, FiLong{sign: false, value: vec![1285122567220232192, 472594463563]}, FiLong{sign: false, value: vec![830094434593931264, 7088916953446]}, FiLong{sign: false, value: vec![13281510953502900224, 113422671255136]}, FiLong{sign: false, value: vec![4424757325034684416, 1928185411337324]}, FiLong{sign: false, value: vec![5858655555786113024, 34707337404071836]}, FiLong{sign: false, value: vec![633991117678837760, 659439410677364890]}, FiLong{sign: false, value: vec![12679822353576755200, 13188788213547297800]}, FiLong{sign: false, value: vec![8021852393178136576, 263391378849979574, 15]}, FiLong{sign: false, value: vec![10460055986533040128, 5794610334699550637, 330]}, FiLong{sign: false, value: vec![773614732035751936, 4148829182122803352, 7597]}, FiLong{sign: false, value: vec![120009495148494848, 7338180002399522369, 182333]}, FiLong{sign: false, value: vec![3000237378712371200, 17433803396602094681, 4558334]}, FiLong{sign: false, value: vec![4219195551683444736, 10557030542625222926, 118516708]}, FiLong{sign: false, value: vec![3237815453195698176, 8338663545237744768, 3199951131]}, FiLong{sign: false, value: vec![16871856394641342464, 12121650382142234116, 89598631680]}, FiLong{sign: false, value: vec![9668489528150589440, 1039723681643308686, 2598360318739]}, FiLong{sign: false, value: vec![13353524738874408960, 12744966375589708979, 77950809562171]}, FiLong{sign: false, value: vec![8130897283496542208, 7712332095380394435, 2416475096427322]}, FiLong{sign: false, value: vec![1934296039955628032, 6986954093948450926, 77327203085674317]}, FiLong{sign: false, value: vec![8491537097407070208, 9208556215784261169, 2551797701827252473]}, FiLong{sign: false, value: vec![12011100206197112832, 17943006157312053905, 12974145567288377634, 4]}, FiLong{sign: false, value: vec![14560137595288813568, 815916999797131753, 11373237086063978440, 164]}, FiLong{sign: false, value: vec![7656119366529843200, 10926267918987191520, 3608165476693088289, 5926]}, FiLong{sign: false, value: vec![6575255455960924160, 16890287454625502319, 4374914121677405402, 219269]}, FiLong{sign: false, value: vec![10052034368290947072, 14641624769644333191, 226039960355440766, 8332231]}, FiLong{sign: false, value: vec![4647714815446351872, 17621043804842445990, 8815558453862189904, 324957009]}, FiLong{sign: false, value: vec![1441151880758558720, 3865477392734878202, 2134200754006115494, 12998280379]}, FiLong{sign: false, value: vec![3746994889972252672, 10910620512453593357, 13715254619412528798, 532929495543]}, FiLong{sign: false, value: vec![9799832789158199296, 15524203754021682218, 4191627730330109444, 22383038812837]}, FiLong{sign: false, value: vec![15564440312192434176, 3457974769388477220, 14219295740808741584, 962470668952000]}, FiLong{sign: false, value: vec![2305843009213693952, 4576937263416584789, 16906458163169426376, 42348709433888033]}, FiLong{sign: false, value: vec![11529215046068469760, 3047992042941247734, 4474110320532570675, 1905691924524961526]}, FiLong{sign: false, value: vec![13835058055282163712, 11080425459330534480, 2894889933693183281, 13874852233310023743, 4]}, FiLong{sign: false, value: vec![4611686018427387904, 4271162524667675347, 6932618367612752923, 6482012385736809368, 223]}, FiLong{sign: false, value: vec![0, 2101616373243348892, 724288318640211227, 15988689336014023826, 10720]}, FiLong{sign: false, value: vec![0, 10745481920376337628, 17043383539660798512, 8682526368885999603, 525322]}];
+    let arr = [
+        FiLong {
+            sign: false,
+            value: vec![7766279631452241920, 5],
+        },
+        FiLong {
+            sign: false,
+            value: vec![7766279631452241920, 5],
+        },
+        FiLong {
+            sign: false,
+            value: vec![15532559262904483840, 10],
+        },
+        FiLong {
+            sign: false,
+            value: vec![9704189641294348288, 32],
+        },
+        FiLong {
+            sign: false,
+            value: vec![1923270417758289920, 130],
+        },
+        FiLong {
+            sign: false,
+            value: vec![9616352088791449600, 650],
+        },
+        FiLong {
+            sign: false,
+            value: vec![2357880311620042752, 3903],
+        },
+        FiLong {
+            sign: false,
+            value: vec![16505162181340299264, 27321],
+        },
+        FiLong {
+            sign: false,
+            value: vec![2914088934755532800, 218575],
+        },
+        FiLong {
+            sign: false,
+            value: vec![7780056339090243584, 1967176],
+        },
+        FiLong {
+            sign: false,
+            value: vec![4013587096064229376, 19671764],
+        },
+        FiLong {
+            sign: false,
+            value: vec![7255969909287419904, 216389406],
+        },
+        FiLong {
+            sign: false,
+            value: vec![13284662616610832384, 2596672876],
+        },
+        FiLong {
+            sign: false,
+            value: vec![6679917352554856448, 33756747397],
+        },
+        FiLong {
+            sign: false,
+            value: vec![1285122567220232192, 472594463563],
+        },
+        FiLong {
+            sign: false,
+            value: vec![830094434593931264, 7088916953446],
+        },
+        FiLong {
+            sign: false,
+            value: vec![13281510953502900224, 113422671255136],
+        },
+        FiLong {
+            sign: false,
+            value: vec![4424757325034684416, 1928185411337324],
+        },
+        FiLong {
+            sign: false,
+            value: vec![5858655555786113024, 34707337404071836],
+        },
+        FiLong {
+            sign: false,
+            value: vec![633991117678837760, 659439410677364890],
+        },
+        FiLong {
+            sign: false,
+            value: vec![12679822353576755200, 13188788213547297800],
+        },
+        FiLong {
+            sign: false,
+            value: vec![8021852393178136576, 263391378849979574, 15],
+        },
+        FiLong {
+            sign: false,
+            value: vec![10460055986533040128, 5794610334699550637, 330],
+        },
+        FiLong {
+            sign: false,
+            value: vec![773614732035751936, 4148829182122803352, 7597],
+        },
+        FiLong {
+            sign: false,
+            value: vec![120009495148494848, 7338180002399522369, 182333],
+        },
+        FiLong {
+            sign: false,
+            value: vec![3000237378712371200, 17433803396602094681, 4558334],
+        },
+        FiLong {
+            sign: false,
+            value: vec![4219195551683444736, 10557030542625222926, 118516708],
+        },
+        FiLong {
+            sign: false,
+            value: vec![3237815453195698176, 8338663545237744768, 3199951131],
+        },
+        FiLong {
+            sign: false,
+            value: vec![16871856394641342464, 12121650382142234116, 89598631680],
+        },
+        FiLong {
+            sign: false,
+            value: vec![9668489528150589440, 1039723681643308686, 2598360318739],
+        },
+        FiLong {
+            sign: false,
+            value: vec![13353524738874408960, 12744966375589708979, 77950809562171],
+        },
+        FiLong {
+            sign: false,
+            value: vec![8130897283496542208, 7712332095380394435, 2416475096427322],
+        },
+        FiLong {
+            sign: false,
+            value: vec![1934296039955628032, 6986954093948450926, 77327203085674317],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                8491537097407070208,
+                9208556215784261169,
+                2551797701827252473,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                12011100206197112832,
+                17943006157312053905,
+                12974145567288377634,
+                4,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                14560137595288813568,
+                815916999797131753,
+                11373237086063978440,
+                164,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                7656119366529843200,
+                10926267918987191520,
+                3608165476693088289,
+                5926,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                6575255455960924160,
+                16890287454625502319,
+                4374914121677405402,
+                219269,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                10052034368290947072,
+                14641624769644333191,
+                226039960355440766,
+                8332231,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                4647714815446351872,
+                17621043804842445990,
+                8815558453862189904,
+                324957009,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                1441151880758558720,
+                3865477392734878202,
+                2134200754006115494,
+                12998280379,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                3746994889972252672,
+                10910620512453593357,
+                13715254619412528798,
+                532929495543,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                9799832789158199296,
+                15524203754021682218,
+                4191627730330109444,
+                22383038812837,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                15564440312192434176,
+                3457974769388477220,
+                14219295740808741584,
+                962470668952000,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                2305843009213693952,
+                4576937263416584789,
+                16906458163169426376,
+                42348709433888033,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                11529215046068469760,
+                3047992042941247734,
+                4474110320532570675,
+                1905691924524961526,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                13835058055282163712,
+                11080425459330534480,
+                2894889933693183281,
+                13874852233310023743,
+                4,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                4611686018427387904,
+                4271162524667675347,
+                6932618367612752923,
+                6482012385736809368,
+                223,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                0,
+                2101616373243348892,
+                724288318640211227,
+                15988689336014023826,
+                10720,
+            ],
+        },
+        FiLong {
+            sign: false,
+            value: vec![
+                0,
+                10745481920376337628,
+                17043383539660798512,
+                8682526368885999603,
+                525322,
+            ],
+        },
+    ];
     arr[n].clone()
 }
 
 fn lookup_ln_two(n: usize) -> FiLong {
-    let arr = [FiLong{sign: false, value: vec![7766279631452241920, 5]}, FiLong{sign: false, value: vec![13974485834865876094, 3]}, FiLong{sign: false, value: vec![11151813244401039235, 2]}, FiLong{sign: false, value: vec![14855721125183396356, 1]}, FiLong{sign: false, value: vec![4636765784598793573, 1]}, FiLong{sign: false, value: vec![16000269775714132108]}, FiLong{sign: false, value: vec![11090541883234759167]}, FiLong{sign: false, value: vec![7687377837246159501]}, FiLong{sign: false, value: vec![5328484273786185586]}, FiLong{sign: false, value: vec![3693423851032902237]}, FiLong{sign: false, value: vec![2560086328956311634]}, FiLong{sign: false, value: vec![1774516620906128084]}, FiLong{sign: false, value: vec![1230001192637843984]}, FiLong{sign: false, value: vec![852571858762291718]}, FiLong{sign: false, value: vec![590957780125834408]}, FiLong{sign: false, value: vec![409620719124186202]}, FiLong{sign: false, value: vec![283927446559866936]}, FiLong{sign: false, value: vec![196803509066556310]}, FiLong{sign: false, value: vec![136413797433787140]}, FiLong{sign: false, value: vec![94554839080705059]}, FiLong{sign: false, value: vec![65540420117090043]}, FiLong{sign: false, value: vec![45429157416875284]}, FiLong{sign: false, value: vec![31489092378721031]}, FiLong{sign: false, value: vec![21826575600702144]}, FiLong{sign: false, value: vec![15129029338905186]}, FiLong{sign: false, value: vec![10486644030870823]}, FiLong{sign: false, value: vec![7268787743533891]}, FiLong{sign: false, value: vec![5038339730519203]}, FiLong{sign: false, value: vec![3492310978912540]}, FiLong{sign: false, value: vec![2420685508671770]}, FiLong{sign: false, value: vec![1677891335358154]}, FiLong{sign: false, value: vec![1163025648389466]}, FiLong{sign: false, value: vec![806147949100061]}, FiLong{sign: false, value: vec![558779178032890]}, FiLong{sign: false, value: vec![387316211809101]}, FiLong{sign: false, value: vec![268467140200637]}, FiLong{sign: false, value: vec![186087241303063]}, FiLong{sign: false, value: vec![128985846647396]}, FiLong{sign: false, value: vec![89406175935780]}, FiLong{sign: false, value: vec![61971638774532]}, FiLong{sign: false, value: vec![42955466691246]}, FiLong{sign: false, value: vec![29774460626674]}, FiLong{sign: false, value: vec![20638083436072]}, FiLong{sign: false, value: vec![14305229345874]}, FiLong{sign: false, value: vec![9915629388356]}, FiLong{sign: false, value: vec![6872990554016]}, FiLong{sign: false, value: vec![4763994024531]}, FiLong{sign: false, value: vec![3302149026308]}, FiLong{sign: false, value: vec![2288875287374]}, FiLong{sign: false, value: vec![1586527452097]}];
+    let arr = [
+        FiLong {
+            sign: false,
+            value: vec![7766279631452241920, 5],
+        },
+        FiLong {
+            sign: false,
+            value: vec![13974485834865876094, 3],
+        },
+        FiLong {
+            sign: false,
+            value: vec![11151813244401039235, 2],
+        },
+        FiLong {
+            sign: false,
+            value: vec![14855721125183396356, 1],
+        },
+        FiLong {
+            sign: false,
+            value: vec![4636765784598793573, 1],
+        },
+        FiLong {
+            sign: false,
+            value: vec![16000269775714132108],
+        },
+        FiLong {
+            sign: false,
+            value: vec![11090541883234759167],
+        },
+        FiLong {
+            sign: false,
+            value: vec![7687377837246159501],
+        },
+        FiLong {
+            sign: false,
+            value: vec![5328484273786185586],
+        },
+        FiLong {
+            sign: false,
+            value: vec![3693423851032902237],
+        },
+        FiLong {
+            sign: false,
+            value: vec![2560086328956311634],
+        },
+        FiLong {
+            sign: false,
+            value: vec![1774516620906128084],
+        },
+        FiLong {
+            sign: false,
+            value: vec![1230001192637843984],
+        },
+        FiLong {
+            sign: false,
+            value: vec![852571858762291718],
+        },
+        FiLong {
+            sign: false,
+            value: vec![590957780125834408],
+        },
+        FiLong {
+            sign: false,
+            value: vec![409620719124186202],
+        },
+        FiLong {
+            sign: false,
+            value: vec![283927446559866936],
+        },
+        FiLong {
+            sign: false,
+            value: vec![196803509066556310],
+        },
+        FiLong {
+            sign: false,
+            value: vec![136413797433787140],
+        },
+        FiLong {
+            sign: false,
+            value: vec![94554839080705059],
+        },
+        FiLong {
+            sign: false,
+            value: vec![65540420117090043],
+        },
+        FiLong {
+            sign: false,
+            value: vec![45429157416875284],
+        },
+        FiLong {
+            sign: false,
+            value: vec![31489092378721031],
+        },
+        FiLong {
+            sign: false,
+            value: vec![21826575600702144],
+        },
+        FiLong {
+            sign: false,
+            value: vec![15129029338905186],
+        },
+        FiLong {
+            sign: false,
+            value: vec![10486644030870823],
+        },
+        FiLong {
+            sign: false,
+            value: vec![7268787743533891],
+        },
+        FiLong {
+            sign: false,
+            value: vec![5038339730519203],
+        },
+        FiLong {
+            sign: false,
+            value: vec![3492310978912540],
+        },
+        FiLong {
+            sign: false,
+            value: vec![2420685508671770],
+        },
+        FiLong {
+            sign: false,
+            value: vec![1677891335358154],
+        },
+        FiLong {
+            sign: false,
+            value: vec![1163025648389466],
+        },
+        FiLong {
+            sign: false,
+            value: vec![806147949100061],
+        },
+        FiLong {
+            sign: false,
+            value: vec![558779178032890],
+        },
+        FiLong {
+            sign: false,
+            value: vec![387316211809101],
+        },
+        FiLong {
+            sign: false,
+            value: vec![268467140200637],
+        },
+        FiLong {
+            sign: false,
+            value: vec![186087241303063],
+        },
+        FiLong {
+            sign: false,
+            value: vec![128985846647396],
+        },
+        FiLong {
+            sign: false,
+            value: vec![89406175935780],
+        },
+        FiLong {
+            sign: false,
+            value: vec![61971638774532],
+        },
+        FiLong {
+            sign: false,
+            value: vec![42955466691246],
+        },
+        FiLong {
+            sign: false,
+            value: vec![29774460626674],
+        },
+        FiLong {
+            sign: false,
+            value: vec![20638083436072],
+        },
+        FiLong {
+            sign: false,
+            value: vec![14305229345874],
+        },
+        FiLong {
+            sign: false,
+            value: vec![9915629388356],
+        },
+        FiLong {
+            sign: false,
+            value: vec![6872990554016],
+        },
+        FiLong {
+            sign: false,
+            value: vec![4763994024531],
+        },
+        FiLong {
+            sign: false,
+            value: vec![3302149026308],
+        },
+        FiLong {
+            sign: false,
+            value: vec![2288875287374],
+        },
+        FiLong {
+            sign: false,
+            value: vec![1586527452097],
+        },
+    ];
     arr[n].clone()
 }
 
-impl PowerOfTwo for FiLong{// fix the floor function
+impl PowerOfTwo for FiLong {
+    // fix the floor function
     type Output = FiLong;
 
     fn pot(self) -> Self::Output {
@@ -793,7 +1381,12 @@ impl PowerOfTwo for FiLong{// fix the floor function
             int_part.gen_increment(decimals.sign);
             decimals.gen_decrement(decimals.sign);
         }
-        let mut sum = FiLong::hundred() + &decimals * FiLong{sign: false, value: vec![13942777958371238172, 375]}; // the last factor is equal to 100 * ln(2)
+        let mut sum = FiLong::hundred()
+            + &decimals
+                * FiLong {
+                    sign: false,
+                    value: vec![13942777958371238172, 375],
+                }; // the last factor is equal to 100 * ln(2)
         for i in 2..20 {
             sum += FiLong::hundred() * (&decimals).pow_int(i) * lookup_ln_two(i) / lookup_fact(i);
         }
@@ -812,22 +1405,30 @@ impl PowerOfTwo for &FiLong {
             int_part.gen_increment(decimals.sign);
             decimals.gen_decrement(decimals.sign);
         }
-        let mut sum = FiLong::hundred() + &decimals * FiLong{sign: false, value: vec![13942777958371238172, 375]}; // the last factor is equal to 100 * ln(2)
+        let mut sum = FiLong::hundred()
+            + &decimals
+                * FiLong {
+                    sign: false,
+                    value: vec![13942777958371238172, 375],
+                }; // the last factor is equal to 100 * ln(2)
         for i in 2..16 {
-            sum += FiLong::hundred() * (&decimals).pow_int(i) * FiLong::ln2().pow_int(i) / lookup_fact(i);
+            sum += FiLong::hundred() * (&decimals).pow_int(i) * FiLong::ln2().pow_int(i)
+                / lookup_fact(i);
         }
         sum * FiLong::two().pow_int(int_part) / FiLong::hundred()
     }
 }
 
-impl PowReal<FiLong> for FiLong{// lower precision only around 17digits
+impl PowReal<FiLong> for FiLong {
+    // lower precision only around 17digits
     type Output = FiLong;
 
     fn pow_r(self, rhs: FiLong) -> Self::Output {
-        let exponent = rhs * match fl_log_2_long_hundred_x(&self) {
-            Ok(val) => val,
-            Err(e) => panic!("{}", e.msg()),
-        } / FiLong::hundred();
+        let exponent =
+            rhs * match fl_log_2_long_hundred_x(&self) {
+                Ok(val) => val,
+                Err(e) => panic!("{}", e.msg()),
+            } / FiLong::hundred();
         exponent.pot()
     }
 }
@@ -836,10 +1437,11 @@ impl PowReal<&FiLong> for FiLong {
     type Output = FiLong;
 
     fn pow_r(self, rhs: &FiLong) -> Self::Output {
-        let exponent = rhs * match fl_log_2_long_hundred_x(&self) {
-            Ok(val) => val,
-            Err(e) => panic!("{}", e.msg()),
-        } / FiLong::hundred();
+        let exponent =
+            rhs * match fl_log_2_long_hundred_x(&self) {
+                Ok(val) => val,
+                Err(e) => panic!("{}", e.msg()),
+            } / FiLong::hundred();
         exponent.pot()
     }
 }
@@ -848,10 +1450,11 @@ impl PowReal<FiLong> for &FiLong {
     type Output = FiLong;
 
     fn pow_r(self, rhs: FiLong) -> Self::Output {
-        let exponent = rhs * match fl_log_2_long_hundred_x(&self) {
-            Ok(val) => val,
-            Err(e) => panic!("{}", e.msg()),
-        } / FiLong::hundred();
+        let exponent =
+            rhs * match fl_log_2_long_hundred_x(&self) {
+                Ok(val) => val,
+                Err(e) => panic!("{}", e.msg()),
+            } / FiLong::hundred();
         exponent.pot()
     }
 }
@@ -860,10 +1463,11 @@ impl PowReal<&FiLong> for &FiLong {
     type Output = FiLong;
 
     fn pow_r(self, rhs: &FiLong) -> Self::Output {
-        let exponent = rhs * match fl_log_2_long_hundred_x(&self) {
-            Ok(val) => val,
-            Err(e) => panic!("{}", e.msg()),
-        } / FiLong::hundred();
+        let exponent =
+            rhs * match fl_log_2_long_hundred_x(&self) {
+                Ok(val) => val,
+                Err(e) => panic!("{}", e.msg()),
+            } / FiLong::hundred();
         exponent.pot()
     }
 }
@@ -1012,7 +1616,7 @@ macro_rules! pow_for_int {
 
             fn pow(self, num: &$type) -> Self::Output {
                 self.pow_int(num)
-            }  
+            }
         }
     };
 }
@@ -1038,7 +1642,8 @@ impl Sqrt for FiLong {
         let mut prev = FiLong::new();
         while guess != prev {
             prev = guess.clone();
-            guess = &guess * (guess.squared() + FiLong::three() * &self) /  (FiLong::three() * guess.squared() + &self);
+            guess = &guess * (guess.squared() + FiLong::three() * &self)
+                / (FiLong::three() * guess.squared() + &self);
         }
         guess
     }
@@ -1052,7 +1657,8 @@ impl Sqrt for &FiLong {
         let mut prev = FiLong::new();
         while guess != prev {
             prev = guess.clone();
-            guess = &guess * (guess.squared() + FiLong::three() * self) /  (FiLong::three() * guess.squared() + self);
+            guess = &guess * (guess.squared() + FiLong::three() * self)
+                / (FiLong::three() * guess.squared() + self);
         }
         guess
     }
@@ -1093,7 +1699,8 @@ impl Trigonometry for FiLong {
         sum / FiLong::ten()
     }
 
-    fn tan(self) -> Self::Output{// seperate implementation? + exception
+    fn tan(self) -> Self::Output {
+        // seperate implementation? + exception
         let sin = (&self).sin();
         let cos = (&self).cos();
         if cos == FiLong::new() {
@@ -1110,7 +1717,8 @@ impl Trigonometry for FiLong {
         let mut sum = FiLong::ten() * &self;
         for n in 1..13 {
             let pow = (&self).pow(2 * n + 1) + lookup_fact(2 * n);
-            let fact = lookup_fact(n).pow_int(2) * FiLong::four().pow_int(n) * FiLong::from(2 * n + 1);
+            let fact =
+                lookup_fact(n).pow_int(2) * FiLong::four().pow_int(n) * FiLong::from(2 * n + 1);
             sum += FiLong::ten() * &pow / &fact;
         }
         sum / FiLong::ten()
@@ -1191,7 +1799,6 @@ impl Trigonometry for FiLong {
         FiLong::one() / self.sin()
     }
 
-
     fn arcsinh(self) -> Self::Output {
         (&self + ((&self).pow_int(2u8) + FiLong::one()).sqrt()).ln()
     }
@@ -1213,7 +1820,7 @@ impl Trigonometry for FiLong {
     }
 
     fn arccsch(self) -> Self::Output {
-       (self.inverse() + (self.pow_int(-2i8) + FiLong::one()).sqrt()).ln()
+        (self.inverse() + (self.pow_int(-2i8) + FiLong::one()).sqrt()).ln()
     }
 
     fn cot(self) -> Self::Output {
@@ -1306,7 +1913,8 @@ impl Trigonometry for &FiLong {
         sum / FiLong::ten()
     }
 
-    fn tan(self) -> Self::Output{// seperate implementation? + exception
+    fn tan(self) -> Self::Output {
+        // seperate implementation? + exception
         let sin = self.sin();
         let cos = self.cos();
         if cos == FiLong::new() {
@@ -1323,7 +1931,8 @@ impl Trigonometry for &FiLong {
         let mut sum = FiLong::ten() * self;
         for n in 1..13 {
             let pow = (&self).pow(2 * n + 1) + lookup_fact(2 * n);
-            let fact = lookup_fact(n).pow_int(2) * FiLong::four().pow_int(n) * FiLong::from(2 * n + 1);
+            let fact =
+                lookup_fact(n).pow_int(2) * FiLong::four().pow_int(n) * FiLong::from(2 * n + 1);
             sum += FiLong::ten() * &pow / &fact;
         }
         sum / FiLong::ten()
@@ -1404,7 +2013,6 @@ impl Trigonometry for &FiLong {
         FiLong::one() / self.sin()
     }
 
-
     fn arcsinh(self) -> Self::Output {
         (self + (self.pow_int(2u8) + FiLong::one()).sqrt()).ln()
     }
@@ -1426,7 +2034,7 @@ impl Trigonometry for &FiLong {
     }
 
     fn arccsch(self) -> Self::Output {
-       (self.inverse() + (self.pow_int(-2i8) + FiLong::one()).sqrt()).ln()
+        (self.inverse() + (self.pow_int(-2i8) + FiLong::one()).sqrt()).ln()
     }
 
     fn cot(self) -> Self::Output {

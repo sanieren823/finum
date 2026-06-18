@@ -1,11 +1,9 @@
 use std::fmt;
 
-
-
 // sign-magnitude
 #[derive(Debug)]
 pub struct FiBin {
-    pub sign: bool, // true: neg; false: pos
+    pub sign: bool,       // true: neg; false: pos
     pub value: Vec<bool>, // 0 is the lsb
 }
 
@@ -16,7 +14,8 @@ pub struct FiLong {
 }
 
 #[derive(Debug)]
-pub struct FiBcd { // should it really be public?
+pub struct FiBcd {
+    // should it really be public?
     pub sign: bool,
     pub value: Vec<Vec<bool>>,
 }
@@ -27,18 +26,31 @@ pub struct FiBytes {
     pub value: Vec<u8>,
 }
 
+impl Clone for FiBcd {
+    fn clone(&self) -> Self {
+        FiBcd {
+            sign: self.sign.clone(),
+            value: self.value.clone(),
+        }
+    }
+}
 
+impl Clone for FiBytes {
+    fn clone(&self) -> Self {
+        FiBytes {
+            sign: self.sign.clone(),
+            value: self.value.clone(),
+        }
+    }
+}
 
 pub trait Parsing {
-    
     fn parse_fi(&self) -> FiBin;
 
     fn parse_bcd(&self) -> FiBcd;
-
-    
 }
 
-// Implemented in LE as you would read it 
+// Implemented in LE as you would read it
 impl fmt::Display for FiBin {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut string: String = String::new();
@@ -54,7 +66,6 @@ impl fmt::Display for FiBin {
         write!(f, "{}{}", sign, string)
     }
 }
-
 
 fn match_u8(bit: &bool) -> u8 {
     match bit {
@@ -76,7 +87,10 @@ impl FiBin {
     //     // TODO
     // }
     pub const fn new() -> Self {
-       FiBin{sign: false, value: Vec::new()}
+        FiBin {
+            sign: false,
+            value: Vec::new(),
+        }
     }
 }
 
@@ -93,7 +107,10 @@ impl FiBcd {
     //     // TODO
     // }
     pub const fn new() -> Self {
-        FiBcd{sign: false, value: Vec::new()}
+        FiBcd {
+            sign: false,
+            value: Vec::new(),
+        }
     }
 }
 

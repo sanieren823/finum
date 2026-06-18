@@ -3,20 +3,20 @@ use crate::finum::{FiBcd, FiBin, FiBytes, FiLong};
 use std::error::Error;
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FiError {
     kind: FiErrorKind,
     msg: &'static str,
     number: FiNum,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FiErrorKind {
     NumberTooLarge,
     NumberCannotBeNegative,
     ZeroIsAnInvalidInput,
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FiNum {
     Long(FiLong),
     Bin(FiBin),
@@ -36,9 +36,6 @@ impl Error for FiError {
 }
 
 impl FiError {
-    pub fn kind(self) -> FiErrorKind {
-        self.kind
-    }
     pub fn new(error_kind: FiErrorKind, message: &'static str, num: FiNum) -> FiError {
         FiError {
             kind: error_kind,
@@ -46,12 +43,19 @@ impl FiError {
             number: num,
         }
     }
+
+    pub fn kind(self) -> FiErrorKind {
+        self.kind
+    }
+
     pub fn msg(self) -> &'static str {
         self.msg
     }
+
     pub fn num(self) -> FiNum {
         self.number
     }
+
     pub fn long(self) -> Option<FiLong> {
         match self.number {
             Long(num) => Some(num),

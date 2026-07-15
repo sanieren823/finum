@@ -1,6 +1,8 @@
 use crate::finum::{FiBin, FiLong};
-use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Rem, RemAssign, Neg, Not};
 use crate::operations::math::PowInteger;
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Not, Rem, RemAssign, Sub, SubAssign,
+};
 
 pub trait Floor {
     type Output;
@@ -42,7 +44,6 @@ impl Add for FiBin {
             bin_add(self, num)
         }
     }
-
 }
 
 impl AddAssign for FiBin {
@@ -70,7 +71,21 @@ impl Mul for FiBin {
 
     fn mul(self, num: Self) -> Self {
         let res = bin_mul(self, num);
-        bin_div(res, FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]}).spruce_up()
+        bin_div(
+            res,
+            FiBin {
+                sign: false,
+                value: vec![
+                    false, false, false, false, false, false, false, false, false, false, false,
+                    false, false, false, false, false, false, false, false, false, true, false,
+                    false, false, true, true, false, false, false, true, true, false, true, false,
+                    true, true, false, true, false, false, false, true, true, true, true, false,
+                    true, false, true, true, true, false, false, false, true, true, true, true,
+                    false, true, false, true, true, false, true, false, true,
+                ],
+            },
+        )
+        .spruce_up()
     }
 }
 
@@ -84,7 +99,20 @@ impl Div for FiBin {
     type Output = FiBin;
 
     fn div(self, num: Self) -> Self {
-        let dividend = bin_mul(self, FiBin{sign: false, value: vec![false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true]});
+        let dividend = bin_mul(
+            self,
+            FiBin {
+                sign: false,
+                value: vec![
+                    false, false, false, false, false, false, false, false, false, false, false,
+                    false, false, false, false, false, false, false, false, false, true, false,
+                    false, false, true, true, false, false, false, true, true, false, true, false,
+                    true, true, false, true, false, false, false, true, true, true, true, false,
+                    true, false, true, true, true, false, false, false, true, true, true, true,
+                    false, true, false, true, true, false, true, false, true,
+                ],
+            },
+        );
         bin_div(dividend, num).spruce_up()
     }
 }
@@ -110,16 +138,19 @@ impl RemAssign for FiBin {
 }
 
 impl Neg for FiBin {
-    type Output = FiBin; 
+    type Output = FiBin;
 
     fn neg(self) -> Self::Output {
-        FiBin{sign: !self.sign, value: self.value}
+        FiBin {
+            sign: !self.sign,
+            value: self.value,
+        }
     }
 }
 
 // Implemented as Nothing/Something (something = 1)
 impl Not for FiBin {
-    type Output = FiBin; 
+    type Output = FiBin;
 
     fn not(self) -> Self::Output {
         if self.is_zero() {
@@ -132,7 +163,7 @@ impl Not for FiBin {
 
 // inline??
 
-fn bin_add(num1: FiBin, num2: FiBin) -> FiBin { 
+fn bin_add(num1: FiBin, num2: FiBin) -> FiBin {
     let mut res: Vec<bool> = Vec::new();
     let mut carry: bool = false;
     let mut val1: Vec<bool> = num1.value;
@@ -146,23 +177,25 @@ fn bin_add(num1: FiBin, num2: FiBin) -> FiBin {
             val1.push(false);
         }
     }
-    for i in 0..val1.len() { 
+    for i in 0..val1.len() {
         if val1[i] == val2[i] {
             res.push(carry);
             if val1[i] {
                 carry = true;
             } else {
                 carry = false;
-            }  
+            }
         } else {
             res.push(!carry);
-        } 
+        }
     }
     if carry {
         res.push(true);
     }
-    FiBin{sign: false, value: res}
-
+    FiBin {
+        sign: false,
+        value: res,
+    }
 }
 
 fn bin_sub(num1: FiBin, num2: FiBin) -> FiBin {
@@ -178,7 +211,8 @@ fn bin_sub(num1: FiBin, num2: FiBin) -> FiBin {
         large = num2.value;
         sign = num2.sign;
     }
-    for _i in small.len()..=large.len() { // is there a better way?
+    for _i in small.len()..=large.len() {
+        // is there a better way?
         small.push(false);
     }
     let mut value: Vec<bool> = Vec::new();
@@ -195,7 +229,10 @@ fn bin_sub(num1: FiBin, num2: FiBin) -> FiBin {
             }
         }
     }
-    FiBin{sign: sign, value: value}
+    FiBin {
+        sign: sign,
+        value: value,
+    }
 }
 
 fn bin_mul(num1: FiBin, num2: FiBin) -> FiBin {
@@ -247,7 +284,10 @@ fn bin_mul(num1: FiBin, num2: FiBin) -> FiBin {
     if carries.last() == Some(&true) {
         res.push(true);
     }
-    FiBin{sign: sign, value: res}
+    FiBin {
+        sign: sign,
+        value: res,
+    }
 }
 
 fn bin_div(num1: FiBin, num2: FiBin) -> FiBin {
@@ -262,19 +302,33 @@ fn bin_div(num1: FiBin, num2: FiBin) -> FiBin {
         panic!("You can't divide by 0. Make sure your dividend is not equal to 0.")
     }
     let mut q: Vec<bool> = vec![false; num1.len() + num2.len()];
-    let mut r: FiBin = FiBin{sign: false, value: vec![false]};
+    let mut r: FiBin = FiBin {
+        sign: false,
+        value: vec![false],
+    };
     for i in (0..num1.len()).rev() {
-        
         r.insert(0, num1.value[i]);
         if r >= num2.abs() {
             r -= num2.abs();
             q[i] = true;
         }
-    }  
-    let mut res = FiBin{sign: sign, value: q};
-    let double = bin_mul(r, FiBin{sign: false, value: vec![false, true]});
+    }
+    let mut res = FiBin {
+        sign: sign,
+        value: q,
+    };
+    let double = bin_mul(
+        r,
+        FiBin {
+            sign: false,
+            value: vec![false, true],
+        },
+    );
     if double >= num2.abs() {
-        res += FiBin{sign: sign, value: vec![true]};
+        res += FiBin {
+            sign: sign,
+            value: vec![true],
+        };
     }
     res
 }
@@ -286,16 +340,18 @@ fn bin_rem(num1: FiBin, num2: FiBin) -> FiBin {
     if num2.is_zero() {
         panic!("You can't divide by 0. Make sure your dividend is not equal to 0.")
     }
-    let mut r: FiBin = FiBin{sign: false, value: vec![false]};
+    let mut r: FiBin = FiBin {
+        sign: false,
+        value: vec![false],
+    };
     for i in (0..num1.len()).rev() {
         r.value.insert(0, num1.value[i]);
         // println!("r: {:?}", r.to_string());
-        
+
         if r >= num2.abs() {
             r -= num2.abs();
         }
-        
-    }   
+    }
     // println!("{:?}", q);
     r.sign = sign;
     r
@@ -307,7 +363,6 @@ impl Add<FiLong> for FiLong {
     fn add(self, num: FiLong) -> Self::Output {
         &self + &num
     }
-
 }
 
 impl Add<&FiLong> for FiLong {
@@ -316,7 +371,6 @@ impl Add<&FiLong> for FiLong {
     fn add(self, num: &FiLong) -> Self::Output {
         &self + num
     }
-
 }
 
 impl Add<FiLong> for &FiLong {
@@ -325,7 +379,6 @@ impl Add<FiLong> for &FiLong {
     fn add(self, num: FiLong) -> Self::Output {
         self + &num
     }
-
 }
 
 impl Add<&FiLong> for &FiLong {
@@ -335,7 +388,7 @@ impl Add<&FiLong> for &FiLong {
         let sign1 = self.sign;
         let sign2 = num.sign;
         if sign1 == true && sign2 == true {
-            long_add(self, num) 
+            long_add(self, num)
         } else if sign1 && !sign2 {
             long_sub(num, self)
         } else if !sign1 && sign2 {
@@ -344,7 +397,6 @@ impl Add<&FiLong> for &FiLong {
             long_add(self, num)
         }
     }
-
 }
 
 impl AddAssign<FiLong> for FiLong {
@@ -411,7 +463,6 @@ impl Sub<&FiLong> for &FiLong {
     }
 }
 
-
 impl SubAssign<FiLong> for FiLong {
     fn sub_assign(&mut self, other: FiLong) {
         *self -= &other;
@@ -463,7 +514,10 @@ impl Mul<&FiLong> for &FiLong {
 
     fn mul(self, num: &FiLong) -> Self::Output {
         let res = long_mul(self, num);
-        let sqrt_10_pow_20 = FiLong{sign: false, value: vec![10000000000]};
+        let sqrt_10_pow_20 = FiLong {
+            sign: false,
+            value: vec![10000000000],
+        };
         let factor = single_limb_div(&res, &sqrt_10_pow_20).spruce_up();
         single_limb_div(&factor, &sqrt_10_pow_20).spruce_up()
     }
@@ -478,7 +532,10 @@ impl MulAssign<FiLong> for FiLong {
 impl MulAssign<&FiLong> for FiLong {
     fn mul_assign(&mut self, other: &FiLong) {
         let res = long_mul(self, other);
-        let sqrt_10_pow_20 = FiLong{sign: false, value: vec![10000000000]};
+        let sqrt_10_pow_20 = FiLong {
+            sign: false,
+            value: vec![10000000000],
+        };
         let factor = single_limb_div(&res, &sqrt_10_pow_20).spruce_up();
         *self = single_limb_div(&factor, &sqrt_10_pow_20).spruce_up();
     }
@@ -512,18 +569,23 @@ impl Div<&FiLong> for &FiLong {
     type Output = FiLong;
 
     fn div(self, num: &FiLong) -> Self::Output {
-        let dividend = long_mul(&self, &FiLong{sign: false, value: vec![7766279631452241920, 5]});
+        let dividend = long_mul(
+            &self,
+            &FiLong {
+                sign: false,
+                value: vec![7766279631452241920, 5],
+            },
+        );
         if num.absolute() > dividend.absolute() {
             return FiLong::new();
         }
         match num.len() {
             0 => panic!("You cannot divide by 0 in any cases."),
             1 => single_limb_div(&dividend, &num).spruce_up(),
-            _=> algorithm_d_div(&dividend, &num).spruce_up(),
+            _ => algorithm_d_div(&dividend.spruce_up(), &num.spruce_up()).spruce_up(),
         }
     }
 }
-
 
 impl DivAssign<FiLong> for FiLong {
     fn div_assign(&mut self, other: Self) {
@@ -533,14 +595,20 @@ impl DivAssign<FiLong> for FiLong {
 
 impl DivAssign<&FiLong> for FiLong {
     fn div_assign(&mut self, other: &FiLong) {
-        let dividend = long_mul(&self, &FiLong{sign: false, value: vec![7766279631452241920, 5]});
+        let dividend = long_mul(
+            &self,
+            &FiLong {
+                sign: false,
+                value: vec![7766279631452241920, 5],
+            },
+        );
         if other.absolute() > dividend.absolute() {
             *self = FiLong::new();
         }
         *self = match other.len() {
             0 => panic!("You cannot divide by 0 in any cases."),
             1 => single_limb_div(&dividend, &other).spruce_up(),
-            _=> algorithm_d_div(&dividend, &other).spruce_up(),
+            _ => algorithm_d_div(&dividend.spruce_up(), &other.spruce_up()).spruce_up(),
         }
     }
 }
@@ -579,7 +647,7 @@ impl Rem<&FiLong> for &FiLong {
         match num.len() {
             0 => self.clone(),
             1 => single_limb_rem(&self, &num).spruce_up(),
-            _=> algorithm_d_rem(&self, &num).spruce_up(),
+            _ => algorithm_d_rem(&self.spruce_up(), &num.spruce_up()).spruce_up(),
         }
     }
 }
@@ -598,51 +666,61 @@ impl RemAssign<&FiLong> for FiLong {
             *self = match other.len() {
                 0 => self.clone(),
                 1 => single_limb_rem(&self, &other).spruce_up(),
-                _=> algorithm_d_rem(&self, &other).spruce_up(),
+                _ => algorithm_d_rem(&self.spruce_up(), &other.spruce_up()).spruce_up(),
             }
         }
-        
     }
 }
 
 impl Neg for FiLong {
-    type Output = FiLong; 
+    type Output = FiLong;
 
     fn neg(self) -> Self::Output {
-        FiLong{sign: !self.sign, value: self.value}
+        FiLong {
+            sign: !self.sign,
+            value: self.value,
+        }
     }
 }
 
 impl Neg for &FiLong {
-    type Output = FiLong; 
+    type Output = FiLong;
 
     fn neg(self) -> Self::Output {
-        FiLong{sign: !self.sign, value: self.value.clone()}
+        FiLong {
+            sign: !self.sign,
+            value: self.value.clone(),
+        }
     }
 }
 
 #[inline(always)]
 fn low_bits(num: u128) -> u128 {
-	(num << 64) >> 64
+    (num << 64) >> 64
 }
 
 #[inline(always)]
 fn high_bits(num: u128) -> u128 {
-	num >> 64
+    num >> 64
 }
 fn long_add(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut carry: u128 = 0;
     let bigger: &FiLong;
     let smaller: &FiLong;
-    if num1.absolute() >= num2.absolute() { // assigns the key variables after comparing the sizes of the parameters
+    if num1.absolute() >= num2.absolute() {
+        // assigns the key variables after comparing the sizes of the parameters
         bigger = num1;
         smaller = num2;
     } else {
         bigger = num2;
         smaller = num1;
     }
-    let mut result: FiLong = FiLong{sign: false, value: Vec::with_capacity(bigger.len() + 1)};
-    for i in 0..bigger.len() { // standard carry-addition
+    let mut result: FiLong = FiLong {
+        sign: false,
+        value: Vec::with_capacity(bigger.len() + 1),
+    };
+    for i in 0..bigger.len() {
+        // standard carry-addition
         let res: u128;
         if smaller.len() <= i {
             res = bigger[i] as u128 + carry;
@@ -651,9 +729,9 @@ fn long_add(num1: &FiLong, num2: &FiLong) -> FiLong {
         }
         carry = high_bits(res);
         result.push(low_bits(res) as u64);
-
     }
-    if carry != 0 { // chechs whether the last calculation produced a number larger than the u64 limit and adds it to the output if that's the case
+    if carry != 0 {
+        // chechs whether the last calculation produced a number larger than the u64 limit and adds it to the output if that's the case
         result.push(carry as u64);
     }
     result.sign = bigger.sign;
@@ -664,15 +742,20 @@ fn long_sub(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut borrow: u128 = 0;
     let bigger: &FiLong;
     let smaller: &FiLong;
-    if num1.absolute() >= num2.absolute() { // assigns the key variables after comparing the sizes of the parameters
+    if num1.absolute() >= num2.absolute() {
+        // assigns the key variables after comparing the sizes of the parameters
         bigger = num1;
         smaller = num2;
     } else {
         bigger = num2;
         smaller = num1;
     }
-    let mut result: FiLong = FiLong{sign: false, value: Vec::with_capacity(bigger.len())};
-    for i in 0..bigger.len() { // standard borrow-subtraction
+    let mut result: FiLong = FiLong {
+        sign: false,
+        value: Vec::with_capacity(bigger.len()),
+    };
+    for i in 0..bigger.len() {
+        // standard borrow-subtraction
         if smaller.len() <= i {
             if borrow as u64 > bigger[i] {
                 result.push(u64::MAX);
@@ -698,10 +781,14 @@ fn long_mul(num1: &FiLong, num2: &FiLong) -> FiLong {
     }
     let num1 = num1.spruce_up(); // these two lines are important as the length of a FiLong doesn't necessarily correlate with the used digits
     let num2 = num2.spruce_up();
-    let len = num1.len() + num2.len(); 
-    let mut result: FiLong = FiLong{sign: num1.sign ^ num2.sign, value: Vec::with_capacity(len)}; 
+    let len = num1.len() + num2.len();
+    let mut result: FiLong = FiLong {
+        sign: num1.sign ^ num2.sign,
+        value: Vec::with_capacity(len),
+    };
     result.resize(len, 0);
-    for i in 0..num1.len() { // somewhat standard multiplication
+    for i in 0..num1.len() {
+        // somewhat standard multiplication
         let mut carry: u128 = 0;
         for j in 0..num2.len() {
             let prod: u128 = num1[i] as u128 * num2[j] as u128;
@@ -716,7 +803,6 @@ fn long_mul(num1: &FiLong, num2: &FiLong) -> FiLong {
     // }
     result.spruce_up()
 }
-
 
 // regular long division --> fully tested stays for redundancy purposes
 // fn long_div(num1: &FiLong, num2: &FiLong) -> FiLong {
@@ -748,7 +834,7 @@ fn long_mul(num1: &FiLong, num2: &FiLong) -> FiLong {
 //             r -= num2.absolute();
 //             q |= &bit_mask;
 //         }
-        
+
 //     }
 //     r <<= 1;
 //     if r >= num2.absolute() { // rounds if necessary
@@ -776,11 +862,10 @@ fn long_mul(num1: &FiLong, num2: &FiLong) -> FiLong {
 //         if r >= num2.absolute() {
 //             r -= num2.absolute();
 //         }
-//     }   
+//     }
 //     r.sign = num1.sign;
 //     r.spruce_up()
 // }
-
 
 impl Floor for FiLong {
     type Output = FiLong;
@@ -814,7 +899,7 @@ impl Ceil for FiLong {
         match len {
             0 => FiLong::new(),
             1 => FiLong::one(),
-            _ => { 
+            _ => {
                 let binary = algorithm_d_ceil(&self, &FiLong::one());
                 long_mul(&binary, &FiLong::one())
             }
@@ -830,12 +915,11 @@ impl Ceil for &FiLong {
         match len {
             0 => FiLong::new(),
             1 => FiLong::one(),
-            _ => { 
+            _ => {
                 let binary = algorithm_d_ceil(self, &FiLong::one());
                 long_mul(&binary, &FiLong::one())
             }
         }
-        
     }
 }
 
@@ -876,7 +960,7 @@ impl RoundN<usize> for FiLong {
             let binary = match factor.len() {
                 0 => panic!("You cannot divide by 0 in any cases."),
                 1 => single_limb_div(&self, &factor).spruce_up(),
-                _=> algorithm_d_div(&self, &factor).spruce_up(),
+                _ => algorithm_d_div(&self, &factor).spruce_up(),
             };
             long_mul(&binary, &factor)
         }
@@ -895,7 +979,7 @@ impl RoundN<&usize> for FiLong {
             let binary = match factor.len() {
                 0 => panic!("You cannot divide by 0 in any cases."),
                 1 => single_limb_div(&self, &factor).spruce_up(),
-                _=> algorithm_d_div(&self, &factor).spruce_up(),
+                _ => algorithm_d_div(&self, &factor).spruce_up(),
             };
             long_mul(&binary, &factor)
         }
@@ -915,7 +999,7 @@ impl RoundN<usize> for &FiLong {
             let binary = match factor.len() {
                 0 => panic!("You cannot divide by 0 in any cases."),
                 1 => single_limb_div(self, &factor).spruce_up(),
-                _=> algorithm_d_div(self, &factor).spruce_up(),
+                _ => algorithm_d_div(self, &factor).spruce_up(),
             };
             long_mul(&binary, &factor)
         }
@@ -935,13 +1019,12 @@ impl RoundN<&usize> for &FiLong {
             let binary = match factor.len() {
                 0 => panic!("You cannot divide by 0 in any cases."),
                 1 => single_limb_div(self, &factor).spruce_up(),
-                _=> algorithm_d_div(self, &factor).spruce_up(),
+                _ => algorithm_d_div(self, &factor).spruce_up(),
             };
             long_mul(&binary, &factor)
         }
     }
 }
-
 
 macro_rules! base_types_arithmetic {
     ($type:ty) => {
@@ -971,7 +1054,7 @@ macro_rules! base_types_arithmetic {
 
             fn add(self, num: &$type) -> Self::Output {
                 self + FiLong::from(*num)
-            }  
+            }
         }
         impl AddAssign<$type> for FiLong {
             fn add_assign(&mut self, num: $type) {
@@ -981,7 +1064,7 @@ macro_rules! base_types_arithmetic {
         impl AddAssign<&$type> for FiLong {
             fn add_assign(&mut self, num: &$type) {
                 *self += FiLong::from(*num);
-            }  
+            }
         }
         impl Sub<$type> for FiLong {
             type Output = FiLong;
@@ -1009,7 +1092,7 @@ macro_rules! base_types_arithmetic {
 
             fn sub(self, num: &$type) -> Self::Output {
                 self - FiLong::from(*num)
-            }  
+            }
         }
         impl SubAssign<$type> for FiLong {
             fn sub_assign(&mut self, num: $type) {
@@ -1019,7 +1102,7 @@ macro_rules! base_types_arithmetic {
         impl SubAssign<&$type> for FiLong {
             fn sub_assign(&mut self, num: &$type) {
                 *self -= FiLong::from(*num);
-            }  
+            }
         }
         impl Mul<$type> for FiLong {
             type Output = FiLong;
@@ -1047,7 +1130,7 @@ macro_rules! base_types_arithmetic {
 
             fn mul(self, num: &$type) -> Self::Output {
                 self * FiLong::from(*num)
-            }  
+            }
         }
         impl MulAssign<$type> for FiLong {
             fn mul_assign(&mut self, num: $type) {
@@ -1057,7 +1140,7 @@ macro_rules! base_types_arithmetic {
         impl MulAssign<&$type> for FiLong {
             fn mul_assign(&mut self, num: &$type) {
                 *self *= FiLong::from(*num);
-            }  
+            }
         }
         impl Div<$type> for FiLong {
             type Output = FiLong;
@@ -1085,7 +1168,7 @@ macro_rules! base_types_arithmetic {
 
             fn div(self, num: &$type) -> Self::Output {
                 self / FiLong::from(*num)
-            }  
+            }
         }
         impl DivAssign<$type> for FiLong {
             fn div_assign(&mut self, num: $type) {
@@ -1095,7 +1178,7 @@ macro_rules! base_types_arithmetic {
         impl DivAssign<&$type> for FiLong {
             fn div_assign(&mut self, num: &$type) {
                 *self /= FiLong::from(*num);
-            }  
+            }
         }
         impl Rem<$type> for FiLong {
             type Output = FiLong;
@@ -1123,7 +1206,7 @@ macro_rules! base_types_arithmetic {
 
             fn rem(self, num: &$type) -> Self::Output {
                 self % FiLong::from(*num)
-            }  
+            }
         }
         impl RemAssign<$type> for FiLong {
             fn rem_assign(&mut self, num: $type) {
@@ -1133,147 +1216,147 @@ macro_rules! base_types_arithmetic {
         impl RemAssign<&$type> for FiLong {
             fn rem_assign(&mut self, num: &$type) {
                 *self %= FiLong::from(*num);
-            }  
+            }
         }
         impl Add<FiLong> for $type {
             type Output = FiLong;
 
             fn add(self, num: FiLong) -> Self::Output {
                 FiLong::from(self) + num
-            }  
+            }
         }
         impl Add<&FiLong> for $type {
             type Output = FiLong;
 
             fn add(self, num: &FiLong) -> Self::Output {
                 FiLong::from(self) + num
-            }  
+            }
         }
         impl Add<FiLong> for &$type {
             type Output = FiLong;
 
             fn add(self, num: FiLong) -> Self::Output {
                 FiLong::from(*self) + num
-            }  
+            }
         }
         impl Add<&FiLong> for &$type {
             type Output = FiLong;
 
             fn add(self, num: &FiLong) -> Self::Output {
                 FiLong::from(*self) + num
-            }  
+            }
         }
         impl Sub<FiLong> for $type {
             type Output = FiLong;
 
             fn sub(self, num: FiLong) -> Self::Output {
                 FiLong::from(self) - num
-            }  
+            }
         }
         impl Sub<&FiLong> for $type {
             type Output = FiLong;
 
             fn sub(self, num: &FiLong) -> Self::Output {
                 FiLong::from(self) - num
-            }  
+            }
         }
         impl Sub<FiLong> for &$type {
             type Output = FiLong;
 
             fn sub(self, num: FiLong) -> Self::Output {
                 FiLong::from(*self) - num
-            }  
+            }
         }
         impl Sub<&FiLong> for &$type {
             type Output = FiLong;
 
             fn sub(self, num: &FiLong) -> Self::Output {
                 FiLong::from(*self) - num
-            }  
+            }
         }
         impl Mul<FiLong> for $type {
             type Output = FiLong;
 
             fn mul(self, num: FiLong) -> Self::Output {
                 FiLong::from(self) * num
-            }  
+            }
         }
         impl Mul<&FiLong> for $type {
             type Output = FiLong;
 
             fn mul(self, num: &FiLong) -> Self::Output {
                 FiLong::from(self) * num
-            }  
+            }
         }
         impl Mul<FiLong> for &$type {
             type Output = FiLong;
 
             fn mul(self, num: FiLong) -> Self::Output {
                 FiLong::from(*self) * num
-            }  
+            }
         }
         impl Mul<&FiLong> for &$type {
             type Output = FiLong;
 
             fn mul(self, num: &FiLong) -> Self::Output {
                 FiLong::from(*self) * num
-            }  
+            }
         }
         impl Div<FiLong> for $type {
             type Output = FiLong;
 
             fn div(self, num: FiLong) -> Self::Output {
                 FiLong::from(self) / num
-            }  
+            }
         }
         impl Div<&FiLong> for $type {
             type Output = FiLong;
 
             fn div(self, num: &FiLong) -> Self::Output {
                 FiLong::from(self) / num
-            }  
+            }
         }
         impl Div<FiLong> for &$type {
             type Output = FiLong;
 
             fn div(self, num: FiLong) -> Self::Output {
                 FiLong::from(*self) / num
-            }  
+            }
         }
         impl Div<&FiLong> for &$type {
             type Output = FiLong;
 
             fn div(self, num: &FiLong) -> Self::Output {
                 FiLong::from(*self) / num
-            }  
+            }
         }
         impl Rem<FiLong> for $type {
             type Output = FiLong;
 
             fn rem(self, num: FiLong) -> Self::Output {
                 FiLong::from(self) % num
-            }  
+            }
         }
         impl Rem<&FiLong> for $type {
             type Output = FiLong;
 
             fn rem(self, num: &FiLong) -> Self::Output {
                 FiLong::from(self) % num
-            }  
+            }
         }
         impl Rem<FiLong> for &$type {
             type Output = FiLong;
 
             fn rem(self, num: FiLong) -> Self::Output {
                 FiLong::from(*self) % num
-            }  
+            }
         }
         impl Rem<&FiLong> for &$type {
             type Output = FiLong;
 
             fn rem(self, num: &FiLong) -> Self::Output {
                 FiLong::from(*self) % num
-            }  
+            }
         }
     };
 }
@@ -1293,19 +1376,8 @@ base_types_arithmetic!(u128);
 base_types_arithmetic!(f32);
 base_types_arithmetic!(f64);
 
-
-
-
-
-
-
-
-
-
-
-
-
-pub fn single_limb_div(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
+pub fn single_limb_div(num1: &FiLong, num2: &FiLong) -> FiLong {
+    // remove pub
     let sign; // "calculates" the sign of the result
     if num1.sign == num2.sign {
         sign = false;
@@ -1319,7 +1391,10 @@ pub fn single_limb_div(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
     if len == 0 {
         return FiLong::new();
     }
-    let mut res = FiLong{sign: sign, value: Vec::with_capacity(len)};
+    let mut res = FiLong {
+        sign: sign,
+        value: Vec::with_capacity(len),
+    };
     res.resize(len, 0);
     let mut carry: u128 = num1[len - 1] as u128;
     for i in (0..len - 1).rev() {
@@ -1336,7 +1411,8 @@ pub fn single_limb_div(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
     res
 }
 
-fn single_limb_rem(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
+fn single_limb_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
+    // remove pub
     let sign; // "calculates" the sign of the result
     if num1.sign == num2.sign {
         sign = false;
@@ -1353,12 +1429,14 @@ fn single_limb_rem(num1: &FiLong, num2: &FiLong) -> FiLong { // remove pub
         let rem = num % num2[0] as u128;
         carry = rem;
     }
-    FiLong{sign: sign, value: vec![carry as u64]}
+    FiLong {
+        sign: sign,
+        value: vec![carry as u64],
+    }
 }
 
-
 // https://skanthak.hier-im-netz.de/division.html
-fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong { 
+fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     // important constants
     let n = num2.len();
     let m = num1.len() - n;
@@ -1369,13 +1447,12 @@ fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut res = FiLong::with_capacity(m);
     res.sign = sign;
     res.resize(m + 1, 0);
-    
+
     // initial multiplication
     let s: u32 = num2[n - 1].leading_zeros();
-    
+
     let mut v: Vec<u64> = Vec::with_capacity(n);
     for i in 0..n {
-        
         let high_bits = num2.value[i] << s;
         let low_bits = if i > 0 && s != 0 {
             num2.value[i - 1] >> (64 - s)
@@ -1397,19 +1474,18 @@ fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     if s == 0 {
         u.push(0)
     } else {
-        u.push(num1.value[num1.len() - 1] >> (64 - s)); 
+        u.push(num1.value[num1.len() - 1] >> (64 - s));
     }
-
 
     let mut q: u128;
     let mut r: u128;
     for j in (0..=m).rev() {
-        q = (u[n + j] as u128 * B + u[n + j - 1] as u128) / v[n - 1] as u128; 
+        q = (u[n + j] as u128 * B + u[n + j - 1] as u128) / v[n - 1] as u128;
         r = (u[n + j] as u128 * B + u[n + j - 1] as u128) % v[n - 1] as u128;
         loop {
             if (q >= B) || q * v[n - 2] as u128 > (r * B + u[n + j - 2] as u128) {
                 q -= 1;
-                
+
                 r += v[n - 1] as u128;
                 if r > B {
                     break;
@@ -1445,21 +1521,23 @@ fn algorithm_d_div(num1: &FiLong, num2: &FiLong) -> FiLong {
     rem.resize(u.len(), 0);
     for i in (0..u.len()).rev() {
         rem[i] |= u[i] >> s;
-        if i > 0 && s != 0{
+        if i > 0 && s != 0 {
             rem[i - 1] |= u[i] << (64 - s);
-
         }
     }
-    
 
-    let fi_rem = FiLong{sign: false, value: rem}.spruce_up();
+    let fi_rem = FiLong {
+        sign: false,
+        value: rem,
+    }
+    .spruce_up();
     if fi_rem * FiLong::two() > num2.absolute() {
         res += FiLong::smallest_val();
     }
     res
 }
 
-fn algorithm_d_floor(num1: &FiLong, num2: &FiLong) -> FiLong { 
+fn algorithm_d_floor(num1: &FiLong, num2: &FiLong) -> FiLong {
     // important constants
     let n = num2.len();
     let m = num1.len() - n;
@@ -1470,13 +1548,12 @@ fn algorithm_d_floor(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut res = FiLong::with_capacity(m);
     res.sign = sign;
     res.resize(m + 1, 0);
-    
+
     // initial multiplication
     let s: u32 = num2[n - 1].leading_zeros();
-    
+
     let mut v: Vec<u64> = Vec::with_capacity(n);
     for i in 0..n {
-        
         let high_bits = num2.value[i] << s;
         let low_bits = if i > 0 && s != 0 {
             num2.value[i - 1] >> (64 - s)
@@ -1498,18 +1575,18 @@ fn algorithm_d_floor(num1: &FiLong, num2: &FiLong) -> FiLong {
     if s == 0 {
         u.push(0)
     } else {
-        u.push(num1.value[num1.len() - 1] >> (64 - s)); 
-    } 
+        u.push(num1.value[num1.len() - 1] >> (64 - s));
+    }
 
     let mut q: u128;
     let mut r: u128;
     for j in (0..=m).rev() {
-        q = (u[n + j] as u128 * B + u[n + j - 1] as u128) / v[n - 1] as u128; 
+        q = (u[n + j] as u128 * B + u[n + j - 1] as u128) / v[n - 1] as u128;
         r = (u[n + j] as u128 * B + u[n + j - 1] as u128) % v[n - 1] as u128;
         loop {
             if (q >= B) || q * v[n - 2] as u128 > (r * B + u[n + j - 2] as u128) {
                 q -= 1;
-                
+
                 r += v[n - 1] as u128;
                 if r > B {
                     break;
@@ -1544,7 +1621,7 @@ fn algorithm_d_floor(num1: &FiLong, num2: &FiLong) -> FiLong {
     res
 }
 
-fn algorithm_d_ceil(num1: &FiLong, num2: &FiLong) -> FiLong { 
+fn algorithm_d_ceil(num1: &FiLong, num2: &FiLong) -> FiLong {
     // important constants
     let n = num2.len();
     let m = num1.len() - n;
@@ -1555,13 +1632,12 @@ fn algorithm_d_ceil(num1: &FiLong, num2: &FiLong) -> FiLong {
     let mut res = FiLong::with_capacity(m);
     res.sign = sign;
     res.resize(m + 1, 0);
-    
+
     // initial multiplication
     let s: u32 = num2[n - 1].leading_zeros();
-    
+
     let mut v: Vec<u64> = Vec::with_capacity(n);
     for i in 0..n {
-        
         let high_bits = num2.value[i] << s;
         let low_bits = if i > 0 && s != 0 {
             num2.value[i - 1] >> (64 - s)
@@ -1583,18 +1659,18 @@ fn algorithm_d_ceil(num1: &FiLong, num2: &FiLong) -> FiLong {
     if s == 0 {
         u.push(0)
     } else {
-        u.push(num1.value[num1.len() - 1] >> (64 - s)); 
+        u.push(num1.value[num1.len() - 1] >> (64 - s));
     }
 
     let mut q: u128;
     let mut r: u128;
     for j in (0..=m).rev() {
-        q = (u[n + j] as u128 * B + u[n + j - 1] as u128) / v[n - 1] as u128; 
+        q = (u[n + j] as u128 * B + u[n + j - 1] as u128) / v[n - 1] as u128;
         r = (u[n + j] as u128 * B + u[n + j - 1] as u128) % v[n - 1] as u128;
         loop {
             if (q >= B) || q * v[n - 2] as u128 > (r * B + u[n + j - 2] as u128) {
                 q -= 1;
-                
+
                 r += v[n - 1] as u128;
                 if r > B {
                     break;
@@ -1630,13 +1706,16 @@ fn algorithm_d_ceil(num1: &FiLong, num2: &FiLong) -> FiLong {
     rem.resize(u.len(), 0);
     for i in (0..u.len()).rev() {
         rem[i] |= u[i] >> s;
-        if i > 0  && s != 0 {
+        if i > 0 && s != 0 {
             rem[i - 1] |= u[i] << (64 - s);
         }
     }
-    
 
-    let fi_rem = FiLong{sign: false, value: rem}.spruce_up();
+    let fi_rem = FiLong {
+        sign: false,
+        value: rem,
+    }
+    .spruce_up();
     if !fi_rem.is_zero() {
         res += FiLong::smallest_val();
     }
@@ -1644,12 +1723,12 @@ fn algorithm_d_ceil(num1: &FiLong, num2: &FiLong) -> FiLong {
 }
 
 // https://skanthak.hier-im-netz.de/division.html
-fn algorithm_d_rem(num1: &FiLong, num2: &FiLong) -> FiLong { 
+fn algorithm_d_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
     // important constants
     let n = num2.len();
     let m = num1.len() - n;
     const B: u128 = u64::MAX as u128 + 1;
-    
+
     // initial multiplication
     let s = num2[n - 1].leading_zeros();
     let mut v: Vec<u64> = Vec::with_capacity(n);
@@ -1671,23 +1750,22 @@ fn algorithm_d_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
             0
         };
         u.push(high_bits | low_bits);
-    } 
-    if s == 0  {
+    }
+    if s == 0 {
         u.push(0);
     } else {
-        u.push(num1.value[num1.len() - 1] >> (64 - s)); 
+        u.push(num1.value[num1.len() - 1] >> (64 - s));
     }
-
 
     let mut q: u128;
     let mut r: u128;
     for j in (0..=m).rev() {
-        q = (u[n + j] as u128 * B + u[n + j - 1] as u128) / v[n - 1] as u128; 
+        q = (u[n + j] as u128 * B + u[n + j - 1] as u128) / v[n - 1] as u128;
         r = (u[n + j] as u128 * B + u[n + j - 1] as u128) % v[n - 1] as u128;
         loop {
             if (q >= B) || q * v[n - 2] as u128 > (r * B + u[n + j - 2] as u128) {
                 q -= 1;
-                
+
                 r += v[n - 1] as u128;
                 if r > B {
                     break;
@@ -1728,7 +1806,10 @@ fn algorithm_d_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
             result[i - 1] |= u[i] << (64 - s);
         }
     }
-    FiLong{sign: num1.sign, value: result}
+    FiLong {
+        sign: num1.sign,
+        value: result,
+    }
 }
 
 fn multiply(vec: &mut Vec<u64>, factor: u128, start: usize) {
@@ -1740,7 +1821,6 @@ fn multiply(vec: &mut Vec<u64>, factor: u128, start: usize) {
     }
     vec.push(carry as u64);
 }
-
 
 fn compare(val1: &Vec<u64>, val2: &Vec<u64>, summand: usize, n: usize) -> bool {
     for i in (0..=n).rev() {

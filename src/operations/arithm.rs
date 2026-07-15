@@ -1777,7 +1777,7 @@ fn algorithm_d_rem(num1: &FiLong, num2: &FiLong) -> FiLong {
         let mut product = v.clone();
         multiply(&mut product, q, 0);
         // checks if value would be negative
-        if compare(&u, &product, j, n) {
+        if compare(&u, &product, j, n) || product[n] > u[n + j] {
             q -= 1;
             product = v.clone();
             multiply(&mut product, q, 0);
@@ -1823,7 +1823,7 @@ fn multiply(vec: &mut Vec<u64>, factor: u128, start: usize) {
 }
 
 fn compare(val1: &Vec<u64>, val2: &Vec<u64>, summand: usize, n: usize) -> bool {
-    for i in (0..=n).rev() {
+    for i in (0..n).rev() {
         if val2[i] > val1[i + summand] {
             return true;
         } else if val2[i] < val1[i + summand] {

@@ -9,7 +9,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-finum = "0.11.1"
+finum = "0.11.2"
 
 ## Precision
 

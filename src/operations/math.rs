@@ -1730,7 +1730,12 @@ impl Trigonometry for FiLong {
 
     fn arctan(self) -> Self::Output {
         if self.absolute() > FiLong::one() {
-            panic!("The inverse functions of trigonometric functions are defined for [-1; 1]")
+            let sign = if self > FiLong::new() {
+                FiLong::one()
+            } else {
+                -FiLong::one()
+            };
+            return sign * FiLong::pi() / FiLong::two() - (FiLong::one() / self).arctan();
         }
         let mut switch = true;
         let mut sum = FiLong::ten() * &self;

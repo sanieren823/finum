@@ -10,6 +10,7 @@ Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
 finum = "0.11.1"
+```
 
 ## Precision
 
